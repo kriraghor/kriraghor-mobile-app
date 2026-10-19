@@ -23,8 +23,9 @@ export async function registerForPush(): Promise<PushRegistration> {
 
   // Android 13+: the permission prompt only appears once a channel exists.
   if (Platform.OS === 'android') {
+    // The channel id stays 'tournaments' so phones that already have it keep it; only the name changes.
     await Notifications.setNotificationChannelAsync('tournaments', {
-      name: 'Tournaments',
+      name: 'Events',
       description: 'Room IDs, match starts and results',
       importance: Notifications.AndroidImportance.HIGH,
       lightColor: '#0B7A4B',

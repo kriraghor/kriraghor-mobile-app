@@ -52,7 +52,7 @@ export default function MeScreen() {
       <View style={styles.card}>
         <ThemedText type="smallBold">Notifications</ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
-          {push ? (push.status === 'granted' ? `Registered: ${push.token}` : push.reason) : 'Tournament alerts (room IDs, results) arrive with M08.'}
+          {push ? (push.status === 'granted' ? `Registered: ${push.token}` : push.reason) : 'Event alerts (room IDs, results) arrive with M08.'}
         </ThemedText>
         <Button title="Enable notifications" variant="outline" onPress={() => void registerForPush().then(setPush)} />
       </View>

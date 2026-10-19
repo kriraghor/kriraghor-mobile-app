@@ -18,7 +18,7 @@ export default function Home() {
         </ThemedText>
         <ThemedText style={[styles.title, { color: theme.prize }]}>Win real prizes.</ThemedText>
         <ThemedText style={[styles.sub, { color: '#B9C6BE' }]}>
-          Tournaments, grounds and gear in one account.
+          Events, venues and gear in one account.
         </ThemedText>
       </View>
       <View style={styles.actions}>
