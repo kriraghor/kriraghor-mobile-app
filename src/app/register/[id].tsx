@@ -121,6 +121,7 @@ export default function RegisterScreen() {
       <View style={[styles.page, { flex: 1, backgroundColor: theme.background }]}>
         {header}
         <Notice text={t('register.noSquad', { game: gameName })} />
+        <Button title={t('squads.title')} onPress={() => router.push('/squads')} />
       </View>
     );
   }

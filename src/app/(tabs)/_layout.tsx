@@ -46,8 +46,8 @@ export default function TabsLayout() {
           name={tab.name}
           options={{
             title: t(`tabs.${tab.label}`),
-            // Home has no header; Events has its own stack (list, then detail).
-            headerShown: tab.name !== 'index' && tab.name !== 'events',
+            // Home has no header; Events and Ranks have their own stacks (list, then a page).
+            headerShown: !['index', 'events', 'ranks'].includes(tab.name),
             tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name={tab.icon} color={color} size={size} />,
             tabBarBadge: tab.name === 'account' ? badge : undefined,
             tabBarBadgeStyle: { backgroundColor: theme.brand, color: theme.onBrand },

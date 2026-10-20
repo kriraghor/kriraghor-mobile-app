@@ -35,6 +35,10 @@ function Navigator({ ready }: { ready: boolean }) {
       <Stack.Screen name="result/[matchId]" options={{ title: t('result.title') }} />
       <Stack.Screen name="game-ids" options={{ title: t('gameIds.title') }} />
       <Stack.Screen name="notifications" options={{ title: t('notifications.title') }} />
+      <Stack.Screen name="squads" options={{ title: t('squads.title') }} />
+      <Stack.Screen name="split/[registrationId]" options={{ title: t('split.title') }} />
+      <Stack.Screen name="winnings" options={{ title: t('winnings.title') }} />
+      <Stack.Screen name="payout-account" options={{ title: t('payout.title') }} />
     </Stack>
   );
 }

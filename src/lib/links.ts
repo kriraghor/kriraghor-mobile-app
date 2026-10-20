@@ -11,6 +11,10 @@ const RULES: [RegExp, (m: RegExpMatchArray) => string][] = [
   [/^\/me\/matches\/?$/, () => '/matches'],
   [/^\/(?:events|tournaments)\/([\w-]+)$/, (m) => `/events/${m[1]}`],
   [/^\/me\/esports\/profiles\/?$/, () => '/game-ids'],
+  [/^\/me\/(?:esports\/)?winnings\/?$/, () => '/winnings'],
+  [/^\/me\/(?:esports\/)?squads\/?$/, () => '/squads'],
+  [/^\/me\/payout-account\/?$/, () => '/payout-account'],
+  [/^\/p\/([\w.-]+)$/, (m) => `/ranks/${m[1]}`],
 ];
 
 export function linkToRoute(link: string | null | undefined): string {

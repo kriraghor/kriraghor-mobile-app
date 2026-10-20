@@ -62,6 +62,8 @@ export default function AccountScreen() {
 
       <NavRow icon="bell-outline" label={t('notifications.title')} onPress={() => router.push('/notifications')} />
       <NavRow icon="gamepad-variant-outline" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
+      <NavRow icon="account-group-outline" label={t('squads.title')} onPress={() => router.push('/squads')} />
+      <NavRow icon="trophy-outline" label={t('winnings.title')} onPress={() => router.push('/winnings')} />
 
       <LanguagePicker />
 
@@ -107,7 +109,7 @@ function LanguagePicker({ padded }: { padded?: boolean }) {
 }
 
 /** A row that opens another screen (48px target, icon and label). */
-function NavRow({ icon, label, onPress }: { icon: 'bell-outline' | 'gamepad-variant-outline'; label: string; onPress: () => void }) {
+function NavRow({ icon, label, onPress }: { icon: 'bell-outline' | 'gamepad-variant-outline' | 'account-group-outline' | 'trophy-outline'; label: string; onPress: () => void }) {
   const theme = useTheme();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.nav, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, pressed && { opacity: 0.85 }]}>

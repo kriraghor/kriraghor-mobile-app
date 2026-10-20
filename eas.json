@@ -10,7 +10,8 @@
       "env": {
         "APP_ENV": "development",
         "API_URL": "http://10.0.2.2:4000/api/v1",
-        "REALTIME_URL": "http://10.0.2.2:4001"
+        "REALTIME_URL": "http://10.0.2.2:4001",
+        "WEB_URL": "http://10.0.2.2:3000"
       }
     },
     "preview": {
@@ -19,7 +20,8 @@
       "env": {
         "APP_ENV": "preview",
         "API_URL": "https://api.staging.kriraghor.com/api/v1",
-        "REALTIME_URL": "https://api.staging.kriraghor.com"
+        "REALTIME_URL": "https://api.staging.kriraghor.com",
+        "WEB_URL": "https://www.staging.kriraghor.com"
       }
     },
     "production": {
@@ -28,7 +30,8 @@
       "env": {
         "APP_ENV": "production",
         "API_URL": "https://api.kriraghor.com/api/v1",
-        "REALTIME_URL": "https://api.kriraghor.com"
+        "REALTIME_URL": "https://api.kriraghor.com",
+        "WEB_URL": "https://www.kriraghor.com"
       }
     }
   },

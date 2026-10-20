@@ -49,6 +49,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Android emulators reach the host machine at 10.0.2.2; physical devices need the LAN IP.
     apiUrl: process.env.API_URL ?? 'http://10.0.2.2:4000/api/v1',
     realtimeUrl: process.env.REALTIME_URL ?? 'http://10.0.2.2:4001',
+    // kriraghor.com: NID verification and the full payout settings open there.
+    webUrl: process.env.WEB_URL ?? 'http://10.0.2.2:3000',
     eas: { projectId: process.env.EAS_PROJECT_ID },
   },
 });

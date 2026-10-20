@@ -2,6 +2,7 @@ import { randomUUID } from 'expo-crypto';
 import { config } from './config';
 import type { Game, Profile, RegisterResult, Registration, Squad, StatusGroup, TournamentCard, TournamentDetail } from './esports';
 import { STATUS_GROUPS } from './esports';
+import type { Gate, Leaderboard, PayoutAccount, PlayerPage, TopPlayer, Winnings, Withdrawable, Withdrawal } from './player';
 import { createAuthFetch } from './session';
 
 /**
@@ -101,6 +102,34 @@ export const getMatch = (matchId: string) => call<MatchResult>('GET', `/esports/
 export const addEvidence = (matchId: string, body: { kind: 'screenshot'; key: string; note?: string } | { kind: 'video_link'; url: string; note?: string }) =>
   call<{ id: string }>('POST', `/me/esports/matches/${matchId}/evidence`, { body });
 export const openDispute = (matchId: string, body: { reason: string; evidenceIds: string[] }) => call<{ id: string; caseCode: string }>('POST', `/me/esports/matches/${matchId}/disputes`, { body });
+
+// ---------------------------------------------------------------- rankings and players (M21-FR-27, FR-28)
+export const leaderboard = (game: string, scope: 'rolling' | 'season', season?: string) =>
+  call<Leaderboard>('GET', '/esports/leaderboards', { query: { game, scope, season: scope === 'season' ? season : undefined, limit: 100 } });
+export const topPlayers = async () => (await call<{ items: TopPlayer[] }>('GET', '/esports/top-players')).items;
+export const playerPage = (handle: string) => call<PlayerPage>('GET', `/esports/players/${encodeURIComponent(handle)}`);
+
+// ---------------------------------------------------------------- squads (M21-FR-05)
+export const createSquad = (body: { gameId: string; name: string; tag: string }) => call<Squad & { inviteCode: string | null }>('POST', '/me/esports/squads', { body });
+export const joinSquad = (code: string) => call<Squad>('POST', '/me/esports/squads/join', { body: { code } });
+export const inviteToSquad = (squadId: string, username: string) => call<Squad>('POST', `/me/esports/squads/${squadId}/invites`, { body: { username } });
+export const acceptInvite = (memberId: string) => call<Squad>('POST', `/me/esports/squad-invites/${memberId}/accept`);
+export const declineInvite = (memberId: string) => call<Squad>('POST', `/me/esports/squad-invites/${memberId}/decline`);
+export const leaveSquad = (squadId: string) => call<{ left: boolean; squadStatus: string }>('POST', `/me/esports/squads/${squadId}/leave`);
+export const removeMember = (squadId: string, userId: string) => call<Squad>('DELETE', `/me/esports/squads/${squadId}/members/${userId}`);
+export const makeCaptain = (squadId: string, userId: string) => call<Squad>('POST', `/me/esports/squads/${squadId}/captain`, { body: { userId } });
+export const setPrizeSplit = (registrationId: string, split: { userId: string; pct: number }[]) =>
+  call<Registration>('PUT', `/me/esports/registrations/${registrationId}/prize-split`, { body: { split } });
+
+// ---------------------------------------------------------------- winnings and withdrawals (M21-FR-25, M07)
+export const winnings = () => call<Winnings>('GET', '/me/esports/winnings');
+export const withdrawable = () => call<Withdrawable>('GET', '/me/withdrawals/available');
+export const myWithdrawals = async () => (await call<{ items: Withdrawal[] }>('GET', '/me/withdrawals')).items;
+export const withdrawNow = (key: string) => call<{ id: string; code: string; amount: number; status: string }>('POST', '/me/withdrawals', { key });
+export const gate = (action: string) => call<Gate>('GET', '/me/gate', { query: { action } });
+export const payoutAccounts = async () => (await call<{ items: PayoutAccount[] }>('GET', '/me/payout-accounts')).items;
+export const sendPayoutCode = () => call<{ sent: boolean; expiresInSeconds: number; resendInSeconds: number }>('POST', '/me/payout-accounts/otp');
+export const addPayoutAccount = (body: { type: 'bkash' | 'nagad'; accountNo: string; accountName: string; code: string }) => call<PayoutAccount>('POST', '/me/payout-accounts', { body });
 
 // ---------------------------------------------------------------- the bell (M08)
 export type Notice = { id: string; code: string; category: string; title: string; body: string; link: string | null; readAt: string | null; createdAt: string };

@@ -16,6 +16,13 @@ describe('notification links open the right screen', () => {
     expect(linkToRoute(`/en/me/matches/${M}/room`)).toBe(`/room/${M}`);
   });
 
+  it('winnings, squads, the payout account and player pages', () => {
+    expect(linkToRoute('https://esports.kriraghor.com/me/winnings')).toBe('/winnings');
+    expect(linkToRoute('https://esports.kriraghor.com/me/esports/squads')).toBe('/squads');
+    expect(linkToRoute('https://kriraghor.com/me/payout-account')).toBe('/payout-account');
+    expect(linkToRoute('https://esports.kriraghor.com/bn/p/rafi.ff')).toBe('/ranks/rafi.ff');
+  });
+
   it('anything else, or nothing, opens the notifications list', () => {
     expect(linkToRoute('/account')).toBe('/notifications');
     expect(linkToRoute('https://kriraghor.com/me/payments')).toBe('/notifications');

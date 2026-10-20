@@ -71,6 +71,8 @@ export type Registration = {
   holdExpiresAt: string | null;
   offerExpiresAt: string | null;
   waitlistPosition: number | null;
+  players?: { userId: string; profileId: string; ign: string; uidMasked: string; isSubstitute: boolean; username: string | null }[];
+  prizeSplit?: { userId: string; pct: number }[] | null;
   tournament?: { id: string; slug: string; titleEn: string; titleBn: string; status: TournamentStatus; startsAt: string; entryUnit: 'player' | 'squad' };
   matches?: { id: string; seq: number; startsAt: string; status: MatchStatus }[];
 };

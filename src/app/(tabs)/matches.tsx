@@ -9,6 +9,8 @@ import { Button, EmptyState, Notice } from '@/components/ui';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { canSplit } from '@/lib/player';
+import { useMe } from '@/lib/use-me';
 import { errorText } from '@/lib/errors';
 import { currentMatch, entryActions, revealAt, title, type EntryAction, type Registration } from '@/lib/esports';
 import { acceptOffer, checkIn, idempotencyKey, myRegistrations, withdraw } from '@/lib/esports-api';
@@ -50,6 +52,8 @@ function EntryCard({ entry }: { entry: Registration }) {
   const lang = i18n.language as Lang;
   const qc = useQueryClient();
   const now = useNow(1000);
+  const me = useMe();
+  const splittable = canSplit(entry, me.data?.id, now);
   const [busy, setBusy] = useState<EntryAction | null>(null);
   const [note, setNote] = useState<{ tone: 'info' | 'error'; text: string } | null>(null);
   const match = currentMatch(entry);
@@ -125,6 +129,7 @@ function EntryCard({ entry }: { entry: Registration }) {
         </ThemedText>
       ) : null}
       {note ? <Notice tone={note.tone} text={note.text} /> : null}
+      {splittable ? <Button title={t('split.action')} variant="outline" onPress={() => router.push({ pathname: '/split/[registrationId]', params: { registrationId: entry.id } })} /> : null}
       {actions.length ? (
         <View style={styles.actions}>
           {actions.map((a) => (
