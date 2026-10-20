@@ -51,7 +51,9 @@ export default function GameIdsScreen() {
   }
 
   async function submit() {
-    if (!game || !shot) return;
+    if (!game) return;
+    if (!uid.trim() || !ign.trim()) return setError(`${t('gameIds.uid')} · ${t('gameIds.ign')}`);
+    if (!shot) return setError(t('gameIds.screenshot'));
     if (!new RegExp(game.uidRegex).test(uid.trim())) return setError(t('errors.ESPORTS_UID_FORMAT'));
     setBusy(true);
     setError(null);
@@ -102,7 +104,10 @@ export default function GameIdsScreen() {
 
       {open.length ? (
         <>
-          <SectionTitle>{t('gameIds.add')}</SectionTitle>
+          <SectionTitle>
+            {t('gameIds.add')}
+            {game && open.length === 1 ? ` · ${named(game, lang)}` : ''}
+          </SectionTitle>
           {open.length > 1 ? (
             <View style={{ marginHorizontal: -16 }}>
               <Segments items={open.map((g) => ({ key: g.key, label: named(g, lang) }))} value={game?.key ?? ''} onChange={(k) => setGameKey(k)} />

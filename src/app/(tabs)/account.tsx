@@ -35,7 +35,7 @@ export default function AccountScreen() {
   if (status === 'signed_out') {
     return (
       <View style={{ flex: 1, backgroundColor: theme.background }}>
-        <LanguagePicker />
+        <LanguagePicker padded />
         <EmptyState text={t('account.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />
       </View>
     );
@@ -79,11 +79,11 @@ export default function AccountScreen() {
 }
 
 /** English or Bangla; the choice is kept on this phone. */
-function LanguagePicker() {
+function LanguagePicker({ padded }: { padded?: boolean }) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   return (
-    <View style={[styles.card, styles.pad]}>
+    <View style={[styles.card, padded && styles.pad]}>
       <ThemedText type="smallBold">{t('account.language')}</ThemedText>
       <View style={styles.segment} accessibilityRole="radiogroup">
         {LANGUAGES.map((lng) => {

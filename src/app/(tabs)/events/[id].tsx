@@ -52,8 +52,7 @@ export default function EventScreen() {
       <Stack.Screen options={{ title: named(e.game, lang) }} />
       <ScrollView contentContainerStyle={[styles.page, { paddingBottom: 120 }]} refreshControl={<RefreshControl refreshing={event.isRefetching} onRefresh={() => void event.refetch()} tintColor={theme.brand} />}>
         <View style={styles.pills}>
-          <Pill text={named(e.mode, lang)} tone="brand" />
-          <Pill text={e.entryUnit === 'squad' ? t('events.squadOf', { size: e.mode.teamSize }) : t('events.solo')} />
+          <Pill text={e.entryUnit === 'squad' ? t('events.squadOf', { size: e.mode.teamSize }) : t('events.solo')} tone="brand" />
           {e.organiser ? <Pill text={t('events.byOrganiser', { name: e.organiser.name })} /> : null}
         </View>
         <ThemedText style={styles.title}>{title(e, lang)}</ThemedText>
@@ -90,13 +89,13 @@ export default function EventScreen() {
         ) : null}
 
         <SectionTitle>{t('event.schedule')}</SectionTitle>
-        {stage?.checkinOpensAt && stage.checkinClosesAt ? <InfoRow label={t('matches.actions.check_in')} value={t('event.checkIn', { from: dateTime(stage.checkinOpensAt, lang), to: dateTime(stage.checkinClosesAt, lang) })} /> : null}
+        {stage?.checkinOpensAt && stage.checkinClosesAt ? <ThemedText type="small">{t('event.checkIn', { from: dateTime(stage.checkinOpensAt, lang), to: dateTime(stage.checkinClosesAt, lang) })}</ThemedText> : null}
         {e.matches.map((m) => (
           <InfoRow key={m.id} label={`${t('event.match', { seq: count(m.seq, lang) })}${m.map ? ` · ${named(m.map, lang)}` : ''}`} value={dateTime(m.startsAt, lang)} />
         ))}
 
         <SectionTitle>{t('event.points')}</SectionTitle>
-        <ThemedText type="small">{t('event.pointsText', { list: e.placementPoints.map((n) => count(n, lang)).join(', '), kill: count(e.killPoints, lang) })}</ThemedText>
+        <ThemedText type="small">{t('event.pointsText', { list: pointsList(e.placementPoints, lang), kill: count(e.killPoints, lang) })}</ThemedText>
 
         {e.rulesMd ? (
           <>
@@ -127,6 +126,13 @@ export default function EventScreen() {
       </View>
     </View>
   );
+}
+
+/** Placement points up to the last place that scores (the rest score 0). */
+function pointsList(points: number[], lang: Lang) {
+  let last = points.length;
+  while (last > 1 && points[last - 1] === 0) last -= 1;
+  return points.slice(0, last).map((n) => count(n, lang)).join(', ');
 }
 
 const styles = StyleSheet.create({

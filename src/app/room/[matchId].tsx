@@ -4,7 +4,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { usePreventScreenCapture } from 'expo-screen-capture';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Notice } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
@@ -14,6 +14,9 @@ import { ApiError, getRoom } from '@/lib/esports-api';
 import { dateTime, type Lang } from '@/lib/format';
 import { acceptCredentials, credentialsFor, onCredentialsChange } from '@/lib/room-credentials';
 import { keys } from '@/lib/use-realtime';
+
+// Phones block screenshots of this screen; browsers (the web preview) cannot, so it is a no-op there.
+const useNoScreenshots = Platform.OS === 'web' ? () => undefined : usePreventScreenCapture;
 
 /**
  * The room (M21-FR-15 to FR-17). Only checked-in players get it, from the reveal time. The ID and
@@ -25,7 +28,7 @@ export default function RoomScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
-  usePreventScreenCapture('room');
+  useNoScreenshots('room');
 
   const room = useQuery({
     queryKey: keys.room(matchId),

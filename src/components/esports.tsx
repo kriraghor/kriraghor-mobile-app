@@ -58,10 +58,12 @@ export function SectionTitle({ children }: { children: ReactNode }) {
 export function InfoRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <View style={styles.infoRow}>
-      <ThemedText type="small" themeColor="textSecondary" style={{ flex: 1 }}>
+      <ThemedText type="small" themeColor="textSecondary" style={{ flexShrink: 0, maxWidth: '45%' }}>
         {label}
       </ThemedText>
-      <ThemedText type={strong ? 'smallBold' : 'small'}>{value}</ThemedText>
+      <ThemedText type={strong ? 'smallBold' : 'small'} style={{ flex: 1, textAlign: 'right' }}>
+        {value}
+      </ThemedText>
     </View>
   );
 }
