@@ -56,7 +56,8 @@ export default function PayoutAccountScreen() {
   const send = () =>
     run(async () => {
       if (!wallet) return setNote({ tone: 'error', text: t('payout.numberInvalid') });
-      if (name.trim().length < 3 || !declared) return;
+      if (name.trim().length < 3) return setNote({ tone: 'error', text: t('payout.name') });
+      if (!declared) return setNote({ tone: 'error', text: t('payout.declare') });
       await sendPayoutCode();
       setCodeSent(true);
       setNote({ tone: 'info', text: t('payout.sent') });

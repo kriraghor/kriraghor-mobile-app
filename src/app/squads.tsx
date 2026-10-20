@@ -83,8 +83,23 @@ export default function SquadsScreen() {
         <SquadCard key={s.id} squad={s} myId={me.data?.id} gameName={gameName(s.gameId)} busy={busy} run={run} />
       ))}
 
-      <SectionTitle>{t('squads.create')}</SectionTitle>
-      {freeGames.length ? <CreateForm games={freeGames} busy={busy === 'create'} onCreate={(body) => void run('create', () => createSquad(body))} /> : <ThemedText type="small" themeColor="textSecondary">{t('squads.needUid')}</ThemedText>}
+      {/* Create: games with a verified game ID and no squad yet; say why when there is none at all. */}
+      {freeGames.length ? (
+        <>
+          <SectionTitle>
+            {t('squads.create')}
+            {freeGames.length === 1 ? ` · ${named(freeGames[0], lang)}` : ''}
+          </SectionTitle>
+          <CreateForm games={freeGames} busy={busy === 'create'} onCreate={(body) => void run('create', () => createSquad(body))} />
+        </>
+      ) : !verifiedGames.length ? (
+        <>
+          <SectionTitle>{t('squads.create')}</SectionTitle>
+          <ThemedText type="small" themeColor="textSecondary">
+            {t('squads.needUid')}
+          </ThemedText>
+        </>
+      ) : null}
 
       <SectionTitle>{t('squads.join')}</SectionTitle>
       <JoinForm busy={busy === 'join'} onJoin={(code) => void run('join', () => joinSquad(code))} />
