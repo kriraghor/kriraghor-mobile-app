@@ -1,0 +1,88 @@
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { router, Stack } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { ThemedText } from '@/components/themed-text';
+import { EmptyState, Notice } from '@/components/ui';
+import { useTheme } from '@/hooks/use-theme';
+import { errorText } from '@/lib/errors';
+import { listNotifications, markAllRead, markRead, type Notice as Item } from '@/lib/esports-api';
+import { dateTime, type Lang } from '@/lib/format';
+import { linkToRoute } from '@/lib/links';
+import { keys } from '@/lib/use-realtime';
+
+/** The bell (M08-FR-04, FR-05): newest first, tap to open where it points, mark all read. */
+export default function NotificationsScreen() {
+  const theme = useTheme();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as Lang;
+  const qc = useQueryClient();
+  const list = useInfiniteQuery({
+    queryKey: keys.notifications,
+    queryFn: ({ pageParam }) => listNotifications(pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+  const items = list.data?.pages.flatMap((p) => p.items) ?? [];
+  const refresh = () => {
+    void qc.invalidateQueries({ queryKey: keys.notifications });
+    void qc.invalidateQueries({ queryKey: keys.unread });
+  };
+
+  const open = (n: Item) => {
+    if (!n.readAt) void markRead([n.id]).then(refresh);
+    const to = linkToRoute(n.link);
+    if (to !== '/notifications') router.push(to as never);
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <Stack.Screen
+        options={{
+          headerRight: () =>
+            items.some((n) => !n.readAt) ? (
+              <Pressable accessibilityRole="button" onPress={() => void markAllRead().then(refresh)} style={styles.headerButton}>
+                <ThemedText type="smallBold" style={{ color: theme.brandText }}>
+                  {t('notifications.markAll')}
+                </ThemedText>
+              </Pressable>
+            ) : null,
+        }}
+      />
+      {list.isLoading ? (
+        <ActivityIndicator color={theme.brand} style={{ marginTop: 48 }} />
+      ) : (
+        <FlatList
+          data={items}
+          keyExtractor={(n) => n.id}
+          contentContainerStyle={{ flexGrow: 1 }}
+          refreshControl={<RefreshControl refreshing={list.isRefetching} onRefresh={() => void list.refetch()} tintColor={theme.brand} />}
+          onEndReached={() => list.hasNextPage && void list.fetchNextPage()}
+          ListHeaderComponent={list.error ? <Notice tone="error" text={errorText(t, list.error)} /> : null}
+          ListEmptyComponent={<EmptyState text={t('notifications.empty')} />}
+          renderItem={({ item }) => (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => open(item)}
+              style={({ pressed }) => [styles.item, { borderBottomColor: theme.line, backgroundColor: item.readAt ? theme.background : theme.backgroundElement }, pressed && { opacity: 0.8 }]}>
+              {!item.readAt ? <View style={[styles.dot, { backgroundColor: theme.brand }]} accessibilityLabel="unread" /> : null}
+              <View style={{ flex: 1, gap: 2 }}>
+                <ThemedText type="smallBold">{item.title}</ThemedText>
+                <ThemedText type="small">{item.body}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {dateTime(item.createdAt, lang)}
+                </ThemedText>
+              </View>
+            </Pressable>
+          )}
+        />
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  item: { flexDirection: 'row', gap: 10, padding: 16, borderBottomWidth: 1 },
+  dot: { width: 8, height: 8, marginTop: 8 },
+  headerButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 },
+});

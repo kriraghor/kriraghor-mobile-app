@@ -1,3 +1,4 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -59,6 +60,9 @@ export default function AccountScreen() {
         <ThemedText themeColor="textSecondary">{t('common.loading')}</ThemedText>
       )}
 
+      <NavRow icon="bell-outline" label={t('notifications.title')} onPress={() => router.push('/notifications')} />
+      <NavRow icon="gamepad-variant-outline" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
+
       <LanguagePicker />
 
       <View style={styles.card}>
@@ -102,6 +106,20 @@ function LanguagePicker() {
   );
 }
 
+/** A row that opens another screen (48px target, icon and label). */
+function NavRow({ icon, label, onPress }: { icon: 'bell-outline' | 'gamepad-variant-outline'; label: string; onPress: () => void }) {
+  const theme = useTheme();
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.nav, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, pressed && { opacity: 0.85 }]}>
+      <MaterialCommunityIcons name={icon} size={22} color={theme.text} />
+      <ThemedText type="smallBold" style={{ flex: 1 }}>
+        {label}
+      </ThemedText>
+      <MaterialCommunityIcons name="chevron-right" size={22} color={theme.textSecondary} />
+    </Pressable>
+  );
+}
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.row}>
@@ -123,6 +141,7 @@ const styles = StyleSheet.create({
   segment: { flexDirection: 'row', gap: 8 },
   option: { flex: 1, minHeight: 48, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', gap: 12 },
+  nav: { minHeight: 52, borderWidth: 1.5, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
   rowLabel: { width: 72 },
   rowValue: { flex: 1 },
 });
