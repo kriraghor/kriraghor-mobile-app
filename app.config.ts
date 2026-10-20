@@ -39,6 +39,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ['expo-splash-screen', { backgroundColor: '#0A1A12', image: './assets/images/splash-icon.png', imageWidth: 76 }],
     'expo-secure-store',
     ['expo-notifications', { color: '#0B7A4B' }],
+    'expo-localization',
+    // Game ID screenshots (M21-FR-02): photo library only, no camera.
+    ['expo-image-picker', { photosPermission: 'Kriraghor uses your photos to upload a screenshot of your game profile.', cameraPermission: false, microphonePermission: false }],
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
   extra: {

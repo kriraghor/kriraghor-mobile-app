@@ -1,5 +1,5 @@
-import * as SecureStore from 'expo-secure-store';
 import { config } from './config';
+import { secureStore } from './secure-store';
 
 /**
  * Mobile session (ADR-004): no cookies. Every request sends `X-Client-Type: mobile`, so the API
@@ -18,16 +18,16 @@ export const getAccessToken = () => accessToken;
 export async function saveSession(tokens: { accessToken: string; refreshToken?: string }) {
   accessToken = tokens.accessToken;
   if (tokens.refreshToken) {
-    await SecureStore.setItemAsync(REFRESH_KEY, tokens.refreshToken, { keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY });
+    await secureStore.set(REFRESH_KEY, tokens.refreshToken);
   }
 }
 
 export async function clearSession() {
   accessToken = null;
-  await SecureStore.deleteItemAsync(REFRESH_KEY);
+  await secureStore.remove(REFRESH_KEY);
 }
 
-export const hasStoredSession = async () => Boolean(await SecureStore.getItemAsync(REFRESH_KEY));
+export const hasStoredSession = async () => Boolean(await secureStore.get(REFRESH_KEY));
 
 /**
  * Rotate the refresh token. Concurrent callers share one request: a second rotation with the same
@@ -37,7 +37,7 @@ export function refresh(fetchImpl: typeof fetch = fetch): Promise<string | null>
   if (inflight) return inflight;
   inflight = (async () => {
     try {
-      const refreshToken = await SecureStore.getItemAsync(REFRESH_KEY);
+      const refreshToken = await secureStore.get(REFRESH_KEY);
       if (!refreshToken) return null;
       const res = await fetchImpl(`${config.apiUrl}/auth/refresh`, {
         method: 'POST',

@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Field, Notice } from '@/components/ui';
@@ -16,6 +17,7 @@ type AuthBody = { status?: string; accessToken?: string; refreshToken?: string; 
  */
 export default function SignIn() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { signedIn } = useAuth();
   const [step, setStep] = useState<Step>({ kind: 'phone' });
   const [phone, setPhone] = useState('');
@@ -31,7 +33,7 @@ export default function SignIn() {
     try {
       await fn();
     } catch {
-      setError("Can't reach Kriraghor. Check your connection.");
+      setError(t('common.offline'));
     } finally {
       setBusy(false);
     }
@@ -40,7 +42,7 @@ export default function SignIn() {
   async function finish(body: AuthBody | undefined) {
     if (body?.status === 'signed_in' && body.accessToken) {
       await signedIn({ accessToken: body.accessToken, refreshToken: body.refreshToken });
-      router.replace('/me');
+      router.dismissTo('/account');
     } else if (body?.status === 'signup' && body.signupToken) {
       setStep({ kind: 'signup', signupToken: body.signupToken });
     }
@@ -50,7 +52,7 @@ export default function SignIn() {
     run(async () => {
       const { error: err } = await api.POST('/auth/otp/send', { body: { target: phone.trim(), purpose: 'login' } });
       if (err) return setError(problemMessage(err));
-      setInfo('We sent a code. It expires in 5 minutes.');
+      setInfo(t('signIn.codeSent'));
       setStep({ kind: 'code', target: phone.trim() });
     });
 
@@ -73,29 +75,29 @@ export default function SignIn() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: theme.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-        <ThemedText style={styles.title}>Sign in to Kriraghor</ThemedText>
-        <ThemedText themeColor="textSecondary">One account for the app, kriraghor.com and esports.</ThemedText>
+        <ThemedText style={styles.title}>{t('signIn.title')}</ThemedText>
+        <ThemedText themeColor="textSecondary">{t('signIn.sub')}</ThemedText>
         {error ? <Notice tone="error" text={error} /> : null}
         {info && !error ? <Notice text={info} /> : null}
 
         {step.kind === 'phone' ? (
           <>
-            <Field label="Mobile number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" autoComplete="tel" textContentType="telephoneNumber" placeholder="01XXXXXXXXX" />
-            <Button title="Send code" busy={busy} onPress={sendCode} />
+            <Field label={t('signIn.phone')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" autoComplete="tel" textContentType="telephoneNumber" placeholder="01XXXXXXXXX" />
+            <Button title={t('signIn.sendCode')} busy={busy} onPress={sendCode} />
           </>
         ) : null}
 
         {step.kind === 'code' ? (
           <>
-            <Field label="6-digit code" value={code} onChangeText={setCode} keyboardType="number-pad" autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={6} />
-            <Button title="Verify and continue" busy={busy} onPress={verify} />
+            <Field label={t('signIn.code')} value={code} onChangeText={setCode} keyboardType="number-pad" autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={6} />
+            <Button title={t('signIn.verify')} busy={busy} onPress={verify} />
           </>
         ) : null}
 
         {step.kind === 'signup' ? (
           <>
-            <Field label="Your name" value={name} onChangeText={setName} autoComplete="name" textContentType="name" />
-            <Button title="Create my account" busy={busy} onPress={createAccount} />
+            <Field label={t('signIn.name')} value={name} onChangeText={setName} autoComplete="name" textContentType="name" />
+            <Button title={t('signIn.createAccount')} busy={busy} onPress={createAccount} />
           </>
         ) : null}
       </ScrollView>
@@ -105,5 +107,5 @@ export default function SignIn() {
 
 const styles = StyleSheet.create({
   page: { padding: 20, gap: 16 },
-  title: { fontSize: 28, lineHeight: 32, fontWeight: '800' },
+  title: { fontSize: 28, lineHeight: 36, fontWeight: '800' },
 });

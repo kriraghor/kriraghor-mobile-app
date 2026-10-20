@@ -1,5 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
 
+import { withTypeface } from '@/constants/fonts';
 import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -10,10 +12,11 @@ export type ThemedTextProps = TextProps & {
 
 export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
   const theme = useTheme();
+  const { i18n } = useTranslation();
 
   return (
     <Text
-      style={[
+      style={withTypeface(StyleSheet.flatten([
         { color: theme[themeColor ?? 'text'] },
         type === 'default' && styles.default,
         type === 'title' && styles.title,
@@ -24,7 +27,7 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
         type === 'linkPrimary' && styles.linkPrimary,
         type === 'code' && styles.code,
         style,
-      ]}
+      ]), i18n.language)}
       {...rest}
     />
   );

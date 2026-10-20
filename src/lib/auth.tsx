@@ -17,7 +17,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      const token = (await hasStoredSession()) ? await refresh() : null;
+      // Anything that goes wrong while restoring means signed out, never a stuck splash screen.
+      const token = await hasStoredSession()
+        .then((stored) => (stored ? refresh() : null))
+        .catch(() => null);
       setStatus(token ? 'signed_in' : 'signed_out');
     })();
   }, []);
