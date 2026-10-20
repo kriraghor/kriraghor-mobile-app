@@ -1,5 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { api } from './api';
+import { removePush, resumePush } from './push';
+import { queryClient } from './query';
+import { clearCredentials } from './room-credentials';
 import { clearSession, hasStoredSession, refresh, saveSession } from './session';
 
 type Status = 'loading' | 'signed_in' | 'signed_out';
@@ -22,17 +25,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .then((stored) => (stored ? refresh() : null))
         .catch(() => null);
       setStatus(token ? 'signed_in' : 'signed_out');
+      if (token) void resumePush();
     })();
   }, []);
 
   const signedIn = useCallback(async (tokens: { accessToken: string; refreshToken?: string }) => {
     await saveSession(tokens);
     setStatus('signed_in');
+    void resumePush();
   }, []);
 
+  /** Stop pushes to this phone, end the sign-in, and forget everything the account showed (room credentials included). */
   const signOut = useCallback(async () => {
+    await removePush();
     await api.POST('/auth/logout', {}).catch(() => undefined);
     await clearSession();
+    clearCredentials();
+    queryClient.clear();
     setStatus('signed_out');
   }, []);
 

@@ -9,7 +9,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { LANGUAGES, setLanguage, type Language } from '@/i18n';
 import { api, problemMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { registerForPush, type PushRegistration } from '@/lib/notifications';
+import type { PushRegistration } from '@/lib/notifications';
+import { enablePush } from '@/lib/push';
 
 type Me = { id: string; displayName: string; phone: string | null; email: string | null; roles: { role: string; status: string }[] };
 const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', bn: 'বাংলা' };
@@ -65,7 +66,7 @@ export default function AccountScreen() {
         <ThemedText type="small" themeColor="textSecondary">
           {pushText}
         </ThemedText>
-        {push?.status !== 'granted' ? <Button title={t('account.enableNotifications')} variant="outline" onPress={() => void registerForPush().then(setPush)} /> : null}
+        {push?.status !== 'granted' ? <Button title={t('account.enableNotifications')} variant="outline" onPress={() => void enablePush().then(setPush)} /> : null}
       </View>
 
       <Button title={t('common.signOut')} onPress={() => void signOut().then(() => router.replace('/'))} />
