@@ -36,7 +36,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: { output: 'static', favicon: './assets/images/favicon.png' },
   plugins: [
     'expo-router',
-    ['expo-splash-screen', { backgroundColor: '#0A1A12', image: './assets/images/splash-icon.png', imageWidth: 76 }],
+    // The whole logo on the app background; AnimatedSplash starts from this exact picture (96 wide).
+    ['expo-splash-screen', { backgroundColor: '#f3f5f3', image: './assets/brand/logo-mark.png', imageWidth: 96, dark: { backgroundColor: '#0c120f', image: './assets/brand/logo-mark.png' } }],
     'expo-secure-store',
     ['expo-notifications', { color: '#0B7A4B' }],
     'expo-localization',

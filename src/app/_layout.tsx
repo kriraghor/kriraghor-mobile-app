@@ -2,9 +2,10 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
+import { AnimatedSplash } from '@/components/AnimatedSplash';
 import { FONT_ASSETS, withTypeface } from '@/constants/fonts';
 // Importing the i18n module also initialises it (English or Bangla from the phone).
 import { restoreLanguage } from '@/i18n';
@@ -17,14 +18,22 @@ SplashScreen.preventAutoHideAsync();
 
 function Navigator({ ready }: { ready: boolean }) {
   const { status } = useAuth();
-  const { t, i18n } = useTranslation();
   const loading = status === 'loading' || !ready;
   useRealtimeBridge();
   usePushTaps(!loading);
-  useEffect(() => {
-    if (!loading) SplashScreen.hideAsync();
-  }, [loading]);
-  if (loading) return null;
+  // The animated splash takes over from the native one and hides it on its first frame.
+  const [splash, setSplash] = useState(true);
+  const splashDone = useCallback(() => setSplash(false), []);
+  return (
+    <>
+      {loading ? null : <AppStack />}
+      {splash ? <AnimatedSplash ready={!loading} onDone={splashDone} /> : null}
+    </>
+  );
+}
+
+function AppStack() {
+  const { t, i18n } = useTranslation();
   return (
     <Stack screenOptions={{ headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language) }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
