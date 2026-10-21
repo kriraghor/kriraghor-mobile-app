@@ -10,7 +10,7 @@ export const SPLASH_MARK = 96;
 
 const PIECES = [
   { key: 'cricket', source: require('../../assets/brand/logo-cricket.png'), out: { x: -0.32, y: -0.32, r: -22 } },
-  { key: 'shuttle', source: require('../../assets/brand/logo-shuttle.png'), out: { x: -0.3, y: 0.34, r: 18 } },
+  { key: 'esports', source: require('../../assets/brand/logo-esports.png'), out: { x: -0.3, y: 0.34, r: 18 } },
   { key: 'football', source: require('../../assets/brand/logo-football.png'), out: { x: 0.38, y: -0.04, r: 26 } },
 ] as const;
 

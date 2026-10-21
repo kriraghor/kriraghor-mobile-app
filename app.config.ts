@@ -19,14 +19,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: 'kriraghor',
   userInterfaceStyle: 'automatic',
   ios: {
-    icon: './assets/expo.icon',
+    icon: './assets/images/icon.png',
     bundleIdentifier: `com.kriraghor.app${suffix}`,
     supportsTablet: false,
   },
   android: {
     package: `com.kriraghor.app${suffix}`,
     adaptiveIcon: {
-      backgroundColor: '#0B7A4B',
+      backgroundColor: '#F3F5F3',
       foregroundImage: './assets/images/android-icon-foreground.png',
       backgroundImage: './assets/images/android-icon-background.png',
       monochromeImage: './assets/images/android-icon-monochrome.png',
