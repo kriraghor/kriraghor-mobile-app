@@ -1,10 +1,5 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
-/**
- * App config per EAS build profile (eas.json sets APP_ENV, API_URL and REALTIME_URL for each).
- * Values reach the app through `extra` (src/lib/config.ts). Nothing secret goes here: the app
- * bundle is public.
- */
 const APP_ENV = process.env.APP_ENV ?? 'development';
 const isProd = APP_ENV === 'production';
 const suffix = isProd ? '' : `.${APP_ENV}`;
@@ -18,6 +13,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: './assets/images/icon.png',
   scheme: 'kriraghor',
   userInterfaceStyle: 'automatic',
+  updates: {
+    url: 'https://u.expo.dev/f3014002-a260-4797-b25c-5a123d717b7b',
+  },
+  runtimeVersion: {
+    policy: 'appVersion',
+  },
   ios: {
     icon: './assets/images/icon.png',
     bundleIdentifier: `com.kriraghor.app${suffix}`,
@@ -36,22 +37,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: { output: 'static', favicon: './assets/images/favicon.png' },
   plugins: [
     'expo-router',
-    // The whole logo on the app background; AnimatedSplash starts from this exact picture (96 wide).
     ['expo-splash-screen', { backgroundColor: '#f3f5f3', image: './assets/brand/logo-mark.png', imageWidth: 96, dark: { backgroundColor: '#0c120f', image: './assets/brand/logo-mark.png' } }],
     'expo-secure-store',
     ['expo-notifications', { color: '#0B7A4B' }],
     'expo-localization',
-    // Game ID screenshots (M21-FR-02): photo library only, no camera.
     ['expo-image-picker', { photosPermission: 'Kriraghor uses your photos to upload a screenshot of your game profile.', cameraPermission: false, microphonePermission: false }],
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
   extra: {
     appEnv: APP_ENV,
-    // Android emulators reach the host machine at 10.0.2.2; physical devices need the LAN IP.
-    apiUrl: process.env.API_URL ?? 'http://10.0.2.2:4000/api/v1',
-    realtimeUrl: process.env.REALTIME_URL ?? 'http://10.0.2.2:4001',
-    // kriraghor.com: NID verification and the full payout settings open there.
-    webUrl: process.env.WEB_URL ?? 'http://10.0.2.2:3000',
-    eas: { projectId: process.env.EAS_PROJECT_ID },
+    apiUrl: process.env.API_URL ?? 'https://api.kriraghor.com/api/v1',
+    realtimeUrl: process.env.REALTIME_URL ?? 'https://api.kriraghor.com',
+    webUrl: process.env.WEB_URL ?? 'https://kriraghor.com',
+    eas: { projectId: 'f3014002-a260-4797-b25c-5a123d717b7b' },
   },
 });

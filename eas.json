@@ -12,26 +12,34 @@
         "API_URL": "http://10.0.2.2:4000/api/v1",
         "REALTIME_URL": "http://10.0.2.2:4001",
         "WEB_URL": "http://10.0.2.2:3000"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
       "channel": "preview",
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
         "APP_ENV": "preview",
-        "API_URL": "https://api.staging.kriraghor.com/api/v1",
-        "REALTIME_URL": "https://api.staging.kriraghor.com",
-        "WEB_URL": "https://www.staging.kriraghor.com"
+        "API_URL": "https://api.kriraghor.com/api/v1",
+        "REALTIME_URL": "https://api.kriraghor.com",
+        "WEB_URL": "https://kriraghor.com"
       }
     },
     "production": {
+      "distribution": "internal",
       "channel": "production",
       "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
         "APP_ENV": "production",
         "API_URL": "https://api.kriraghor.com/api/v1",
         "REALTIME_URL": "https://api.kriraghor.com",
-        "WEB_URL": "https://www.kriraghor.com"
+        "WEB_URL": "https://kriraghor.com"
       }
     }
   },
