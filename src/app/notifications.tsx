@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
@@ -32,7 +33,8 @@ export default function NotificationsScreen() {
   const open = (n: Item) => {
     if (!n.readAt) void markRead([n.id]).then(refresh);
     const to = linkToRoute(n.link);
-    if (to !== '/notifications') router.push(to as never);
+    if (typeof to !== 'string') void WebBrowser.openBrowserAsync(to.external);
+    else if (to !== '/notifications') router.push(to as never);
   };
 
   return (
