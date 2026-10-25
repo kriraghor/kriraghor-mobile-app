@@ -304,7 +304,7 @@ export const en = {
     status: { pending: 'Pending', credited: 'Credited', reversed: 'Taken back' },
     history: 'Withdrawals',
     withdrawalStatus: { scheduled: 'Requested', needs_approval: 'In review', on_hold: 'On hold', processing: 'Sending', paid: 'Paid', failed: 'Failed', cancelled: 'Cancelled' },
-    kycNeeded: 'Withdrawing needs your NID verified. It takes a few minutes on kriraghor.com.',
+    kycNeeded: 'Withdrawing needs your NID verified. NID verification is for people aged 18 and over and takes a few minutes on kriraghor.com.',
     kycPending: 'Your NID is being checked. You can withdraw once it is approved.',
     verifyNid: 'Verify my NID',
     accountMissing: 'Add a bKash or Nagad account to withdraw to.',
@@ -330,7 +330,7 @@ export const en = {
     code: '6-digit code',
     submit: 'Add account',
     sent: 'We sent a code to your phone.',
-    added: 'Account added. Our finance team checks it against your NID name, usually within a day.',
+    added: 'Account added. Our finance team checks it against your NID name, usually within a day. NID verification is for people aged 18 and over and is done on kriraghor.com.',
     numberInvalid: 'Enter an 11-digit number starting with 01.',
   },
   signIn: {
