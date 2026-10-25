@@ -11,7 +11,8 @@
         "APP_ENV": "development",
         "API_URL": "http://10.0.2.2:4000/api/v1",
         "REALTIME_URL": "http://10.0.2.2:4001",
-        "WEB_URL": "http://10.0.2.2:3000"
+        "WEB_URL": "http://10.0.2.2:3000",
+        "GYM_URL": "http://10.0.2.2:3003"
       },
       "channel": "development"
     },
@@ -25,7 +26,8 @@
         "APP_ENV": "preview",
         "API_URL": "https://api.kriraghor.com/api/v1",
         "REALTIME_URL": "https://api.kriraghor.com",
-        "WEB_URL": "https://kriraghor.com"
+        "WEB_URL": "https://kriraghor.com",
+        "GYM_URL": "https://gym.kriraghor.com"
       }
     },
     "production": {
@@ -39,7 +41,8 @@
         "APP_ENV": "production",
         "API_URL": "https://api.kriraghor.com/api/v1",
         "REALTIME_URL": "https://api.kriraghor.com",
-        "WEB_URL": "https://kriraghor.com"
+        "WEB_URL": "https://kriraghor.com",
+        "GYM_URL": "https://gym.kriraghor.com"
       }
     }
   },

@@ -49,6 +49,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     apiUrl: process.env.API_URL ?? 'https://api.kriraghor.com/api/v1',
     realtimeUrl: process.env.REALTIME_URL ?? 'https://api.kriraghor.com',
     webUrl: process.env.WEB_URL ?? 'https://kriraghor.com',
+    gymUrl: process.env.GYM_URL ?? 'https://gym.kriraghor.com',
     eas: { projectId: 'f3014002-a260-4797-b25c-5a123d717b7b' },
   },
 });
