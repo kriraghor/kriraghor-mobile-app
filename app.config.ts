@@ -3,12 +3,15 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 const APP_ENV = process.env.APP_ENV ?? 'development';
 const isProd = APP_ENV === 'production';
 const suffix = isProd ? '' : `.${APP_ENV}`;
+const CAMERA_TEXT = "Kriraghor uses the camera to scan the gym's entrance QR code.";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: isProd ? 'Kriraghor' : `Kriraghor (${APP_ENV})`,
   slug: 'kriraghor',
-  version: '0.1.0',
+  // 0.2.0: the gym screens add native modules (camera, brightness, keep-awake, SVG). runtimeVersion
+  // follows the app version, so 0.1.0 builds never receive OTA JS that calls modules they lack.
+  version: '0.2.0',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: 'kriraghor',
@@ -33,6 +36,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: './assets/images/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
+    // expo-brightness asks for WRITE_SETTINGS for the system brightness; the app only sets its own
+    // window's brightness (setBrightnessAsync), which needs no permission.
+    blockedPermissions: ['android.permission.WRITE_SETTINGS'],
   },
   web: { output: 'static', favicon: './assets/images/favicon.png' },
   plugins: [
@@ -41,7 +47,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-secure-store',
     ['expo-notifications', { color: '#0B7A4B' }],
     'expo-localization',
-    ['expo-image-picker', { photosPermission: 'Kriraghor uses your photos to upload a screenshot of your game profile.', cameraPermission: false, microphonePermission: false }],
+    // The picker only reads photos. Its cameraPermission must not be false: that would block Android's
+    // CAMERA permission for expo-camera too, so it carries the same camera text.
+    ['expo-image-picker', { photosPermission: 'Kriraghor uses your photos to upload a screenshot of your game profile.', cameraPermission: CAMERA_TEXT, microphonePermission: false }],
+    // The gym entrance QR scanner (M24 §4.5): camera only, no microphone.
+    ['expo-camera', { cameraPermission: CAMERA_TEXT, microphonePermission: false, recordAudioAndroid: false }],
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
   extra: {

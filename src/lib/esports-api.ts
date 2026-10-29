@@ -25,7 +25,7 @@ export class ApiError extends Error {
 /** A key for one user action; reuse it only to retry that same request. */
 export const idempotencyKey = (action: string) => `${action}-${randomUUID()}`.slice(0, 80);
 
-async function call<T>(method: string, path: string, opts: { query?: Record<string, string | number | undefined>; body?: unknown; key?: string; raw?: { bytes: Blob; type: string } } = {}): Promise<T> {
+export async function call<T>(method: string, path: string, opts: { query?: Record<string, string | number | undefined>; body?: unknown; key?: string; raw?: { bytes: Blob; type: string } } = {}): Promise<T> {
   const qs = opts.query ? new URLSearchParams(Object.entries(opts.query).filter(([, v]) => v !== undefined && v !== '') as [string, string][]).toString() : '';
   const headers = new Headers({ Accept: 'application/json' });
   if (opts.key) headers.set('Idempotency-Key', opts.key);
@@ -82,7 +82,7 @@ export const checkIn = (id: string) => call<Registration & { checkedInPlayers: n
 export const startAttempt = (paymentId: string, method: 'bkash' | 'nagad' | 'card', key: string) =>
   call<{ attemptId: string; redirectUrl: string; expiresAt: string }>('POST', `/payments/${paymentId}/attempts`, { body: { method, returnTo: 'app' }, key });
 export const verifyPayment = (paymentId: string) => call<{ status: string }>('POST', `/payments/${paymentId}/verify`);
-export const getPayment = (paymentId: string) => call<{ id: string; status: string; amount: number; expiresAt: string; methods: string[]; title: string }>('GET', `/payments/${paymentId}`);
+export const getPayment = (paymentId: string) => call<{ id: string; status: string; amount: number; expiresAt: string; methods: string[]; title: string; purpose?: string }>('GET', `/payments/${paymentId}`);
 
 // ---------------------------------------------------------------- room and results
 export type Room = { matchId: string; version: number; roomId: string; password: string; map: { key: string; nameEn: string; nameBn: string } | null; startsAt: string; revealedAt: string };

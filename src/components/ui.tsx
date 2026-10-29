@@ -20,20 +20,21 @@ export function Field({ label, error, ...input }: TextInputProps & { label: stri
   );
 }
 
-export function Button({ title, onPress, busy, variant = 'primary' }: { title: string; onPress: () => void; busy?: boolean; variant?: 'primary' | 'outline' }) {
+export function Button({ title, onPress, busy, disabled, variant = 'primary' }: { title: string; onPress: () => void; busy?: boolean; disabled?: boolean; variant?: 'primary' | 'outline' }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
   const primary = variant === 'primary';
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ busy: !!busy, disabled: !!busy }}
-      disabled={busy}
+      accessibilityState={{ busy: !!busy, disabled: !!busy || !!disabled }}
+      disabled={busy || disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
         primary ? { backgroundColor: theme.brand } : { borderWidth: 2, borderColor: theme.text },
         pressed && { opacity: 0.85 },
+        disabled && !busy && { opacity: 0.5 },
       ]}>
       {busy ? <ActivityIndicator color={primary ? theme.onBrand : theme.text} /> : <Text style={withTypeface(StyleSheet.flatten([styles.buttonText, { color: primary ? theme.onBrand : theme.text }]), i18n.language)}>{title}</Text>}
     </Pressable>
