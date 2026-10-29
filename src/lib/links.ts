@@ -5,8 +5,11 @@ import { config } from './config';
  * https://esports.kriraghor.com/me/matches/{matchId}/room. The app opens the matching screen;
  * anything it has no screen for opens the notifications list, so a tap never lands nowhere.
  *
- * Gym links (gym.kriraghor.com, M24-FR-103) have no screens in the app yet (M24 prompt 3b), so they
- * come back as `{ external }` and open in the browser on the gym app instead.
+ * Gym links (gym.kriraghor.com, M24-FR-103, FR-105): the member pages open the app's gym screens
+ * (M24 §4.5); everything else on the gym host (the owner panel /manage, the directory /gyms,
+ * /trainers, pay links /p/[token], receipts /r/[token], unknown pages) comes back as `{ external }`
+ * and opens in the browser on the gym app. The host decides: /p/[handle] is an esports player
+ * profile everywhere except on the gym host, where /p/[token] is a pay link.
  */
 const UUID = '[0-9a-fA-F-]{36}';
 
@@ -22,8 +25,29 @@ const RULES: [RegExp, (m: RegExpMatchArray) => string][] = [
   [/^\/p\/([\w.-]+)$/, (m) => `/ranks/${m[1]}`],
 ];
 
-/** Paths that live on the gym app, also when a link arrives relative (older notifications). */
-const GYM_PATH = /^\/(?:me\/passes|me\/subscriptions|manage|gyms)(?:\/|$)/;
+/**
+ * Gym member pages and the app screen each opens. `where` says which links may use the rule:
+ * - `gym`: only a link on the gym host. A relative `/me` is kriraghor.com's account page (M06 escrow
+ *   and team notices use it), so it stays out of the gym.
+ * - `gym+relative`: the gym host, or the path arriving relative (no kriraghor.com page uses these).
+ * - `any`: also on other hosts: kriraghor.com `/me/passes` and `/me/subscriptions` moved to the gym
+ *   app (M24 §4.3), so older notifications still open the gym screens.
+ */
+type Where = 'gym' | 'gym+relative' | 'any';
+const GYM_RULES: [RegExp, (m: RegExpMatchArray) => string, Where][] = [
+  [/^\/me$/, () => '/gym', 'gym'],
+  [/^\/me\/(?:dues|memberships|plans)$/, () => '/gym', 'gym+relative'],
+  [new RegExp(`^/me/memberships/(${UUID})$`), (m) => `/gym/${m[1]}`, 'gym+relative'],
+  [/^\/me\/requests$/, () => '/gym/requests', 'gym+relative'],
+  [new RegExp(`^/me/plans/(${UUID})$`), (m) => `/gym/plans/${m[1]}`, 'gym+relative'],
+  [/^\/me\/checkin$/, () => '/gym/checkin', 'gym+relative'],
+  [/^\/me\/passes$/, () => '/gym/passes', 'any'],
+  [/^\/me\/passes\/([\w-]+)$/, (m) => `/gym/passes?code=${encodeURIComponent(m[1])}`, 'any'],
+  [/^\/me\/subscriptions(?:\/[\w-]+)?$/, () => '/gym/subscriptions', 'any'],
+];
+
+/** Owner and directory pages of the gym app: they open there, also when a link arrives relative. */
+const GYM_PATH = /^\/(?:manage|gyms)(?:\/|$)/;
 
 /** An app route, or a website page to open in the browser. */
 export type LinkTarget = string | { external: string };
@@ -52,7 +76,14 @@ export function linkToRoute(link: string | null | undefined, gymUrl: string = co
   // Locale prefixes on the websites (/en/…, /bn/…) are not part of the app's routes.
   const path = url.pathname.replace(/^\/(en|bn)(?=\/|$)/, '').replace(/\/+$/, '') || '/';
   const host = /^[a-z][\w+.-]*:/i.test(link) ? url.host.toLowerCase() : null;
-  if ((host && isGymHost(host, gymUrl)) || GYM_PATH.test(path)) {
+  const site = host === null ? 'relative' : isGymHost(host, gymUrl) ? 'gym' : 'other';
+
+  for (const [re, to, where] of GYM_RULES) {
+    const allowed = where === 'any' || site === 'gym' || (where === 'gym+relative' && site === 'relative');
+    const m = allowed ? path.match(re) : null;
+    if (m) return to(m);
+  }
+  if (site === 'gym' || GYM_PATH.test(path)) {
     const base = gymUrl.replace(/\/+$/, '');
     return { external: `${base}${path === '/' ? '' : path}${url.search}` };
   }

@@ -25,7 +25,7 @@ export class ApiError extends Error {
 /** A key for one user action; reuse it only to retry that same request. */
 export const idempotencyKey = (action: string) => `${action}-${randomUUID()}`.slice(0, 80);
 
-async function call<T>(method: string, path: string, opts: { query?: Record<string, string | number | undefined>; body?: unknown; key?: string; raw?: { bytes: Blob; type: string } } = {}): Promise<T> {
+export async function call<T>(method: string, path: string, opts: { query?: Record<string, string | number | undefined>; body?: unknown; key?: string; raw?: { bytes: Blob; type: string } } = {}): Promise<T> {
   const qs = opts.query ? new URLSearchParams(Object.entries(opts.query).filter(([, v]) => v !== undefined && v !== '') as [string, string][]).toString() : '';
   const headers = new Headers({ Accept: 'application/json' });
   if (opts.key) headers.set('Idempotency-Key', opts.key);
