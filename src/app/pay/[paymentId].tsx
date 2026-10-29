@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Button, Notice } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { ApiError, getPayment, idempotencyKey, startAttempt, verifyPayment } from '@/lib/esports-api';
+import { payDoneRoute, payKind } from '@/lib/gym';
 import { errorText } from '@/lib/errors';
 import { dateTime, money, type Lang } from '@/lib/format';
 import { payInApp, type PayMethod, type PayOutcome } from '@/lib/payment-flow';
@@ -19,9 +20,12 @@ const METHODS: PayMethod[] = ['bkash', 'nagad', 'card'];
 /**
  * Pay an entry (M06 from the app): choose bKash, Nagad or card, pay on the gateway page, come back to
  * the app, and read the result from the API. Each tap of Pay is a new attempt with a new key.
+ * The words and the Done target follow the payment's purpose: an esports entry goes back to Matches;
+ * a gym fee (M24 gym_membership_fee) says "Fee paid" and goes back to the membership (memberId param)
+ * or My gyms; a gym pass and a trainer month go back to their lists. Gym data is re-read after paying.
  */
 export default function PayScreen() {
-  const { paymentId } = useLocalSearchParams<{ paymentId: string }>();
+  const { paymentId, memberId } = useLocalSearchParams<{ paymentId: string; memberId?: string }>();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
@@ -47,6 +51,7 @@ export default function PayScreen() {
       });
       setPhase(outcome);
       void qc.invalidateQueries({ queryKey: keys.registrations });
+      void qc.invalidateQueries({ queryKey: keys.gym });
       void payment.refetch();
     } catch (err) {
       const code = err instanceof ApiError ? err.code : '';
@@ -60,14 +65,18 @@ export default function PayScreen() {
   if (payment.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
   const p = payment.data;
   const settled = phase === 'paid' || phase === 'expired' || phase === 'cancelled';
-  const message: Record<PayOutcome, string> = { paid: t('pay.paid'), failed: t('pay.failed'), cancelled: t('pay.cancelled'), expired: t('pay.expired'), pending: t('pay.pending') };
+  const kind = payKind(p?.purpose);
+  const gym = kind !== 'entry';
+  const paidText = kind === 'gym_fee' ? t('pay.feePaid') : kind === 'gym_pass' ? t('pay.passPaid') : kind === 'trainer' ? t('pay.trainerPaid') : t('pay.paid');
+  const message: Record<PayOutcome, string> = { paid: paidText, failed: t('pay.failed'), cancelled: t('pay.cancelled'), expired: gym ? t('pay.gymExpired') : t('pay.expired'), pending: t('pay.pending') };
+  const done = () => router.navigate(payDoneRoute(kind, memberId) as never);
 
   return (
     <View style={[styles.page, { flex: 1, backgroundColor: theme.background }]}>
       {p ? (
         <>
           <ThemedText style={styles.title}>{p.title}</ThemedText>
-          <InfoRow label={t('register.fee')} value={money(p.amount, lang)} strong />
+          <InfoRow label={gym ? t('pay.amount') : t('register.fee')} value={money(p.amount, lang)} strong />
           {p.status === 'initiated' || p.status === 'pending' ? <InfoRow label={t('pay.payBy')} value={dateTime(p.expiresAt, lang)} /> : null}
         </>
       ) : (
@@ -77,7 +86,7 @@ export default function PayScreen() {
       {phase !== 'idle' && phase !== 'paying' ? <Notice tone={phase === 'paid' ? 'info' : 'error'} text={message[phase]} /> : null}
 
       {settled ? (
-        <Button title={t('pay.done')} onPress={() => router.navigate('/matches')} />
+        <Button title={t('pay.done')} onPress={done} />
       ) : phase === 'paying' ? (
         <View style={styles.waiting}>
           <ActivityIndicator color={theme.brand} />
@@ -104,7 +113,7 @@ export default function PayScreen() {
             })}
           </View>
           <Button title={t('pay.payNow', { amount: money(p.amount, lang) })} onPress={() => void pay()} />
-          {phase === 'pending' ? <Button title={t('pay.done')} variant="outline" onPress={() => router.navigate('/matches')} /> : null}
+          {phase === 'pending' ? <Button title={t('pay.done')} variant="outline" onPress={done} /> : null}
         </>
       ) : null}
     </View>

@@ -8,6 +8,7 @@ import { withTypeface } from '@/constants/fonts';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { unreadCount } from '@/lib/esports-api';
+import { useWaitingInvites } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
 
 type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -27,7 +28,10 @@ export default function TabsLayout() {
   const { status } = useAuth();
   // Unread notifications on the Account tab (M08-FR-04); refreshed by notification.created.
   const unread = useQuery({ queryKey: keys.unread, queryFn: unreadCount, enabled: status === 'signed_in' });
-  const badge = status === 'signed_in' && unread.data ? (unread.data > 99 ? '99+' : unread.data) : undefined;
+  // Plus gym invites waiting for an answer (M24 §4.5): they live behind Account, Gym.
+  const waiting = useWaitingInvites();
+  const total = (unread.data ?? 0) + waiting;
+  const badge = status === 'signed_in' && total ? (total > 99 ? '99+' : total) : undefined;
   return (
     <Tabs
       screenOptions={{

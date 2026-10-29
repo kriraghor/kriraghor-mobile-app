@@ -1,9 +1,10 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { CountBadge } from '@/components/gym';
 import { ThemedText } from '@/components/themed-text';
 import { Button, EmptyState, Notice } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
@@ -12,6 +13,7 @@ import { api, problemMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import type { PushRegistration } from '@/lib/notifications';
 import { enablePush } from '@/lib/push';
+import { useWaitingInvites } from '@/lib/use-gym';
 
 type Me = { id: string; displayName: string; phone: string | null; email: string | null; roles: { role: string; status: string }[] };
 const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', bn: 'বাংলা' };
@@ -22,6 +24,7 @@ export default function AccountScreen() {
   const { t } = useTranslation();
   const { status, signOut } = useAuth();
   const [push, setPush] = useState<PushRegistration | null>(null);
+  const waiting = useWaitingInvites();
   const me = useQuery({
     queryKey: ['me'],
     enabled: status === 'signed_in',
@@ -64,6 +67,7 @@ export default function AccountScreen() {
       <NavRow icon="gamepad-variant-outline" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
       <NavRow icon="account-group-outline" label={t('squads.title')} onPress={() => router.push('/squads')} />
       <NavRow icon="trophy-outline" label={t('winnings.title')} onPress={() => router.push('/winnings')} />
+      <NavRow icon="dumbbell" label={t('gym.title')} badge={waiting} onPress={() => router.push('/gym')} />
 
       <LanguagePicker />
 
@@ -109,7 +113,7 @@ function LanguagePicker({ padded }: { padded?: boolean }) {
 }
 
 /** A row that opens another screen (48px target, icon and label). */
-function NavRow({ icon, label, onPress }: { icon: 'bell-outline' | 'gamepad-variant-outline' | 'account-group-outline' | 'trophy-outline'; label: string; onPress: () => void }) {
+function NavRow({ icon, label, onPress, badge = 0 }: { icon: ComponentProps<typeof MaterialCommunityIcons>['name']; label: string; onPress: () => void; badge?: number }) {
   const theme = useTheme();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.nav, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, pressed && { opacity: 0.85 }]}>
@@ -117,6 +121,7 @@ function NavRow({ icon, label, onPress }: { icon: 'bell-outline' | 'gamepad-vari
       <ThemedText type="smallBold" style={{ flex: 1 }}>
         {label}
       </ThemedText>
+      <CountBadge n={badge} />
       <MaterialCommunityIcons name="chevron-right" size={22} color={theme.textSecondary} />
     </Pressable>
   );
