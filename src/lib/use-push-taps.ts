@@ -16,7 +16,7 @@ export function usePushTaps(ready: boolean) {
       const link = r?.notification.request.content.data?.link;
       if (typeof link !== 'string' && link !== null) return;
       const to = linkToRoute(link as string | null);
-      // Gym links have no screen in the app yet: they open on gym.kriraghor.com in the browser.
+      // Gym pages the app has no screen for (owner panel, directory, pay links, receipts) open in the browser.
       if (typeof to === 'string') router.push(to as never);
       else void WebBrowser.openBrowserAsync(to.external);
     };

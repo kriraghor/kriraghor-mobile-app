@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Repo** | `kriraghor-mobile` |
-| **Status** | B0 foundation (20 Oct 2026): five tabs (Home, Events, Matches, Ranks, Account), English and Bangla, TanStack Query, phone OTP sign-in (M01), secure token storage, push channels. Esports screens come next (B1) |
+| **Status** | App **0.2.0** (29 Oct 2026): esports (M21) and the member gym screens (M24 prompt 3b, mobile half). Five tabs (Home, Events, Matches, Ranks, Account), English and Bangla, phone OTP sign-in (M01), secure token storage, push that opens the right screen. 0.2.0 adds native modules (camera, brightness, keep-awake, SVG), so it needs a new build; 0.1.0 installs get no OTA updates with the gym screens |
 | **Stack** | Expo SDK 57, expo-router, TypeScript strict, React Native 0.86 (New Architecture, Hermes), openapi-fetch, TanStack Query, i18next, socket.io-client, jest-expo |
 | **Decisions** | ADR-002 (shared OpenAPI contract), [ADR-004](../kriraghor-docs/decisions/ADR-004-cross-subdomain-auth.md) (mobile uses body tokens, not cookies) |
 | **First features** | Esports (M21: register, room reveal by push, winnings, withdraw) and booking (M10) |
@@ -22,22 +22,41 @@ The backend runs on your machine (`npm run dev` and `npm run dev:realtime` in `.
 | Script | What it does |
 |---|---|
 | `npm run lint` · `npm run typecheck` | `expo lint`, `tsc --noEmit` |
-| `npm test` | jest-expo unit tests (session storage, refresh, retry; English and Bangla keys; the Bangla typeface) |
+| `npm test` | jest-expo unit tests (session storage, refresh, retry; English and Bangla keys; the Bangla typeface; the notification link table; the gym helpers) |
 | `npm run api:sync` | Regenerate `src/lib/api/schema.d.ts` from `../kriraghor-backend/openapi.json` (`API_SPEC=<path or url>` for another branch) |
 | `npx expo start --web` | A quick look in the browser at phone width (sessions are kept in memory there, so a reload signs out) |
 | `npx expo export --platform android` | Bundle check without a device |
 
 ## Configuration
 
-`app.config.ts` reads `APP_ENV`, `API_URL` and `REALTIME_URL`; `eas.json` sets them per build profile:
+`app.config.ts` reads `APP_ENV`, `API_URL`, `REALTIME_URL`, `WEB_URL` and `GYM_URL`; `eas.json` sets them per build profile. There is no staging API yet, so **preview builds use the production API**:
 
-| Profile | APP_ENV | API | Bundle ID |
-|---|---|---|---|
-| `development` | development | `http://10.0.2.2:4000/api/v1` | `com.kriraghor.app.development` |
-| `preview` | preview | `https://api.staging.kriraghor.com/api/v1` | `com.kriraghor.app.preview` |
-| `production` | production | `https://api.kriraghor.com/api/v1` | `com.kriraghor.app` |
+| Profile | APP_ENV | API | Web / gym links | Bundle ID |
+|---|---|---|---|---|
+| `development` | development | `http://10.0.2.2:4000/api/v1` | `http://10.0.2.2:3000` / `http://10.0.2.2:3003` | `com.kriraghor.app.development` |
+| `preview` | preview | `https://api.kriraghor.com/api/v1` | `https://kriraghor.com` / `https://gym.kriraghor.com` | `com.kriraghor.app.preview` |
+| `production` | production | `https://api.kriraghor.com/api/v1` | `https://kriraghor.com` / `https://gym.kriraghor.com` | `com.kriraghor.app` |
+
+The app version drives the OTA runtime (`runtimeVersion: appVersion`): bump `version` whenever a native module is added, so older installs never receive JS that needs it. A preview build of the current code: `npx eas-cli@latest build --profile preview --platform android` (uses the Expo account; ask first).
 
 Run `npx eas-cli@latest init` once to create the EAS project and set `EAS_PROJECT_ID` (needed for push tokens).
+
+## Screens
+
+| Route | What it does |
+|---|---|
+| `(tabs)/index`, `events`, `matches`, `ranks` | Esports home, events, my matches, leaderboards and player pages (M21) |
+| `(tabs)/account` | Account, language, notifications, and rows for notifications, game IDs, squads, winnings and **Gym** (badge: gym invites waiting) |
+| `register/[id]`, `pay/[paymentId]`, `room/[matchId]`, `result/[matchId]`, `game-ids`, `squads`, `split/[registrationId]`, `winnings`, `payout-account`, `notifications` | Esports entry, paying (M06), room reveal, results and disputes, game IDs, squads, prize split, winnings and withdrawals, the bell |
+| `gym` | My gyms: package, days left, what I owe with **Pay** (or "Pay at the counter"), invites badge, today's workout and meals, my check-in QR, past gyms, passes and trainers; no gyms: Find a gym on gym.kriraghor.com |
+| `gym/requests` | Gym invites (what the gym will see, Accept, Decline), my join requests (Cancel), expired ones greyed |
+| `gym/[memberId]` | One membership: packages and freezes, dues with Pay, payments, receipts (open on gym.kriraghor.com), plans, health note, Unlink |
+| `gym/[memberId]/attendance` | Check-in calendar by month, Saturday first |
+| `gym/plans/[assignmentId]` | Today first with Done ticks and notes (and the days back the API allows), the week, the whole plan, video links, the safety line |
+| `gym/checkin` | My rotating QR (brightness up, screen awake) and scanning the gym's entrance QR with the camera |
+| `gym/passes`, `gym/subscriptions` | M20 passes (QR and backup code while active) and trainer subscriptions (renew, cancel, report on gym.kriraghor.com) |
+
+The pay screen follows the payment's purpose: esports entries go back to Matches; gym fees say "Fee paid" and go back to the membership; passes and trainer months go back to their lists.
 
 ## Sessions (ADR-004)
 Every request sends `X-Client-Type: mobile`, so sign-in and refresh return the refresh token in the body (no cookies, no CSRF). The refresh token is stored with `expo-secure-store` (Keychain or Keystore, this device only, after first unlock); the access token stays in memory. Refresh is single-flight, and a 401 `TOKEN_EXPIRED` or `AUTHZ_STALE` refreshes once and retries.
@@ -46,4 +65,4 @@ Every request sends `X-Client-Type: mobile`, so sign-in and refresh return the r
 English and Bangla (`src/i18n`). The app follows the phone's language until the user picks one in Account; the choice is kept on the device. `bn.ts` is typed from `en.ts`, so a missing key fails the typecheck, and a test checks every Bangla text is translated. Bangla text uses Hind Siliguri (`src/constants/fonts.ts`). User-facing names follow kriraghor-docs 04 §0: Venues, Events, Showcases.
 
 ## Push
-`src/lib/notifications.ts` creates the Android channels the backend sends on (`urgent`: room ready, check-in open, security; `default`: everything else), asks permission when the user turns notifications on (never at launch) and gets the Expo push token. Registering it with `POST /me/push-subscriptions` comes with the esports screens (B1); the backend side is on kriraghor-backend `feat/mobile-push-and-return`.
+`src/lib/notifications.ts` creates the Android channels the backend sends on (`urgent`: room ready, check-in open, security; `default`: everything else), asks permission when the user turns notifications on (never at launch) and gets the Expo push token. The token is registered with `POST /me/push-subscriptions`. A tap opens the screen for the notification's `link` (`src/lib/links.ts`): esports pages open their screens, gym member pages (`/me`, `/me/requests`, `/me/memberships/[id]`, `/me/dues`, `/me/plans/[id]`, `/me/checkin`, `/me/passes`, `/me/subscriptions`) open the gym screens, and the rest of gym.kriraghor.com (the owner panel, the directory, pay links, receipts) opens in the browser.
