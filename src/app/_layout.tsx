@@ -2,9 +2,10 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Updates from 'expo-updates';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useColorScheme } from 'react-native';
+import { Alert, useColorScheme } from 'react-native';
 import { AnimatedSplash } from '@/components/AnimatedSplash';
 import { FONT_ASSETS, withTypeface } from '@/constants/fonts';
 // Importing the i18n module also initialises it (English or Bangla from the phone).
@@ -65,6 +66,36 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
   const [languageReady, setLanguageReady] = useState(false);
+
+  useEffect(() => {
+    async function checkForUpdates() {
+      if (__DEV__) return;
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          Alert.alert(
+            'New Update Available!',
+            'A new version of the app has been downloaded. Do you want to restart now?',
+            [
+              { text: 'Later', style: 'cancel' },
+              { 
+                text: 'Yes (Restart)', 
+                onPress: async () => {
+                  await Updates.reloadAsync();
+                } 
+              }
+            ]
+          );
+        }
+      } catch (error) {
+        console.log('Error checking for updates: ', error);
+      }
+    }
+
+    checkForUpdates();
+  }, []);
+
   useEffect(() => {
     void restoreLanguage().finally(() => setLanguageReady(true));
   }, []);
