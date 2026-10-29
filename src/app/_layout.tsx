@@ -48,6 +48,15 @@ function AppStack() {
       <Stack.Screen name="split/[registrationId]" options={{ title: t('split.title') }} />
       <Stack.Screen name="winnings" options={{ title: t('winnings.title') }} />
       <Stack.Screen name="payout-account" options={{ title: t('payout.title') }} />
+      {/* Gym (M24 §4.5, members only) */}
+      <Stack.Screen name="gym/index" options={{ title: t('gym.title') }} />
+      <Stack.Screen name="gym/requests" options={{ title: t('gymRequests.title') }} />
+      <Stack.Screen name="gym/[memberId]/index" options={{ title: t('gymMember.title') }} />
+      <Stack.Screen name="gym/[memberId]/attendance" options={{ title: t('gymAttendance.title') }} />
+      <Stack.Screen name="gym/plans/[assignmentId]" options={{ title: t('gymPlan.title') }} />
+      <Stack.Screen name="gym/checkin" options={{ title: t('gymCheckin.title') }} />
+      <Stack.Screen name="gym/passes" options={{ title: t('gymPasses.title') }} />
+      <Stack.Screen name="gym/subscriptions" options={{ title: t('gymSubs.title') }} />
     </Stack>
   );
 }
