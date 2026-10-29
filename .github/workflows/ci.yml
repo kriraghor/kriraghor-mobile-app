@@ -38,6 +38,7 @@ jobs:
       - name: Setup Expo Action
         uses: expo/expo-github-action@v8
         with:
+          eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Publish EAS Update
