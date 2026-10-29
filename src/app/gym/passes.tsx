@@ -63,6 +63,7 @@ function PassCard({ p, open, onToggle }: { p: Pass; open: boolean; onToggle: () 
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
   const { width } = useWindowDimensions();
+  const [boxWidth, setBoxWidth] = useState(0);
   const detail = useQuery({ queryKey: keys.gymPass(p.code), queryFn: () => myPass(p.code), enabled: open, staleTime: 0 });
   const full = detail.data?.pass;
   const tone = p.status === 'active' ? 'brand' : p.status === 'pending_payment' ? 'prize' : p.status === 'cancelled' || p.status === 'refunded' || p.status === 'void' ? 'danger' : 'neutral';
@@ -91,8 +92,8 @@ function PassCard({ p, open, onToggle }: { p: Pass; open: boolean; onToggle: () 
           {detail.isLoading ? <GymGate loading /> : null}
           <ErrorNotice error={detail.error} onRetry={() => void detail.refetch()} />
           {full?.status === 'active' && full.token ? (
-            <View style={styles.qrBox} accessible accessibilityLabel={t('gymPasses.qrAlt', { code: full.code })}>
-              <QRCode value={full.token} size={Math.min(width - 112, 280)} ecl="M" color="#111210" backgroundColor="#FFFFFF" quietZone={8} />
+            <View style={styles.qrBox} onLayout={(e) => setBoxWidth(e.nativeEvent.layout.width)} accessible accessibilityLabel={t('gymPasses.qrAlt', { code: full.code })}>
+              <QRCode value={full.token} size={Math.max(120, Math.min((boxWidth || width - 64) - 48, 280))} ecl="M" color="#111210" backgroundColor="#FFFFFF" quietZone={8} />
               {full.backupCode ? (
                 <ThemedText style={styles.backup}>
                   {t('gymPasses.backup')}: {full.backupCode}

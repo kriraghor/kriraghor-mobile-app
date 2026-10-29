@@ -98,6 +98,7 @@ function MyQr({ memberId, gym, code }: { memberId: string; gym: string; code: st
   const [token, setToken] = useState<CheckinToken | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [boxWidth, setBoxWidth] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -149,12 +150,13 @@ function MyQr({ memberId, gym, code }: { memberId: string; gym: string; code: st
     }, []),
   );
 
-  const size = Math.min(width - 96, 320);
+  // The QR fits the white box it sits in (padding 16 each side, quiet zone 8 each side), up to 320.
+  const size = Math.max(120, Math.min((boxWidth || width - 32) - 48, 320));
   const left = token ? secondsLeft(token.expiresAt, now) : 0;
   return (
     <View style={{ gap: 12 }}>
       {NATIVE ? <KeepAwake /> : null}
-      <View style={styles.qrBox} accessible accessibilityLabel={t('gymCheckin.qrAlt', { gym })}>
+      <View style={styles.qrBox} onLayout={(e) => setBoxWidth(e.nativeEvent.layout.width)} accessible accessibilityLabel={t('gymCheckin.qrAlt', { gym })}>
         <ThemedText style={styles.qrGym} numberOfLines={2}>
           {gym}
         </ThemedText>
