@@ -42,3 +42,34 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: eas build --platform android --profile ${{ matrix.profile }} --non-interactive
+
+  # Over-the-air update for installed apps. The preview APK listens on the "preview" channel
+  # (eas.json), so publish there by name instead of a branch picked by --auto. Only apps whose
+  # runtime (the app version in app.config.ts) matches get it; a version bump needs a new build.
+  eas-update:
+    name: Publish EAS Update (preview channel)
+    needs: [infrastructure-checks]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Publish EAS Update
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          APP_ENV: preview
+        run: eas update --channel preview --message "$(printf '%s' "$COMMIT_MESSAGE" | head -n 1)" --non-interactive
