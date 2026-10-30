@@ -10,8 +10,8 @@ import { lerpZoom, zoomFrom, type Rect as Box } from '@/lib/motion';
 
 
 /**
- * A black gradient over a photo, weighted to the bottom where the text sits: 85% black there, so white
- * text stays above 4.5:1 on any photo.
+ * A black gradient over a photo (30% at the top for the icon badge), weighted to the bottom where the
+ * text sits: 85% black there, so white text stays above 4.5:1 on any photo.
  */
 export function PhotoTint({ strength = 1 }: { strength?: number }) {
   const id = `tint-${useId().replace(/[^a-zA-Z0-9-]/g, '')}`;
@@ -19,8 +19,8 @@ export function PhotoTint({ strength = 1 }: { strength?: number }) {
     <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="none" pointerEvents="none">
       <Defs>
         <LinearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#000" stopOpacity={0.1 * strength} />
-          <Stop offset="0.45" stopColor="#000" stopOpacity={0.35 * strength} />
+          <Stop offset="0" stopColor="#000" stopOpacity={0.3 * strength} />
+          <Stop offset="0.45" stopColor="#000" stopOpacity={0.4 * strength} />
           <Stop offset="1" stopColor="#000" stopOpacity={Math.min(0.9, 0.85 * strength)} />
         </LinearGradient>
       </Defs>
