@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Tabs } from 'expo-router/js-tabs';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionsButton } from '@/components/sections';
 import { withTypeface } from '@/constants/fonts';
@@ -29,6 +30,7 @@ export default function EsportsLayout() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
+  const reduce = useReducedMotion();
   const { status } = useAuth();
   // Unread notifications on the Account tab (M08-FR-04); refreshed by notification.created.
   const unread = useQuery({ queryKey: keys.unread, queryFn: unreadCount, enabled: status === 'signed_in' });
@@ -48,6 +50,8 @@ export default function EsportsLayout() {
         headerTintColor: theme.text,
         headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language),
         headerRight: () => <SectionsButton />,
+        // A short crossfade between tabs (none with reduce motion).
+        animation: reduce ? 'none' : 'fade',
       }}>
       {TABS.map((tab) => (
         <Tabs.Screen

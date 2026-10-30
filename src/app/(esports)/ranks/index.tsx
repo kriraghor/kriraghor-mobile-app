@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { Segments } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { EmptyState, Notice } from '@/components/ui';
+import { EmptyState, Notice, SkeletonList } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { named } from '@/lib/esports';
@@ -34,7 +34,7 @@ export default function RanksScreen() {
     enabled: !!gameKey,
   });
 
-  if (games.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (games.isLoading) return <View style={{ flex: 1, backgroundColor: theme.background }}><SkeletonList rows={6} height={56} label={t('common.loading')} /></View>;
   const data = board.data;
   const minEvents = (data as { formula?: { minTournaments?: number } } | undefined)?.formula?.minTournaments ?? 3;
 
@@ -73,7 +73,7 @@ export default function RanksScreen() {
           ) : null}
         </View>
       }
-      ListEmptyComponent={board.isLoading ? <ActivityIndicator color={theme.brand} style={{ marginTop: 32 }} /> : <EmptyState text={t('ranks.empty')} />}
+      ListEmptyComponent={board.isLoading ? <SkeletonList rows={6} height={56} label={t('common.loading')} /> : <EmptyState text={t('ranks.empty')} />}
       renderItem={({ item }) => <Row row={item} mine={item.userId === me.data?.id} lang={lang} />}
     />
   );
