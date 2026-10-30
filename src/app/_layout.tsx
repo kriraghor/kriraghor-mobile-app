@@ -5,7 +5,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
 import { AnimatedSplash } from '@/components/AnimatedSplash';
 import { FONT_ASSETS, withTypeface } from '@/constants/fonts';
 // Importing the i18n module also initialises it (English or Bangla from the phone).
@@ -48,17 +47,17 @@ function AppStack() {
   const { t, i18n } = useTranslation();
   // A launch that opened another screen (a link or a notification) never jumps to the remembered section.
   const pathname = usePathname();
-  // The hub and the sections crossfade: with the hub's zoom over the photo it reads as zooming in or out.
-  const fade = useReducedMotion() ? 'none' : 'fade';
+  // The hub and the sections animate themselves (components/transition.tsx), so the stack does not.
+  const scene = 'none';
   useEffect(() => {
     if (pathname !== HUB) setStartSection(null);
   }, [pathname]);
   return (
     <Stack screenOptions={{ headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language) }}>
       {/* The hub, then the two in-app sections (each its own tabs). */}
-      <Stack.Screen name="index" options={{ headerShown: false, title: t('common.appName'), animation: fade }} />
-      <Stack.Screen name="(esports)" options={{ headerShown: false, title: t('hub.tiles.esports.title'), animation: fade }} />
-      <Stack.Screen name="(gym)" options={{ headerShown: false, title: t('hub.tiles.gym.title'), animation: fade }} />
+      <Stack.Screen name="index" options={{ headerShown: false, title: t('common.appName'), animation: scene }} />
+      <Stack.Screen name="(esports)" options={{ headerShown: false, title: t('hub.tiles.esports.title'), animation: scene }} />
+      <Stack.Screen name="(gym)" options={{ headerShown: false, title: t('hub.tiles.gym.title'), animation: scene }} />
       <Stack.Screen name="sign-in" options={{ title: t('common.signIn'), presentation: 'modal' }} />
       <Stack.Screen name="register/[id]" options={{ title: t('register.title') }} />
       <Stack.Screen name="pay/[paymentId]" options={{ title: t('pay.title'), gestureEnabled: false }} />

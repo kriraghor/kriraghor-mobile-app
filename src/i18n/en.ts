@@ -436,7 +436,6 @@ export const en = {
     greeting: { morning: 'Good morning, {{name}}', afternoon: 'Good afternoon, {{name}}', evening: 'Good evening, {{name}}' },
     account: 'My account',
     logo: 'Kriraghor',
-    hello: 'Hello, {{name}}',
     welcome: 'Welcome to Kriraghor',
     sub: 'What would you like to do?',
     signInNote: 'Sign in once for esports, your gym and kriraghor.com.',

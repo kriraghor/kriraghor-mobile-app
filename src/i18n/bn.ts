@@ -434,7 +434,6 @@ export const bn: Messages = {
     greeting: { morning: 'সুপ্রভাত, {{name}}', afternoon: 'শুভ দুপুর, {{name}}', evening: 'শুভ সন্ধ্যা, {{name}}' },
     account: 'আমার অ্যাকাউন্ট',
     logo: 'ক্রীড়াঘর',
-    hello: 'হ্যালো, {{name}}',
     welcome: 'ক্রীড়াঘরে স্বাগতম',
     sub: 'আজ কী করতে চান?',
     signInNote: 'ইস্পোর্টস, আপনার জিম আর kriraghor.com-এর জন্য একবার সাইন ইন করুন।',

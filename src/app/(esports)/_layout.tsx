@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useReducedMotion } from 'react-native-reanimated';
 import { SectionsButton } from '@/components/sections';
 import { GlassTabBar } from '@/components/tab-bar';
+import { SectionScene } from '@/components/transition';
 import { withTypeface } from '@/constants/fonts';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
@@ -37,6 +38,7 @@ export default function EsportsLayout() {
   const total = (unread.data ?? 0) + waiting;
   const badge = status === 'signed_in' && total ? (total > 99 ? '99+' : total) : undefined;
   return (
+    <SectionScene>
     <Tabs
       // The floating glass bar shared by both sections (components/tab-bar.tsx).
       tabBar={(props) => <GlassTabBar {...props} />}
@@ -62,5 +64,6 @@ export default function EsportsLayout() {
         />
       ))}
     </Tabs>
+    </SectionScene>
   );
 }

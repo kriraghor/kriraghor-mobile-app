@@ -1,23 +1,27 @@
-import { Icon, type IconName } from '@/components/icons/Icon';
+import { Image } from 'expo-image';
 import { Redirect, router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { useReducedMotion, withTiming, type EntryAnimationsValues } from 'react-native-reanimated';
+import { Image as RNImage, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TileFace, tileStyle, ZoomOverlay } from '@/components/photo-tile';
-import { openSection } from '@/components/sections';
+import { Icon, type IconName } from '@/components/icons/Icon';
+import { TileFace, tileStyle } from '@/components/photo-tile';
 import { ThemedText } from '@/components/themed-text';
-import { AnimatedPressable, Button, Reveal } from '@/components/ui';
+import { useZoomScene, ZOOM } from '@/components/transition';
+import { AnimatedPressable, Reveal } from '@/components/ui';
 import { Radius } from '@/constants/motion';
 import { SECTION_PHOTOS } from '@/constants/section-photos';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { config } from '@/lib/config';
-import type { Rect } from '@/lib/motion';
 import { SECTION_HOME, setStartSection, startSection, tileTarget, TILES, type Tile, type TileKey } from '@/lib/section';
+import { openSection } from '@/lib/section-nav';
+import { dayPart, firstName, initials } from '@/lib/ui-logic';
 import { useMe } from '@/lib/use-me';
+
+const LOGO = require('../../assets/brand/logo-mark.png');
 
 const ICONS: Record<TileKey, IconName> = {
   esports: 'esports',
@@ -40,21 +44,23 @@ const ROWS: { keys: TileKey[]; height: number }[] = [
 ];
 const TILE_BY_KEY = Object.fromEntries(TILES.map((t) => [t.key, t])) as Record<TileKey, Tile>;
 
-/** Coming back to the hub reads as zooming out: the page settles from slightly larger while it fades in. */
-function zoomOutEntering(values: EntryAnimationsValues) {
-  'worklet';
-  void values;
-  return {
-    initialValues: { opacity: 0, transform: [{ scale: 1.06 }] },
-    animations: { opacity: withTiming(1, { duration: 300 }), transform: [{ scale: withTiming(1, { duration: 300 }) }] },
-  };
+/** Decode the section photos before anyone taps, so nothing re-decodes during a transition. */
+function prefetchPhotos() {
+  try {
+    const uris = Object.values(SECTION_PHOTOS)
+      .map((m) => RNImage.resolveAssetSource(m)?.uri)
+      .filter((u): u is string => Boolean(u));
+    void Image.prefetch(uris).catch(() => undefined);
+  } catch {
+    /* a preview without asset URIs: nothing to prefetch */
+  }
 }
 
 /**
- * The hub, the app's first screen: a greeting and six photo tiles. Esports and Gym zoom into their
- * sections (remembered for the next cold start); Venues, Shop, Hire and Events zoom, open
- * kriraghor.com in the in-app browser, and zoom back when it closes. On a cold start with a
- * remembered section the hub sends the person straight there.
+ * The hub, the app's first screen: a top bar (logo; Sign in, or my initials opening Account), a
+ * greeting in Dhaka time and six photo tiles. Esports and Gym zoom through into their sections
+ * (remembered for the next cold start); Venues, Shop, Hire and Events open kriraghor.com in the
+ * in-app browser. On a cold start with a remembered section the hub sends the person straight there.
  */
 export default function Hub() {
   // Read once on the first mount; cleared after, so coming back here later stays on the hub.
@@ -64,54 +70,68 @@ export default function Hub() {
   return <HubScreen />;
 }
 
-type Zoom = { key: TileKey; rect: Rect; out: boolean };
-
 function HubScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const reduce = useReducedMotion();
   const { t } = useTranslation();
   const { status } = useAuth();
   const me = useMe();
-  const name = status === 'signed_in' ? me.data?.displayName : undefined;
-  const [zoom, setZoom] = useState<Zoom | null>(null);
+  const [leaving, setLeaving] = useState(false);
+  // Enters from 1.06 (zooming out of a section); leaves to 1.08 (zooming into one).
+  const { style, leave } = useZoomScene(ZOOM.hubIn.from, ZOOM.hubIn.duration, ZOOM.hubOut.scale, ZOOM.hubOut.duration);
+  useEffect(prefetchPhotos, []);
 
-  const open = (key: TileKey, rect: Rect) => {
-    if (zoom) return;
-    setZoom({ key, rect, out: false });
+  const name = status === 'signed_in' ? firstName(me.data?.displayName) : '';
+  const greeting = name ? t(`hub.greeting.${dayPart(new Date())}`, { name }) : t('hub.welcome');
+
+  const open = (key: TileKey) => {
+    const target = tileTarget(TILE_BY_KEY[key], config.webUrl);
+    if ('external' in target) return void WebBrowser.openBrowserAsync(target.external).catch(() => undefined);
+    if (leaving) return;
+    setLeaving(true);
+    leave(() => void openSection(target.section));
   };
-  // Zoomed in: go into the section (the stack crossfades it in over the full-screen photo), or open
-  // the website and zoom back out once the browser closes.
-  const zoomedIn = useCallback(() => {
-    if (!zoom) return;
-    const target = tileTarget(TILE_BY_KEY[zoom.key], config.webUrl);
-    if ('external' in target) {
-      void WebBrowser.openBrowserAsync(target.external)
-        .catch(() => undefined)
-        .finally(() => setZoom((z) => (z ? { ...z, out: true } : z)));
-    } else void openSection(target.section);
-  }, [zoom]);
-  const zoomedOut = useCallback(() => setZoom(null), []);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      <Animated.View entering={reduce || Platform.OS === 'web' ? undefined : zoomOutEntering} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 32 }]}>
+      <Animated.View style={[{ flex: 1 }, style]} pointerEvents={leaving ? 'none' : 'auto'}>
+        <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 32 }]}>
+          <View style={styles.bar}>
+            <View style={styles.brand} accessible accessibilityRole="header" accessibilityLabel={t('hub.logo')}>
+              <Image source={LOGO} style={styles.logo} contentFit="contain" accessible={false} />
+              <ThemedText style={styles.wordmark}>{t('hub.logo')}</ThemedText>
+            </View>
+            {status === 'signed_in' ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('hub.account')}
+                onPress={() => router.push('/account')}
+                hitSlop={4}
+                style={({ pressed }) => [styles.avatar, { backgroundColor: theme.brand }, pressed && { opacity: 0.85 }]}>
+                {me.data ? (
+                  <ThemedText type="smallBold" style={{ color: theme.onBrand, fontSize: 16 }}>
+                    {initials(me.data.displayName)}
+                  </ThemedText>
+                ) : (
+                  <Icon name="account" size={22} color={theme.onBrand} />
+                )}
+              </Pressable>
+            ) : status === 'signed_out' ? (
+              <AnimatedPressable accessibilityRole="button" onPress={() => router.push('/sign-in')} hitSlop={4} style={[styles.signIn, { backgroundColor: theme.brand }]}>
+                <Icon name="sign-in" size={18} color={theme.onBrand} />
+                <ThemedText type="smallBold" style={{ color: theme.onBrand }}>
+                  {t('common.signIn')}
+                </ThemedText>
+              </AnimatedPressable>
+            ) : null}
+          </View>
+
           <Reveal style={styles.head}>
             <ThemedText style={styles.title} accessibilityRole="header">
-              {name ? t('hub.hello', { name }) : t('hub.welcome')}
+              {greeting}
             </ThemedText>
-            <ThemedText themeColor="textSecondary">{t('hub.sub')}</ThemedText>
+            <ThemedText themeColor="textSecondary">{status === 'signed_out' ? t('hub.signInNote') : t('hub.sub')}</ThemedText>
           </Reveal>
-
-          {status === 'signed_out' ? (
-            <Reveal index={1} style={[styles.signIn, { backgroundColor: theme.backgroundElement, borderColor: theme.line }]}>
-              <ThemedText type="small" themeColor="textSecondary">
-                {t('hub.signInNote')}
-              </ThemedText>
-              <Button title={t('common.signIn')} onPress={() => router.push('/sign-in')} />
-            </Reveal>
-          ) : null}
 
           <View style={styles.grid}>
             {ROWS.map((row, r) => (
@@ -137,47 +157,38 @@ function HubScreen() {
           ) : null}
         </ScrollView>
       </Animated.View>
-
-      {zoom ? (
-        <ZoomOverlay rect={zoom.rect} out={zoom.out} onIn={zoomedIn} onOut={zoomedOut}>
-          <TileFace photo={SECTION_PHOTOS[zoom.key]} icon={ICONS[zoom.key]} title={t(`hub.tiles.${zoom.key}.title`)} body={t(`hub.tiles.${zoom.key}.body`)} big />
-        </ZoomOverlay>
-      ) : null}
     </View>
   );
 }
 
-/** One photo tile: measured on press so the zoom starts exactly where it sits. */
-function HubTile({ tileKey, index, big, onOpen }: { tileKey: TileKey; index: number; big?: boolean; onOpen: (key: TileKey, rect: Rect) => void }) {
+/** One photo tile: springs to 0.97 while held; the release starts the zoom-through or opens the website. */
+function HubTile({ tileKey, index, big, onOpen }: { tileKey: TileKey; index: number; big?: boolean; onOpen: (key: TileKey) => void }) {
   const { t } = useTranslation();
-  const ref = useRef<View>(null);
   const web = 'webPath' in TILE_BY_KEY[tileKey];
-  const press = () => {
-    const node = ref.current;
-    if (!node) return onOpen(tileKey, { x: 0, y: 0, width: 0, height: 0 });
-    node.measureInWindow((x, y, width, height) => onOpen(tileKey, { x, y, width, height }));
-  };
   return (
     <Reveal index={index} style={{ flex: 1 }}>
-      <View ref={ref} collapsable={false} style={{ flex: 1 }}>
-        <AnimatedPressable
-          accessibilityRole={web ? 'link' : 'button'}
-          accessibilityLabel={`${t(`hub.tiles.${tileKey}.title`)}. ${t(`hub.tiles.${tileKey}.body`)}`}
-          accessibilityHint={web ? t('hub.opensWebsite') : undefined}
-          onPress={press}
-          style={[tileStyle, { flex: 1 }]}>
-          <TileFace photo={SECTION_PHOTOS[tileKey]} icon={ICONS[tileKey]} title={t(`hub.tiles.${tileKey}.title`)} body={t(`hub.tiles.${tileKey}.body`)} web={web} big={big} />
-        </AnimatedPressable>
-      </View>
+      <AnimatedPressable
+        accessibilityRole={web ? 'link' : 'button'}
+        accessibilityLabel={`${t(`hub.tiles.${tileKey}.title`)}. ${t(`hub.tiles.${tileKey}.body`)}`}
+        accessibilityHint={web ? t('hub.opensWebsite') : undefined}
+        onPress={() => onOpen(tileKey)}
+        style={[tileStyle, { flex: 1 }]}>
+        <TileFace photo={SECTION_PHOTOS[tileKey]} icon={ICONS[tileKey]} title={t(`hub.tiles.${tileKey}.title`)} body={t(`hub.tiles.${tileKey}.body`)} web={web} big={big} />
+      </AnimatedPressable>
     </Reveal>
   );
 }
 
 const styles = StyleSheet.create({
   page: { paddingHorizontal: 16, gap: 16 },
+  bar: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  logo: { width: 36, height: 36 },
+  wordmark: { fontSize: 20, lineHeight: 28, fontWeight: '800' },
+  avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  signIn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, borderRadius: Radius.pill },
   head: { gap: 4, paddingHorizontal: 4 },
   title: { fontSize: 28, lineHeight: 36, fontWeight: '800' },
-  signIn: { gap: 12, padding: 16, borderWidth: 1, borderRadius: Radius.card },
   grid: { gap: 12 },
   row: { flexDirection: 'row', gap: 12 },
   note: { flexDirection: 'row', gap: 8, paddingHorizontal: 4 },

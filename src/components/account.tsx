@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { CountBadge } from '@/components/gym';
-import { goToHub } from '@/components/sections';
+import { useLeaveToHub } from '@/components/transition';
 import { ThemedText } from '@/components/themed-text';
 import { Button, EmptyState, Notice } from '@/components/ui';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
@@ -43,7 +43,7 @@ export function AccountScreen({ section }: { section: Section }) {
   });
 
   // Signing out, or All sections: forget the section and show the hub.
-  const toHub = goToHub;
+  const toHub = useLeaveToHub();
 
   if (status === 'signed_out') {
     return (
