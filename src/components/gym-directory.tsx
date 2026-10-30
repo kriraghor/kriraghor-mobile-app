@@ -171,7 +171,7 @@ function FiltersSheet({ visible, value, onClose, onApply }: { visible: boolean; 
       footer={
         <>
           <View style={{ flex: 1 }}>
-            <Button title={t('gymDir.clear')} variant="outline" onPress={() => setDraft(NO_FILTERS)} />
+            <Button title={t('gymDir.clearShort')} variant="outline" onPress={() => setDraft(NO_FILTERS)} />
           </View>
           <View style={{ flex: 2 }}>
             <Button title={typeof n === 'number' ? t('gymDir.showN', { n: count(n, lang) }) : t('gymDir.showGyms')} onPress={() => onApply(draft)} />

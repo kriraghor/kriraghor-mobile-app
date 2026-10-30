@@ -503,6 +503,7 @@ export const en = {
     newGym: 'New on Kriraghor',
     empty: 'No gyms match these filters.',
     clear: 'Clear filters',
+    clearShort: 'Clear',
     more: 'Show more gyms',
     myGyms: 'My gyms',
     myPasses: 'My passes',

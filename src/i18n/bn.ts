@@ -501,6 +501,7 @@ export const bn: Messages = {
     newGym: 'ক্রীড়াঘরে নতুন',
     empty: 'এই ফিল্টারে কোনো জিম নেই।',
     clear: 'ফিল্টার মুছুন',
+    clearShort: 'মুছুন',
     more: 'আরও জিম দেখুন',
     myGyms: 'আমার জিম',
     myPasses: 'আমার পাস',
