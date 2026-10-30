@@ -5,6 +5,7 @@ import { SectionTitle } from '@/components/esports';
 import { Card, ErrorNotice, GymGate } from '@/components/gym';
 import { PlanList, TodayCard } from '@/components/gym-today';
 import { ThemedText } from '@/components/themed-text';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { useMyPlans } from '@/lib/use-gym';
@@ -16,6 +17,7 @@ import { keys } from '@/lib/use-realtime';
  */
 export default function GymToday() {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t } = useTranslation();
   const { status } = useAuth();
   const qc = useQueryClient();
@@ -30,7 +32,7 @@ export default function GymToday() {
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={styles.page}
+      contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]}
       refreshControl={<RefreshControl refreshing={plans.isRefetching} onRefresh={() => void qc.invalidateQueries({ queryKey: keys.gymPlans })} tintColor={theme.brand} />}>
       <ErrorNotice error={plans.error} onRetry={() => void plans.refetch()} />
       {plans.data ? (

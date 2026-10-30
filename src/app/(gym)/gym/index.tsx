@@ -9,6 +9,7 @@ import { GymDirectory } from '@/components/gym-directory';
 import { TodayCard } from '@/components/gym-today';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { cardPayState, dateOnly, linkedGyms } from '@/lib/gym';
@@ -26,6 +27,7 @@ import { keys } from '@/lib/use-realtime';
  */
 export default function GymHome() {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t } = useTranslation();
   const { status } = useAuth();
   const qc = useQueryClient();
@@ -48,7 +50,7 @@ export default function GymHome() {
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={styles.page}
+      contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void qc.invalidateQueries({ queryKey: keys.gym })} tintColor={theme.brand} />}>
       <ErrorNotice error={gyms.error} onRetry={() => void gyms.refetch()} />
 

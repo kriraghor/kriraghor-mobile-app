@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { InfoRow, Pill, SectionTitle, SlotsBar } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Notice } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { errorText } from '@/lib/errors';
@@ -19,6 +20,7 @@ import { keys, useRoomEvents } from '@/lib/use-realtime';
 export default function EventScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
@@ -52,7 +54,7 @@ export default function EventScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <Stack.Screen options={{ title: named(e.game, lang) }} />
-      <ScrollView contentContainerStyle={[styles.page, { paddingBottom: 120 }]} refreshControl={<RefreshControl refreshing={event.isRefetching} onRefresh={() => void event.refetch()} tintColor={theme.brand} />}>
+      <ScrollView contentContainerStyle={[styles.page, { paddingBottom: 120 + tabInset }]} refreshControl={<RefreshControl refreshing={event.isRefetching} onRefresh={() => void event.refetch()} tintColor={theme.brand} />}>
         <View style={styles.pills}>
           <Pill text={e.entryUnit === 'squad' ? t('events.squadOf', { size: e.mode.teamSize }) : t('events.solo')} tone="brand" />
           {e.organiser ? <Pill text={t('events.byOrganiser', { name: e.organiser.name })} /> : null}
@@ -107,7 +109,7 @@ export default function EventScreen() {
         ) : null}
       </ScrollView>
 
-      <View style={[styles.bottom, { paddingBottom: 12 + insets.bottom, backgroundColor: theme.backgroundElement, borderTopColor: theme.line }]}>
+      <View style={[styles.bottom, { paddingBottom: tabInset ? 12 : 12 + insets.bottom, bottom: tabInset, backgroundColor: theme.backgroundElement, borderTopColor: theme.line }]}>
         {cta.kind === 'register' || cta.kind === 'waitlist' ? (
           <Button
             title={cta.kind === 'waitlist' ? t('event.joinWaitlist') : free ? t('event.registerFree') : t('event.register', { fee: money(e.entryFee.amount, lang) })}

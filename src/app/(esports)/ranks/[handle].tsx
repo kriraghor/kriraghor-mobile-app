@@ -5,6 +5,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { Pill, SectionTitle } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
 import { Notice } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { named } from '@/lib/esports';
@@ -16,6 +17,7 @@ import { points } from '@/lib/player';
 export default function PlayerScreen() {
   const { handle } = useLocalSearchParams<{ handle: string }>();
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
   const page = useQuery({ queryKey: ['player', handle], queryFn: () => playerPage(handle) });
@@ -26,7 +28,7 @@ export default function PlayerScreen() {
   const heading = p.games[0]?.ign ?? p.displayName;
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.page}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]}>
       <Stack.Screen options={{ title: heading }} />
       <ThemedText style={styles.title}>{heading}</ThemedText>
       {p.username ? <ThemedText themeColor="textSecondary">@{p.username}</ThemedText> : null}

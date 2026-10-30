@@ -6,6 +6,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Reveal, SkeletonList } from '@/components/ui';
 import { Radius } from '@/constants/motion';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 
@@ -17,9 +18,10 @@ import { useAuth } from '@/lib/auth';
  */
 export function SignInPrompt({ text, icon = 'account', browse }: { text?: string; icon?: IconName; browse?: { title: string; onPress: () => void } }) {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t } = useTranslation();
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.page}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 16 + tabInset }]}>
       <Reveal style={[styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.line }]}>
         <View style={[styles.icon, { backgroundColor: theme.backgroundSelected }]}>
           <Icon name={icon} size={28} color={theme.brandText} />

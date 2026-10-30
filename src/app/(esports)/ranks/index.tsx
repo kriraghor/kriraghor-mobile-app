@@ -6,6 +6,7 @@ import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-nat
 import { Segments } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
 import { EmptyState, Notice, SkeletonList } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { named } from '@/lib/esports';
@@ -20,6 +21,7 @@ import { useMe } from '@/lib/use-me';
  */
 export default function RanksScreen() {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
   const me = useMe();
@@ -41,7 +43,7 @@ export default function RanksScreen() {
   return (
     <FlatList
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={{ paddingBottom: 24, flexGrow: 1 }}
+      contentContainerStyle={{ paddingBottom: 24 + tabInset, flexGrow: 1 }}
       data={data?.items ?? []}
       keyExtractor={(r) => r.userId}
       refreshControl={<RefreshControl refreshing={board.isRefetching} onRefresh={() => void board.refetch()} tintColor={theme.brand} />}

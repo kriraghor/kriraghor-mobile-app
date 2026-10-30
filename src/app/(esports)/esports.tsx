@@ -11,6 +11,7 @@ import { PhotoTint } from '@/components/photo-tile';
 import { AnimatedPressable, Button, Reveal } from '@/components/ui';
 import { Radius } from '@/constants/motion';
 import { SECTION_PHOTOS } from '@/constants/section-photos';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { config } from '@/lib/config';
@@ -22,11 +23,12 @@ import { points } from '@/lib/player';
 /** Esports Home: All sections, the pitch, sign-in, and top players. */
 export default function EsportsHome() {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { status } = useAuth();
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingTop: insets.top + 12 }]}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingTop: insets.top + 12, paddingBottom: 24 + tabInset }]}>
       <SectionsChip />
       <Reveal style={[styles.hero, { backgroundColor: '#0A1A12' }]}>
         <Image source={SECTION_PHOTOS.esports} style={StyleSheet.absoluteFill} contentFit="cover" transition={250} accessible={false} />

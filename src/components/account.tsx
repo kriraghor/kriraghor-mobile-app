@@ -8,6 +8,7 @@ import { CountBadge } from '@/components/gym';
 import { goToHub } from '@/components/sections';
 import { ThemedText } from '@/components/themed-text';
 import { Button, EmptyState, Notice } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { LANGUAGES, setLanguage, type Language } from '@/i18n';
 import { api, problemMessage } from '@/lib/api';
@@ -26,6 +27,7 @@ const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', bn: 'বাং
  */
 export function AccountScreen({ section }: { section: Section }) {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t } = useTranslation();
   const { status, signOut } = useAuth();
   const [push, setPush] = useState<PushRegistration | null>(null);
@@ -58,7 +60,7 @@ export function AccountScreen({ section }: { section: Section }) {
   const pushText = !push ? t('account.notificationsHelp') : push.status === 'granted' ? t('account.pushRegistered') : push.reason === 'denied' ? t('account.pushDenied') : t('account.pushUnavailable');
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.page}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]}>
       {me.error ? <Notice tone="error" text={problemMessage(me.error, t('common.somethingWrong'))} /> : null}
       {me.data ? (
         <>

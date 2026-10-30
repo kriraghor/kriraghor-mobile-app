@@ -12,6 +12,7 @@ import { Segments } from '@/components/esports';
 import { Card, ErrorNotice, GymGate } from '@/components/gym';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Notice } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { ApiError } from '@/lib/esports-api';
@@ -34,6 +35,7 @@ const SCAN_REPEAT_MS = 3000;
  */
 export default function GymCheckin() {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t } = useTranslation();
   const { status } = useAuth();
   const params = useLocalSearchParams<{ m?: string; mode?: string }>();
@@ -64,7 +66,7 @@ export default function GymCheckin() {
           onChange={setMode}
         />
       </View>
-      <ScrollView contentContainerStyle={styles.page}>
+      <ScrollView contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]}>
         <ErrorNotice error={gyms.error} onRetry={() => void gyms.refetch()} />
         {!member && !gyms.error ? (
           <Card>
