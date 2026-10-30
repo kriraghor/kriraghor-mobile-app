@@ -1,7 +1,7 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon, type IconName } from '@/components/icons/Icon';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
@@ -16,10 +16,9 @@ import { ApiError } from '@/lib/esports-api';
 import { findItem, safeVideo, splitDuration, textOf, type Bilingual, type Content } from '@/lib/gym';
 import type { Lang } from '@/lib/format';
 
-/** Building blocks of the member gym screens (M24 §4.5): the app's tokens, square corners, 48px targets. */
+/** Building blocks of the member gym screens (M24 §4.5): the app's tokens, radius scale, 48px targets. */
 
-export type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
-
+export type { IconName } from '@/components/icons/Icon';
 /** Open a gym.kriraghor.com (or kriraghor.com) page in the in-app browser. */
 export const openWeb = (url: string) => void WebBrowser.openBrowserAsync(url);
 export const gymWeb = (path: string) => `${config.gymUrl}${path}`;
@@ -59,7 +58,7 @@ export function RowLink({ icon, label, hint, onPress, badge = 0, external }: { i
   const theme = useTheme();
   return (
     <AnimatedPressable accessibilityRole={external ? 'link' : 'button'} onPress={onPress} style={[styles.row, { borderColor: theme.line, backgroundColor: theme.backgroundElement }]}>
-      <MaterialCommunityIcons name={icon} size={22} color={theme.text} />
+      <Icon name={icon} size={22} color={theme.text} />
       <View style={{ flex: 1 }}>
         <ThemedText type="smallBold">{label}</ThemedText>
         {hint ? (
@@ -69,7 +68,7 @@ export function RowLink({ icon, label, hint, onPress, badge = 0, external }: { i
         ) : null}
       </View>
       <CountBadge n={badge} />
-      <MaterialCommunityIcons name={external ? 'open-in-new' : 'chevron-right'} size={20} color={theme.textSecondary} />
+      <Icon name={external ? 'external' : 'chevron-right'} size={20} color={theme.textSecondary} />
     </AnimatedPressable>
   );
 }
@@ -79,7 +78,7 @@ export function GymGate({ loading }: { loading: boolean }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { status } = useAuth();
-  if (status === 'signed_out') return <SignInPrompt text={t('gym.signedOut')} icon="dumbbell" browse={{ title: t('gym.findGym'), onPress: () => router.push('/gyms') }} />;
+  if (status === 'signed_out') return <SignInPrompt text={t('gym.signedOut')} icon="gym" browse={{ title: t('gym.findGym'), onPress: () => router.push('/gyms') }} />;
   if (loading || status === 'loading') return <View style={{ flex: 1, backgroundColor: theme.background }}><SkeletonList label={t('common.loading')} /></View>;
   return null;
 }
@@ -114,7 +113,7 @@ export function Safety({ text }: { text: Bilingual }) {
   const { i18n } = useTranslation();
   return (
     <View style={styles.safety}>
-      <MaterialCommunityIcons name="alert-circle-outline" size={16} color={theme.textSecondary} style={{ marginTop: 2 }} />
+      <Icon name="alert" size={16} color={theme.textSecondary} style={{ marginTop: 2 }} />
       <ThemedText type="small" themeColor="textSecondary" style={{ flex: 1 }}>
         {textOf(text, i18n.language as Lang)}
       </ThemedText>
@@ -164,7 +163,7 @@ export function ItemFacts({ content, itemRef }: { content: Content; itemRef: str
       ) : null}
       {video ? (
         <Pressable accessibilityRole="link" onPress={() => openWeb(video)} style={styles.video} hitSlop={4}>
-          <MaterialCommunityIcons name="play-circle-outline" size={18} color={theme.brandText} />
+          <Icon name="play" size={18} color={theme.brandText} />
           <ThemedText type="smallBold" style={{ color: theme.brandText }}>
             {t('gymPlan.video')}
           </ThemedText>

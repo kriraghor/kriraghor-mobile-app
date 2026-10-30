@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -188,7 +188,7 @@ function Choice({ label, selected, disabled, onPress }: { label: string; selecte
       disabled={disabled}
       onPress={onPress}
       style={[styles.choice, { borderColor: selected ? theme.brand : theme.line, backgroundColor: selected ? theme.backgroundSelected : theme.backgroundElement, opacity: disabled ? 0.45 : 1 }]}>
-      <MaterialCommunityIcons name={selected ? 'checkbox-marked' : 'checkbox-blank-outline'} size={22} color={selected ? theme.brand : theme.textSecondary} />
+      <Icon name={selected ? 'checkbox-on' : 'checkbox'} size={22} color={selected ? theme.brand : theme.textSecondary} />
       <ThemedText type="smallBold" style={{ flex: 1, color: selected ? theme.brandText : theme.text }}>
         {label}
       </ThemedText>

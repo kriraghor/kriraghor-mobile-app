@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
@@ -93,7 +93,7 @@ function About({ g }: { g: GymPage }) {
     <View style={{ gap: 8 }}>
       <View style={styles.row}>
         <Pill text={g.openNow ? t('gymDir.openNow') : t('gymDir.closedNow')} tone={g.openNow ? 'brand' : 'neutral'} />
-        <MaterialCommunityIcons name="star" size={16} color={theme.prize} />
+        <Icon name="star" size={16} color={theme.prize} />
         <ThemedText type="small" themeColor="textSecondary">
           {rating ? t('gymDir.rating', { avg: rating, n: count(g.ratingCount, lang) }) : t('gymDir.newGym')}
         </ThemedText>
@@ -107,7 +107,7 @@ function About({ g }: { g: GymPage }) {
       </ThemedText>
       {g.lat !== null && g.lng !== null ? (
         <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${g.lat},${g.lng}`)} style={styles.link}>
-          <MaterialCommunityIcons name="map-marker-outline" size={18} color={theme.brandText} />
+          <Icon name="pin" size={18} color={theme.brandText} />
           <ThemedText type="smallBold" style={{ color: theme.brandText }}>
             {t('gymPage.map')}
           </ThemedText>

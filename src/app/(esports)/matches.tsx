@@ -30,7 +30,7 @@ export default function MatchesScreen() {
   const entries = useQuery({ queryKey: keys.registrations, queryFn: myRegistrations, enabled: status === 'signed_in', refetchInterval: 30_000 });
 
   // My matches are the person's own: a guest gets Sign in, or keeps browsing events.
-  if (status !== 'signed_in') return <SignInPrompt text={t('matches.signedOut')} icon="sword-cross" browse={{ title: t('guest.browseEvents'), onPress: () => router.navigate('/events') }} />;
+  if (status !== 'signed_in') return <SignInPrompt text={t('matches.signedOut')} icon="matches" browse={{ title: t('guest.browseEvents'), onPress: () => router.navigate('/events') }} />;
   if (entries.isLoading) return <View style={{ flex: 1, backgroundColor: theme.background }}><SkeletonList label={t('common.loading')} /></View>;
 
   const items = (entries.data ?? []).filter((r) => r.status !== 'cancelled');

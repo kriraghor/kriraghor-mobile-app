@@ -1,7 +1,7 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon, type IconName } from '@/components/icons/Icon';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useState, type ComponentProps } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { CountBadge } from '@/components/gym';
@@ -48,7 +48,7 @@ export function AccountScreen({ section }: { section: Section }) {
       <View style={{ flex: 1, backgroundColor: theme.background }}>
         <LanguagePicker padded />
         <View style={styles.pad}>
-          <NavRow icon="view-grid-outline" label={t('hub.allSections')} onPress={() => void toHub()} />
+          <NavRow icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
         </View>
         <EmptyState text={t('account.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />
       </View>
@@ -74,12 +74,12 @@ export function AccountScreen({ section }: { section: Section }) {
         <ThemedText themeColor="textSecondary">{t('common.loading')}</ThemedText>
       )}
 
-      <NavRow icon="bell-outline" label={t('notifications.title')} onPress={() => router.push('/notifications')} />
-      <NavRow icon="gamepad-variant-outline" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
-      <NavRow icon="account-group-outline" label={t('squads.title')} onPress={() => router.push('/squads')} />
-      <NavRow icon="trophy-outline" label={t('winnings.title')} onPress={() => router.push('/winnings')} />
-      {section === 'esports' ? <NavRow icon="dumbbell" label={t('gym.title')} badge={waiting} onPress={() => router.push('/gym')} /> : null}
-      <NavRow icon="view-grid-outline" label={t('hub.allSections')} onPress={() => void toHub()} />
+      <NavRow icon="bell" label={t('notifications.title')} onPress={() => router.push('/notifications')} />
+      <NavRow icon="id-card" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
+      <NavRow icon="people" label={t('squads.title')} onPress={() => router.push('/squads')} />
+      <NavRow icon="wallet" label={t('winnings.title')} onPress={() => router.push('/winnings')} />
+      {section === 'esports' ? <NavRow icon="gym" label={t('gym.title')} badge={waiting} onPress={() => router.push('/gym')} /> : null}
+      <NavRow icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
 
       <LanguagePicker />
 
@@ -125,16 +125,16 @@ function LanguagePicker({ padded }: { padded?: boolean }) {
 }
 
 /** A row that opens another screen (48px target, icon and label). */
-function NavRow({ icon, label, onPress, badge = 0 }: { icon: ComponentProps<typeof MaterialCommunityIcons>['name']; label: string; onPress: () => void; badge?: number }) {
+function NavRow({ icon, label, onPress, badge = 0 }: { icon: IconName; label: string; onPress: () => void; badge?: number }) {
   const theme = useTheme();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.nav, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, pressed && { opacity: 0.85 }]}>
-      <MaterialCommunityIcons name={icon} size={22} color={theme.text} />
+      <Icon name={icon} size={22} color={theme.text} />
       <ThemedText type="smallBold" style={{ flex: 1 }}>
         {label}
       </ThemedText>
       <CountBadge n={badge} />
-      <MaterialCommunityIcons name="chevron-right" size={22} color={theme.textSecondary} />
+      <Icon name="chevron-right" size={22} color={theme.textSecondary} />
     </Pressable>
   );
 }

@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -54,14 +54,14 @@ export default function GymHome() {
 
       {canShowQr ? (
         <Pressable accessibilityRole="button" onPress={() => router.navigate('/gym/checkin')} style={({ pressed }) => [styles.qrButton, { backgroundColor: theme.brand }, pressed && { opacity: 0.85 }]}>
-          <MaterialCommunityIcons name="qrcode" size={24} color={theme.onBrand} />
+          <Icon name="checkin" size={24} color={theme.onBrand} />
           <ThemedText type="smallBold" style={{ color: theme.onBrand, fontSize: 16 }}>
             {t('gym.checkinQr')}
           </ThemedText>
         </Pressable>
       ) : null}
 
-      <RowLink icon="tray-arrow-down" label={t('gym.requests')} hint={waiting ? t('gym.waiting', { n: waiting }) : undefined} badge={waiting} onPress={() => router.push('/gym/requests')} />
+      <RowLink icon="download" label={t('gym.requests')} hint={waiting ? t('gym.waiting', { n: waiting }) : undefined} badge={waiting} onPress={() => router.push('/gym/requests')} />
 
       <TodayCard items={plans.data?.items ?? []} today={plans.data?.today ?? null} />
 
@@ -88,9 +88,9 @@ export default function GymHome() {
       ) : null}
 
       <SectionTitle>{t('gym.more')}</SectionTitle>
-      <RowLink icon="ticket-outline" label={t('gymPasses.title')} onPress={() => router.navigate('/gym/passes')} />
-      <RowLink icon="whistle-outline" label={t('gymSubs.title')} onPress={() => router.push('/gym/subscriptions')} />
-      <RowLink icon="map-search-outline" label={t('gym.findGym')} onPress={() => router.push('/gyms')} />
+      <RowLink icon="passes" label={t('gymPasses.title')} onPress={() => router.navigate('/gym/passes')} />
+      <RowLink icon="hire" label={t('gymSubs.title')} onPress={() => router.push('/gym/subscriptions')} />
+      <RowLink icon="search" label={t('gym.findGym')} onPress={() => router.push('/gyms')} />
     </ScrollView>
   );
 }

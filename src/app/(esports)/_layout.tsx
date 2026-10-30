@@ -1,7 +1,7 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon, type IconName } from '@/components/icons/Icon';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs } from 'expo-router/js-tabs';
-import type { ComponentProps } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,13 +13,12 @@ import { unreadCount } from '@/lib/esports-api';
 import { useWaitingInvites } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
 
-type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 const TABS: { name: string; label: 'home' | 'events' | 'matches' | 'ranks' | 'account'; icon: IconName }[] = [
-  { name: 'esports', label: 'home', icon: 'home-variant' },
-  { name: 'events', label: 'events', icon: 'trophy' },
-  { name: 'matches', label: 'matches', icon: 'sword-cross' },
-  { name: 'ranks', label: 'ranks', icon: 'podium' },
-  { name: 'account', label: 'account', icon: 'account-circle' },
+  { name: 'esports', label: 'home', icon: 'home' },
+  { name: 'events', label: 'events', icon: 'events' },
+  { name: 'matches', label: 'matches', icon: 'matches' },
+  { name: 'ranks', label: 'ranks', icon: 'ranks' },
+  { name: 'account', label: 'account', icon: 'account' },
 ];
 
 /**
@@ -61,7 +60,7 @@ export default function EsportsLayout() {
             title: t(`tabs.${tab.label}`),
             // Home has no header; Events and Ranks have their own stacks (list, then a page).
             headerShown: !['esports', 'events', 'ranks'].includes(tab.name),
-            tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name={tab.icon} color={color} size={size} />,
+            tabBarIcon: ({ color, size, focused }) => <Icon name={tab.icon} color={color} size={size} active={focused} />,
             tabBarBadge: tab.name === 'account' ? badge : undefined,
             tabBarBadgeStyle: { backgroundColor: theme.brand, color: theme.onBrand },
           }}

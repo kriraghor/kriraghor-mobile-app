@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -28,7 +28,7 @@ export function BackLink({ onPress }: { onPress: () => void }) {
   const { t } = useTranslation();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.back, pressed && { opacity: 0.7 }]}>
-      <MaterialCommunityIcons name="arrow-left" size={20} color={theme.textSecondary} />
+      <Icon name="back" size={20} color={theme.textSecondary} />
       <ThemedText type="smallBold" themeColor="textSecondary">
         {t('signIn.back')}
       </ThemedText>

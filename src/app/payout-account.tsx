@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { SectionTitle } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Field, Notice } from '@/components/ui';
@@ -106,7 +106,7 @@ function PayoutAccountScreen() {
           <Field label={t('payout.number')} value={number} onChangeText={setNumber} keyboardType="phone-pad" editable={!codeSent} placeholder="01XXXXXXXXX" maxLength={16} />
           <Field label={t('payout.name')} value={name} onChangeText={setName} editable={!codeSent} maxLength={120} autoComplete="name" />
           <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: declared }} disabled={codeSent} onPress={() => setDeclared(!declared)} style={styles.declare}>
-            <MaterialCommunityIcons name={declared ? 'checkbox-marked' : 'checkbox-blank-outline'} size={24} color={declared ? theme.brand : theme.textSecondary} />
+            <Icon name={declared ? 'checkbox-on' : 'checkbox'} size={24} color={declared ? theme.brand : theme.textSecondary} />
             <ThemedText type="small" style={{ flex: 1 }}>
               {t('payout.declare')}
             </ThemedText>

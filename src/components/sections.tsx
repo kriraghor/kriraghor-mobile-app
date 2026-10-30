@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet } from 'react-native';
@@ -30,7 +30,7 @@ export function SectionsButton() {
       onPress={() => void goToHub()}
       hitSlop={4}
       style={({ pressed }) => [styles.icon, pressed && { opacity: 0.7 }]}>
-      <MaterialCommunityIcons name="view-grid-outline" size={24} color={theme.text} />
+      <Icon name="sections" size={24} color={theme.text} />
     </Pressable>
   );
 }
@@ -44,7 +44,7 @@ export function SectionsChip() {
       accessibilityRole="button"
       onPress={() => void goToHub()}
       style={({ pressed }) => [styles.chip, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, pressed && { opacity: 0.85 }]}>
-      <MaterialCommunityIcons name="view-grid-outline" size={20} color={theme.text} />
+      <Icon name="sections" size={20} color={theme.text} />
       <ThemedText type="smallBold">{t('hub.allSections')}</ThemedText>
     </Pressable>
   );

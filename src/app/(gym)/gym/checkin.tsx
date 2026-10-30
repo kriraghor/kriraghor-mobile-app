@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Brightness from 'expo-brightness';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
@@ -275,7 +275,7 @@ function CheckinResult({ c }: { c: EntranceCheckin }) {
   return (
     <Card style={{ borderColor: warn ? theme.prize : theme.brand, borderWidth: 2 }}>
       <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-        <MaterialCommunityIcons name={warn ? 'alert-outline' : 'check-circle-outline'} size={26} color={warn ? theme.text : theme.brandText} />
+        <Icon name={warn ? 'alert' : 'check'} size={26} color={warn ? theme.text : theme.brandText} />
         <ThemedText type="smallBold" style={{ flex: 1, fontSize: 16 }}>
           {c.counted ? t('gymCheckin.in', { gym: c.gym?.name ?? '' }) : t('gymCheckin.already', { time: c.firstCheckInToday ? timeOnly(c.firstCheckInToday, lang) : '' })}
         </ThemedText>

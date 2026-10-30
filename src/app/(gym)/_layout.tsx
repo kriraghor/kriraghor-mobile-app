@@ -1,7 +1,7 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon, type IconName } from '@/components/icons/Icon';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs } from 'expo-router/js-tabs';
-import type { ComponentProps } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,14 +13,13 @@ import { unreadCount } from '@/lib/esports-api';
 import { useWaitingInvites } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
 
-type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 type Label = 'home' | 'today' | 'checkin' | 'passes' | 'account';
 const TABS: { name: string; label: Label; icon: IconName }[] = [
-  { name: 'gym/index', label: 'home', icon: 'dumbbell' },
-  { name: 'gym/today', label: 'today', icon: 'calendar-today' },
-  { name: 'gym/checkin', label: 'checkin', icon: 'qrcode' },
-  { name: 'gym/passes', label: 'passes', icon: 'ticket-outline' },
-  { name: 'gym/account', label: 'account', icon: 'account-circle' },
+  { name: 'gym/index', label: 'home', icon: 'gym' },
+  { name: 'gym/today', label: 'today', icon: 'today' },
+  { name: 'gym/checkin', label: 'checkin', icon: 'checkin' },
+  { name: 'gym/passes', label: 'passes', icon: 'passes' },
+  { name: 'gym/account', label: 'account', icon: 'account' },
 ];
 
 /**
@@ -61,7 +60,7 @@ export default function GymLayout() {
           options={{
             // A guest's first tab is the gym directory (Gyms); a member's is My gyms.
             title: tab.label === 'home' && status !== 'signed_in' ? t('gymDir.tab') : t(`gymTabs.${tab.label}`),
-            tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name={tab.icon} color={color} size={size} />,
+            tabBarIcon: ({ color, size, focused }) => <Icon name={tab.icon} color={color} size={size} active={focused} />,
             // Invites waiting on My gyms (where they are answered); unread notifications on Account.
             tabBarBadge: tab.label === 'home' ? badge(waiting) : tab.label === 'account' ? badge(unread.data ?? 0) : undefined,
           }}

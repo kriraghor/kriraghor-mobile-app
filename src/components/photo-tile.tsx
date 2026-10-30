@@ -1,6 +1,6 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon, type IconName } from '@/components/icons/Icon';
 import { Image } from 'expo-image';
-import { useEffect, useId, type ComponentProps } from 'react';
+import { useEffect, useId } from 'react';
 import { StyleSheet, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
@@ -8,7 +8,6 @@ import { ThemedText } from '@/components/themed-text';
 import { Duration, Radius } from '@/constants/motion';
 import { lerpZoom, zoomFrom, type Rect as Box } from '@/lib/motion';
 
-type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 
 /**
  * A black gradient over a photo, weighted to the bottom where the text sits: 85% black there, so white
@@ -38,9 +37,9 @@ export function TileFace({ photo, icon, title, body, web, big }: { photo: number
       <PhotoTint />
       <View style={styles.top}>
         <View style={styles.iconChip}>
-          <MaterialCommunityIcons name={icon} size={big ? 26 : 22} color="#FFFFFF" />
+          <Icon name={icon} size={24} color="#FFFFFF" active />
         </View>
-        {web ? <MaterialCommunityIcons name="open-in-new" size={18} color="#FFFFFF" /> : null}
+        {web ? <Icon name="external" size={18} color="#FFFFFF" /> : null}
       </View>
       <View style={styles.text}>
         <ThemedText style={[big ? styles.titleBig : styles.title, styles.white]}>{title}</ThemedText>
@@ -104,7 +103,7 @@ export const tileStyle: StyleProp<ViewStyle> = { borderRadius: Radius.card, over
 
 const styles = StyleSheet.create({
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  iconChip: { width: 44, height: 44, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.35)' },
+  iconChip: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.14)' },
   text: { gap: 2 },
   title: { fontSize: 20, lineHeight: 28, fontWeight: '800' },
   titleBig: { fontSize: 28, lineHeight: 36, fontWeight: '800' },

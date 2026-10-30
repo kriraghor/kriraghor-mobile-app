@@ -1,7 +1,7 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon, type IconName } from '@/components/icons/Icon';
 import { Redirect, router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { useReducedMotion, withTiming, type EntryAnimationsValues } from 'react-native-reanimated';
@@ -19,14 +19,13 @@ import type { Rect } from '@/lib/motion';
 import { SECTION_HOME, setStartSection, startSection, tileTarget, TILES, type Tile, type TileKey } from '@/lib/section';
 import { useMe } from '@/lib/use-me';
 
-type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 const ICONS: Record<TileKey, IconName> = {
-  esports: 'gamepad-variant',
-  gym: 'dumbbell',
-  venues: 'soccer-field',
-  shop: 'storefront-outline',
-  hire: 'account-tie',
-  events: 'trophy-outline',
+  esports: 'esports',
+  gym: 'gym',
+  venues: 'venues',
+  shop: 'shop',
+  hire: 'hire',
+  events: 'events',
 };
 
 /**
@@ -125,7 +124,7 @@ function HubScreen() {
           </View>
 
           <View style={styles.note}>
-            <MaterialCommunityIcons name="information-outline" size={18} color={theme.textSecondary} style={{ marginTop: 2 }} />
+            <Icon name="info" size={18} color={theme.textSecondary} style={{ marginTop: 2 }} />
             <ThemedText type="small" themeColor="textSecondary" style={{ flex: 1 }}>
               {t('hub.webNote')}
             </ThemedText>

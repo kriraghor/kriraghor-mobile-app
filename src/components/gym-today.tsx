@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -37,7 +37,7 @@ export function TodayCard({ items, today }: { items: PlanItem[]; today: string |
             accessibilityRole="button"
             onPress={() => openPlan(it.assignmentId)}
             style={({ pressed }) => [styles.todayRow, { borderTopColor: theme.line }, pressed && { opacity: 0.85 }]}>
-            <MaterialCommunityIcons name={it.kind === 'workout' ? 'dumbbell' : 'food-apple-outline'} size={22} color={theme.brandText} />
+            <Icon name={it.kind === 'workout' ? 'gym' : 'food'} size={22} color={theme.brandText} />
             <View style={{ flex: 1 }}>
               <ThemedText type="smallBold" numberOfLines={2}>
                 {refs.length || it.kind === 'diet' ? name : t('gymPlan.restDay')}
@@ -49,7 +49,7 @@ export function TodayCard({ items, today }: { items: PlanItem[]; today: string |
             {refs.length ? (
               <ThemedText type="smallBold">{t('gymPlan.progress', { done: count(p.done, lang), total: count(p.total, lang) })}</ThemedText>
             ) : null}
-            <MaterialCommunityIcons name="chevron-right" size={20} color={theme.textSecondary} />
+            <Icon name="chevron-right" size={20} color={theme.textSecondary} />
           </Pressable>
         );
       })}
@@ -69,7 +69,7 @@ export function PlanList({ items }: { items: PlanItem[] }) {
           accessibilityRole="button"
           onPress={() => openPlan(it.assignmentId)}
           style={({ pressed }) => [styles.planRow, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, it.readOnly && { opacity: 0.7 }, pressed && { opacity: 0.85 }]}>
-          <MaterialCommunityIcons name={it.kind === 'workout' ? 'dumbbell' : 'food-apple-outline'} size={22} color={theme.text} />
+          <Icon name={it.kind === 'workout' ? 'gym' : 'food'} size={22} color={theme.text} />
           <View style={{ flex: 1 }}>
             <ThemedText type="smallBold" numberOfLines={2}>
               {it.title}
@@ -80,7 +80,7 @@ export function PlanList({ items }: { items: PlanItem[] }) {
             </ThemedText>
           </View>
           {it.readOnly ? <Pill text={t('gymToday.ended')} tone="neutral" /> : null}
-          <MaterialCommunityIcons name="chevron-right" size={20} color={theme.textSecondary} />
+          <Icon name="chevron-right" size={20} color={theme.textSecondary} />
         </Pressable>
       ))}
     </View>

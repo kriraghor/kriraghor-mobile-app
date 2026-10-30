@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -221,7 +221,7 @@ function TickRow({ itemRef, content, tick, canTick, busy, onTick }: { itemRef: s
             disabled={busy}
             onPress={() => onTick(!done, tick?.note ?? null)}
             style={[styles.done, { borderColor: done ? theme.brand : theme.line, backgroundColor: done ? theme.brand : theme.backgroundElement }]}>
-            <MaterialCommunityIcons name={done ? 'check-bold' : 'check'} size={18} color={done ? theme.onBrand : theme.text} />
+            <Icon name="check" size={18} strokeWidth={done ? 2.5 : 1.75} color={done ? theme.onBrand : theme.text} />
             <ThemedText type="smallBold" style={{ color: done ? theme.onBrand : theme.text }}>
               {done ? t('gymPlan.done') : t('gymPlan.markDone')}
             </ThemedText>
@@ -271,7 +271,7 @@ function TickRow({ itemRef, content, tick, canTick, busy, onTick }: { itemRef: s
             setEditing(true);
           }}
           style={styles.noteLink}>
-          <MaterialCommunityIcons name="note-edit-outline" size={18} color={theme.brandText} />
+          <Icon name="note" size={18} color={theme.brandText} />
           <ThemedText type="smallBold" style={{ color: theme.brandText }}>
             {tick?.note ? t('gymPlan.editNote') : t('gymPlan.addNote')}
           </ThemedText>

@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, View, type PressableProps, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
@@ -72,7 +72,7 @@ export function PasswordField({ showLabel, hideLabel, ...field }: Omit<FieldProp
           onPress={() => setVisible((v) => !v)}
           hitSlop={4}
           style={({ pressed }) => [styles.eye, pressed && { opacity: 0.7 }]}>
-          <MaterialCommunityIcons name={visible ? 'eye-off-outline' : 'eye-outline'} size={22} color={theme.textSecondary} />
+          <Icon name={visible ? 'eye-off' : 'eye'} size={22} color={theme.textSecondary} />
         </Pressable>
       }
     />

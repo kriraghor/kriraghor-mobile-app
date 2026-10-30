@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -148,7 +148,7 @@ export function GymCardItem({ card }: { card: GymCard }) {
         <Image source={{ uri: card.cover }} style={styles.cover} contentFit="cover" transition={200} accessible={false} />
       ) : (
         <View style={[styles.cover, styles.noCover, { backgroundColor: theme.backgroundSelected }]}>
-          <MaterialCommunityIcons name="dumbbell" size={40} color={theme.textSecondary} />
+          <Icon name="gym" size={40} color={theme.textSecondary} />
         </View>
       )}
       <View style={styles.body}>
@@ -171,7 +171,7 @@ export function GymCardItem({ card }: { card: GymCard }) {
               {lang === 'bn' ? card.area.nameBn : card.area.nameEn}
             </ThemedText>
           ) : null}
-          <MaterialCommunityIcons name="star" size={14} color={theme.prize} />
+          <Icon name="star" size={14} color={theme.prize} />
           <ThemedText type="small" themeColor="textSecondary">
             {rating ? t('gymDir.rating', { avg: rating, n: count(card.ratingCount, lang) }) : t('gymDir.newGym')}
           </ThemedText>
