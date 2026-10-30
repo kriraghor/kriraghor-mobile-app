@@ -12,13 +12,14 @@ import { errorText } from '@/lib/errors';
 import { addPayoutAccount, payoutAccounts, sendPayoutCode } from '@/lib/esports-api';
 import { dateTime, type Lang } from '@/lib/format';
 import { normaliseWallet } from '@/lib/player';
+import { SignedInOnly } from '@/components/guest';
 
 /**
  * The payout account (M07): one bKash or Nagad wallet in the player's own name. A code to the
  * verified phone confirms it is them; finance then checks the name against the NID before it is
  * used. Account numbers are never shown in full.
  */
-export default function PayoutAccountScreen() {
+function PayoutAccountScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
@@ -130,3 +131,12 @@ const styles = StyleSheet.create({
   type: { flex: 1, minHeight: 48, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   declare: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function PayoutAccountScreenRoute() {
+  return (
+    <SignedInOnly>
+      <PayoutAccountScreen />
+    </SignedInOnly>
+  );
+}

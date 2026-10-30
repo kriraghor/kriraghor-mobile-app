@@ -13,12 +13,13 @@ import { addEvidence, getMatch, myRegistrations, openDispute, uploadImage } from
 import { count, dateTime, type Lang } from '@/lib/format';
 import { pickImage } from '@/lib/pick-image';
 import { keys, useRoomEvents } from '@/lib/use-realtime';
+import { SignedInOnly } from '@/components/guest';
 
 /**
  * A match's result (M21-FR-18 to FR-22): placement, kills and points per entry, with the player's
  * own entry marked, and a dispute with a screenshot while the dispute window is open.
  */
-export default function ResultScreen() {
+function ResultScreen() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
@@ -141,3 +142,12 @@ const styles = StyleSheet.create({
   tr: { flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: 'transparent' },
   head: { borderTopWidth: 0 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function ResultScreenRoute() {
+  return (
+    <SignedInOnly>
+      <ResultScreen />
+    </SignedInOnly>
+  );
+}

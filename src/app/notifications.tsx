@@ -11,9 +11,10 @@ import { listNotifications, markAllRead, markRead, type Notice as Item } from '@
 import { dateTime, type Lang } from '@/lib/format';
 import { linkToRoute } from '@/lib/links';
 import { keys } from '@/lib/use-realtime';
+import { SignedInOnly } from '@/components/guest';
 
 /** The bell (M08-FR-04, FR-05): newest first, tap to open where it points, mark all read. */
-export default function NotificationsScreen() {
+function NotificationsScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
@@ -88,3 +89,12 @@ const styles = StyleSheet.create({
   dot: { width: 8, height: 8, marginTop: 8 },
   headerButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function NotificationsScreenRoute() {
+  return (
+    <SignedInOnly>
+      <NotificationsScreen />
+    </SignedInOnly>
+  );
+}

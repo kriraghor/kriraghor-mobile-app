@@ -3,9 +3,11 @@ import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import type { ComponentProps, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
-import { Button, EmptyState, Notice } from '@/components/ui';
+import { SignInPrompt } from '@/components/guest';
+import { AnimatedPressable, Button, Notice, SkeletonList } from '@/components/ui';
+import { Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { config } from '@/lib/config';
@@ -56,7 +58,7 @@ export function CountBadge({ n }: { n: number }) {
 export function RowLink({ icon, label, hint, onPress, badge = 0, external }: { icon: IconName; label: string; hint?: string; onPress: () => void; badge?: number; external?: boolean }) {
   const theme = useTheme();
   return (
-    <Pressable accessibilityRole={external ? 'link' : 'button'} onPress={onPress} style={({ pressed }) => [styles.row, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, pressed && { opacity: 0.85 }]}>
+    <AnimatedPressable accessibilityRole={external ? 'link' : 'button'} onPress={onPress} style={[styles.row, { borderColor: theme.line, backgroundColor: theme.backgroundElement }]}>
       <MaterialCommunityIcons name={icon} size={22} color={theme.text} />
       <View style={{ flex: 1 }}>
         <ThemedText type="smallBold">{label}</ThemedText>
@@ -68,17 +70,17 @@ export function RowLink({ icon, label, hint, onPress, badge = 0, external }: { i
       </View>
       <CountBadge n={badge} />
       <MaterialCommunityIcons name={external ? 'open-in-new' : 'chevron-right'} size={20} color={theme.textSecondary} />
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
-/** Loading while the first answer comes; signed out → sign in. Returns null once there is something to show. */
+/** Loading while the first answer comes (skeletons); signed out → a friendly Sign in with Find a gym. Returns null once there is something to show. */
 export function GymGate({ loading }: { loading: boolean }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { status } = useAuth();
-  if (status === 'signed_out') return <EmptyState text={t('gym.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />;
-  if (loading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} accessibilityLabel={t('common.loading')} />;
+  if (status === 'signed_out') return <SignInPrompt text={t('gym.signedOut')} icon="dumbbell" browse={{ title: t('gym.findGym'), onPress: () => router.push('/gyms') }} />;
+  if (loading || status === 'loading') return <View style={{ flex: 1, backgroundColor: theme.background }}><SkeletonList label={t('common.loading')} /></View>;
   return null;
 }
 
@@ -173,9 +175,9 @@ export function ItemFacts({ content, itemRef }: { content: Content; itemRef: str
 }
 
 const styles = StyleSheet.create({
-  card: { borderWidth: 1.5, padding: 16, gap: 8 },
+  card: { borderWidth: 1, borderRadius: Radius.card, padding: 16, gap: 8 },
   badge: { minWidth: 22, height: 22, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', borderRadius: 11 },
-  row: { minHeight: 52, borderWidth: 1.5, paddingHorizontal: 14, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  row: { minHeight: 52, borderWidth: 1, borderRadius: Radius.control, paddingHorizontal: 14, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 12 },
   safety: { flexDirection: 'row', gap: 6, alignItems: 'flex-start' },
   video: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 44, alignSelf: 'flex-start' },
 });

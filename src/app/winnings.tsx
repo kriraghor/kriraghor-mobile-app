@@ -14,6 +14,7 @@ import { title } from '@/lib/esports';
 import { ApiError, gate, idempotencyKey, myWithdrawals, payoutAccounts, winnings, withdrawable, withdrawNow } from '@/lib/esports-api';
 import { count, dateTime, money, type Lang } from '@/lib/format';
 import { OPEN_WITHDRAWALS, withdrawState } from '@/lib/player';
+import { SignedInOnly } from '@/components/guest';
 
 /**
  * Winnings (M21-FR-24, FR-25): prizes credited to the player's balance, and withdrawing them to the
@@ -21,7 +22,7 @@ import { OPEN_WITHDRAWALS, withdrawState } from '@/lib/player';
  * payout account, at least the minimum, and stays within the daily cap. Each tap is one request with
  * its own Idempotency-Key.
  */
-export default function WinningsScreen() {
+function WinningsScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
@@ -151,3 +152,12 @@ const styles = StyleSheet.create({
   amount: { fontSize: 32, lineHeight: 40, fontWeight: '800' },
   item: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function WinningsScreenRoute() {
+  return (
+    <SignedInOnly>
+      <WinningsScreen />
+    </SignedInOnly>
+  );
+}

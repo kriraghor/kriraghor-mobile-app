@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { BackLink, CodeStep, Footer, SignupForm, StepTitle, type About } from '@/components/sign-in';
@@ -10,6 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { currentLanguage } from '@/i18n';
 import { api, problemMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import { clearPending, takePending } from '@/lib/guest';
 import {
   afterSignIn,
   authError,
@@ -92,10 +93,16 @@ export default function SignIn() {
     return m.step ?? null;
   }
 
+  // Closed without signing in: the action that opened this is dropped (guest browsing, src/lib/guest.ts).
+  useEffect(() => () => clearPending(), []);
+
   async function finish(tokens: Tokens) {
     await signedIn(tokens);
+    const next = takePending();
     if (afterSignIn(router.canGoBack()) === 'back') router.back();
     else router.replace('/');
+    // Back on the screen that asked: carry on with what the person tapped (buy, join, register).
+    if (next) setTimeout(next.run, 0);
   }
 
   /** From the password step to the code step, carrying a phone or email over. */

@@ -13,13 +13,14 @@ import { named, type Game } from '@/lib/esports';
 import { addProfile, listGames, myProfiles, uploadImage } from '@/lib/esports-api';
 import { pickImage } from '@/lib/pick-image';
 import { keys } from '@/lib/use-realtime';
+import { SignedInOnly } from '@/components/guest';
 
 /**
  * Game IDs (M21-FR-02 to FR-04): one per game, with a screenshot of the in-game profile; staff
  * verify it on the Moderation desk. The ID is checked against the game's pattern here for a quick
  * hint, and again on the server.
  */
-export default function GameIdsScreen() {
+function GameIdsScreen() {
   const { game: preselect } = useLocalSearchParams<{ game?: string }>();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
@@ -138,3 +139,12 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   preview: { width: '100%', height: 220 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function GameIdsScreenRoute() {
+  return (
+    <SignedInOnly>
+      <GameIdsScreen />
+    </SignedInOnly>
+  );
+}

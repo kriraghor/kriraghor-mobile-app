@@ -14,6 +14,7 @@ import { errorText } from '@/lib/errors';
 import { named, title, type Squad } from '@/lib/esports';
 import { dateTime, money, type Lang } from '@/lib/format';
 import { keys } from '@/lib/use-realtime';
+import { SignedInOnly } from '@/components/guest';
 
 /**
  * Register for an event (M21-FR-08 to FR-10). Solo: the player's verified game ID. Squad: the
@@ -21,7 +22,7 @@ import { keys } from '@/lib/use-realtime';
  * substitutes. The server holds a slot (pay next), confirms a free entry, or puts the entry on the
  * waitlist. One Idempotency-Key per attempt; a retry after a network error reuses it.
  */
-export default function RegisterScreen() {
+function RegisterScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
@@ -200,3 +201,12 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
   choice: { minHeight: 48, borderWidth: 2, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 10 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function RegisterScreenRoute() {
+  return (
+    <SignedInOnly>
+      <RegisterScreen />
+    </SignedInOnly>
+  );
+}
