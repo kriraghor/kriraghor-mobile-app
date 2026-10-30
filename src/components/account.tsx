@@ -5,6 +5,7 @@ import { useState, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { CountBadge } from '@/components/gym';
+import { goToHub } from '@/components/sections';
 import { ThemedText } from '@/components/themed-text';
 import { Button, EmptyState, Notice } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
@@ -13,13 +14,17 @@ import { api, problemMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import type { PushRegistration } from '@/lib/notifications';
 import { enablePush } from '@/lib/push';
+import type { Section } from '@/lib/section';
 import { useWaitingInvites } from '@/lib/use-gym';
 
 type Me = { id: string; displayName: string; phone: string | null; email: string | null; roles: { role: string; status: string }[] };
 const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', bn: 'বাংলা' };
 
-/** The signed-in account (GET /me), the language and notifications. */
-export default function AccountScreen() {
+/**
+ * The signed-in account (GET /me), the language and notifications. The Account tab of both sections
+ * (Esports and Gym) renders this one screen; inside Gym the Gym row is left out (it is the section).
+ */
+export function AccountScreen({ section }: { section: Section }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { status, signOut } = useAuth();
@@ -35,10 +40,16 @@ export default function AccountScreen() {
     },
   });
 
+  // Signing out, or All sections: forget the section and show the hub.
+  const toHub = goToHub;
+
   if (status === 'signed_out') {
     return (
       <View style={{ flex: 1, backgroundColor: theme.background }}>
         <LanguagePicker padded />
+        <View style={styles.pad}>
+          <NavRow icon="view-grid-outline" label={t('hub.allSections')} onPress={() => void toHub()} />
+        </View>
         <EmptyState text={t('account.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />
       </View>
     );
@@ -67,7 +78,8 @@ export default function AccountScreen() {
       <NavRow icon="gamepad-variant-outline" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
       <NavRow icon="account-group-outline" label={t('squads.title')} onPress={() => router.push('/squads')} />
       <NavRow icon="trophy-outline" label={t('winnings.title')} onPress={() => router.push('/winnings')} />
-      <NavRow icon="dumbbell" label={t('gym.title')} badge={waiting} onPress={() => router.push('/gym')} />
+      {section === 'esports' ? <NavRow icon="dumbbell" label={t('gym.title')} badge={waiting} onPress={() => router.push('/gym')} /> : null}
+      <NavRow icon="view-grid-outline" label={t('hub.allSections')} onPress={() => void toHub()} />
 
       <LanguagePicker />
 
@@ -79,7 +91,7 @@ export default function AccountScreen() {
         {push?.status !== 'granted' ? <Button title={t('account.enableNotifications')} variant="outline" onPress={() => void enablePush().then(setPush)} /> : null}
       </View>
 
-      <Button title={t('common.signOut')} onPress={() => void signOut().then(() => router.replace('/'))} />
+      <Button title={t('common.signOut')} onPress={() => void signOut().then(toHub)} />
     </ScrollView>
   );
 }

@@ -4,6 +4,7 @@ import { Tabs } from 'expo-router/js-tabs';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SectionsButton } from '@/components/sections';
 import { withTypeface } from '@/constants/fonts';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
@@ -13,15 +14,18 @@ import { keys } from '@/lib/use-realtime';
 
 type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 const TABS: { name: string; label: 'home' | 'events' | 'matches' | 'ranks' | 'account'; icon: IconName }[] = [
-  { name: 'index', label: 'home', icon: 'home-variant' },
+  { name: 'esports', label: 'home', icon: 'home-variant' },
   { name: 'events', label: 'events', icon: 'trophy' },
   { name: 'matches', label: 'matches', icon: 'sword-cross' },
   { name: 'ranks', label: 'ranks', icon: 'podium' },
   { name: 'account', label: 'account', icon: 'account-circle' },
 ];
 
-/** Five tabs, esports first (M21 §4.3). Every tab has an icon and a label. */
-export default function TabsLayout() {
+/**
+ * The Esports section (hub tile Esports): five tabs, esports first (M21 §4.3). Every tab has an icon
+ * and a label; screens with a header carry the All sections button.
+ */
+export default function EsportsLayout() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -43,6 +47,7 @@ export default function TabsLayout() {
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.text,
         headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language),
+        headerRight: () => <SectionsButton />,
       }}>
       {TABS.map((tab) => (
         <Tabs.Screen
@@ -51,7 +56,7 @@ export default function TabsLayout() {
           options={{
             title: t(`tabs.${tab.label}`),
             // Home has no header; Events and Ranks have their own stacks (list, then a page).
-            headerShown: !['index', 'events', 'ranks'].includes(tab.name),
+            headerShown: !['esports', 'events', 'ranks'].includes(tab.name),
             tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name={tab.icon} color={color} size={size} />,
             tabBarBadge: tab.name === 'account' ? badge : undefined,
             tabBarBadgeStyle: { backgroundColor: theme.brand, color: theme.onBrand },

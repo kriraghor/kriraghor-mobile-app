@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionTitle } from '@/components/esports';
+import { SectionsChip } from '@/components/sections';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
@@ -14,14 +15,15 @@ import { topPlayers } from '@/lib/esports-api';
 import { count, type Lang } from '@/lib/format';
 import { points } from '@/lib/player';
 
-/** Home: the pitch, sign-in, and top players. */
-export default function Home() {
+/** Esports Home: All sections, the pitch, sign-in, and top players. */
+export default function EsportsHome() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { status } = useAuth();
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingTop: insets.top + 20 }]}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingTop: insets.top + 12 }]}>
+      <SectionsChip />
       <View style={[styles.hero, { backgroundColor: '#0A1A12' }]}>
         <ThemedText style={[styles.title, { color: '#F4F3EF' }]}>{t('home.heroTitle')}</ThemedText>
         <ThemedText style={[styles.title, { color: theme.prize }]}>{t('home.heroPrize')}</ThemedText>
