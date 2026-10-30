@@ -412,6 +412,6 @@ function ResendRow({ sentAt, seconds, busy, onResend }: { sentAt: number; second
 }
 
 const styles = StyleSheet.create({
-  page: { padding: 20, gap: 16, paddingBottom: 40 },
+  page: { padding: 20, paddingTop: 28, gap: 16, paddingBottom: 40 },
   resend: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
 });

@@ -8,6 +8,7 @@ import { InfoRow, Pill, Segments } from '@/components/esports';
 import { Card, ErrorNotice, GymGate, gymWeb, openWeb } from '@/components/gym';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { dateOnly } from '@/lib/gym';
@@ -25,6 +26,7 @@ const GROUPS: Group[] = ['active', 'used', 'expired'];
  */
 export default function GymPasses() {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t } = useTranslation();
   const { status } = useAuth();
   const qc = useQueryClient();
@@ -44,7 +46,7 @@ export default function GymPasses() {
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <Segments items={GROUPS.map((g) => ({ key: g, label: t(`gymPasses.group.${g}`) }))} value={group} onChange={setGroup} />
       <ScrollView
-        contentContainerStyle={styles.page}
+        contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]}
         refreshControl={<RefreshControl refreshing={list.isRefetching} onRefresh={() => void qc.invalidateQueries({ queryKey: ['gym', 'pass'] }).then(() => list.refetch())} tintColor={theme.brand} />}>
         {list.isLoading ? <GymGate loading /> : null}
         <ErrorNotice error={list.error} onRetry={() => void list.refetch()} />

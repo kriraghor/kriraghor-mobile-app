@@ -51,3 +51,17 @@ export function joinState(gymId: string, memberships: Membership[] | undefined, 
 
 /** "4.6" for a rating, null when the gym has none yet. */
 export const ratingText = (avg: number | null, count: number) => (avg !== null && count > 0 ? (Math.round(avg * 10) / 10).toFixed(1) : null);
+
+/** The filters a person has set in the directory's sheet (the sort is shown on its own button). */
+export type DirectoryFilters = { areaId?: string; priceMaxTaka?: number; sort: GymSort };
+export const NO_FILTERS: DirectoryFilters = { sort: 'price' };
+
+/** How many filters are on, for the Filters button's badge (area and price; the sort is not a filter). */
+export const activeFilterCount = (f: DirectoryFilters) => (f.areaId ? 1 : 0) + (f.priceMaxTaka ? 1 : 0);
+
+/** Areas whose English or Bangla name contains what was typed (case-insensitive); all of them for an empty search. */
+export function searchAreas<A extends { nameEn: string; nameBn: string }>(areas: A[], q: string): A[] {
+  const s = q.trim().toLowerCase();
+  if (!s) return areas;
+  return areas.filter((a) => a.nameEn.toLowerCase().includes(s) || a.nameBn.includes(q.trim()));
+}

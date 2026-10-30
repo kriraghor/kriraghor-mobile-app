@@ -3,11 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { CountBadge } from '@/components/gym';
-import { goToHub } from '@/components/sections';
+import { useLeaveToHub } from '@/components/transition';
 import { ThemedText } from '@/components/themed-text';
 import { Button, EmptyState, Notice } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { LANGUAGES, setLanguage, type Language } from '@/i18n';
 import { api, problemMessage } from '@/lib/api';
@@ -26,6 +27,7 @@ const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', bn: 'বাং
  */
 export function AccountScreen({ section }: { section: Section }) {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t } = useTranslation();
   const { status, signOut } = useAuth();
   const [push, setPush] = useState<PushRegistration | null>(null);
@@ -41,7 +43,7 @@ export function AccountScreen({ section }: { section: Section }) {
   });
 
   // Signing out, or All sections: forget the section and show the hub.
-  const toHub = goToHub;
+  const toHub = useLeaveToHub();
 
   if (status === 'signed_out') {
     return (
@@ -50,7 +52,7 @@ export function AccountScreen({ section }: { section: Section }) {
         <View style={styles.pad}>
           <NavRow icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
         </View>
-        <EmptyState text={t('account.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />
+        <EmptyState icon="account" text={t('account.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />
       </View>
     );
   }
@@ -58,7 +60,7 @@ export function AccountScreen({ section }: { section: Section }) {
   const pushText = !push ? t('account.notificationsHelp') : push.status === 'granted' ? t('account.pushRegistered') : push.reason === 'denied' ? t('account.pushDenied') : t('account.pushUnavailable');
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.page}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]} refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void me.refetch()} tintColor={theme.brand} />}>
       {me.error ? <Notice tone="error" text={problemMessage(me.error, t('common.somethingWrong'))} /> : null}
       {me.data ? (
         <>

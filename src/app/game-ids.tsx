@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Pill, SectionTitle, Segments } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Field, Notice } from '@/components/ui';
@@ -74,7 +74,7 @@ function GameIdsScreen() {
   }
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={profiles.isRefetching} onRefresh={() => void profiles.refetch()} tintColor={theme.brand} />}>
       {list.length ? (
         list.map((p) => {
           const g = games.data?.find((x) => x.id === p.gameId);

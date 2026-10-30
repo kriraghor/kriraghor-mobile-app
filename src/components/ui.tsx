@@ -1,4 +1,4 @@
-import { Icon } from '@/components/icons/Icon';
+import { Icon, type IconName } from '@/components/icons/Icon';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, View, type PressableProps, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
@@ -274,12 +274,17 @@ const styles = StyleSheet.create({
   notice: { borderLeftWidth: 4, borderRadius: Radius.control, overflow: 'hidden', paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, lineHeight: 20 },
 });
 
-/** A screen with nothing to show yet: a short line and, when it helps, one action. */
-export function EmptyState({ text, action }: { text: string; action?: { title: string; onPress: () => void } }) {
+/** A screen with nothing to show yet: an icon, a short line and, when it helps, one action. */
+export function EmptyState({ text, action, icon }: { text: string; action?: { title: string; onPress: () => void }; icon?: IconName }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
   return (
     <View style={[emptyStyles.empty, { backgroundColor: theme.background }]}>
+      {icon ? (
+        <View style={[emptyStyles.icon, { backgroundColor: theme.backgroundSelected }]}>
+          <Icon name={icon} size={28} color={theme.textSecondary} />
+        </View>
+      ) : null}
       <Text style={withTypeface(StyleSheet.flatten([emptyStyles.emptyText, { color: theme.textSecondary }]), i18n.language)}>{text}</Text>
       {action ? <Button title={action.title} onPress={action.onPress} /> : null}
     </View>
@@ -288,5 +293,6 @@ export function EmptyState({ text, action }: { text: string; action?: { title: s
 
 const emptyStyles = StyleSheet.create({
   empty: { flex: 1, padding: 24, gap: 16, justifyContent: 'center' },
+  icon: { width: 56, height: 56, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
   emptyText: { fontSize: 16, lineHeight: 24, fontWeight: '500', textAlign: 'center' },
 });

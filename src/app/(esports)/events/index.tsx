@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { EventCard, Segments } from '@/components/esports';
 import { EmptyState, Notice, Reveal, SkeletonList } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { named, type StatusGroup } from '@/lib/esports';
@@ -15,6 +16,7 @@ const GROUPS: StatusGroup[] = ['open', 'upcoming', 'live', 'finished'];
 /** Events (M21 §4.3): open first, then upcoming, live and finished; filter by game. */
 export default function EventsScreen() {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t, i18n } = useTranslation();
   const [group, setGroup] = useState<StatusGroup>('open');
   const [game, setGame] = useState<string>('all');
@@ -26,7 +28,7 @@ export default function EventsScreen() {
       <FlatList
         data={events.data ?? []}
         keyExtractor={(e) => e.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: 24 + tabInset }]}
         refreshControl={<RefreshControl refreshing={events.isRefetching} onRefresh={() => void events.refetch()} tintColor={theme.brand} />}
         ListHeaderComponent={
           <View style={styles.filters}>
@@ -41,7 +43,7 @@ export default function EventsScreen() {
             ) : null}
           </View>
         }
-        ListEmptyComponent={events.isLoading ? <SkeletonList rows={3} height={200} label={t('common.loading')} /> : <EmptyState text={group === 'open' ? t('events.empty') : t('events.emptyGroup')} />}
+        ListEmptyComponent={events.isLoading ? <SkeletonList rows={3} height={200} label={t('common.loading')} /> : <EmptyState icon="events" action={group !== 'open' ? { title: t('events.groups.open'), onPress: () => setGroup('open') } : undefined} text={group === 'open' ? t('events.empty') : t('events.emptyGroup')} />}
         renderItem={({ item, index }) => (
           <Reveal index={index} style={styles.item}>
             <EventCard event={item} />

@@ -13,7 +13,8 @@ export default function EventsLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.text,
-        headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language),
+        headerTitleStyle: withTypeface({ fontSize: 18, fontWeight: '700' }, i18n.language),
+        headerShadowVisible: false,
       }}>
       <Stack.Screen name="index" options={{ title: t('events.title'), headerRight: () => <SectionsButton /> }} />
       <Stack.Screen name="[id]" options={{ title: '' }} />

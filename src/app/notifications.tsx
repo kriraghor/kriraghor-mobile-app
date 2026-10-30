@@ -62,7 +62,7 @@ function NotificationsScreen() {
           refreshControl={<RefreshControl refreshing={list.isRefetching} onRefresh={() => void list.refetch()} tintColor={theme.brand} />}
           onEndReached={() => list.hasNextPage && void list.fetchNextPage()}
           ListHeaderComponent={list.error ? <Notice tone="error" text={errorText(t, list.error)} /> : null}
-          ListEmptyComponent={<EmptyState text={t('notifications.empty')} />}
+          ListEmptyComponent={<EmptyState icon="bell" text={t('notifications.empty')} />}
           renderItem={({ item }) => (
             <Pressable
               accessibilityRole="button"

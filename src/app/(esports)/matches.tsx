@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { SignInPrompt } from '@/components/guest';
 import { Button, EmptyState, Notice, SkeletonList } from '@/components/ui';
 import { useNow } from '@/hooks/use-now';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { canSplit } from '@/lib/player';
@@ -25,6 +26,7 @@ import { keys } from '@/lib/use-realtime';
  */
 export default function MatchesScreen() {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t } = useTranslation();
   const { status } = useAuth();
   const entries = useQuery({ queryKey: keys.registrations, queryFn: myRegistrations, enabled: status === 'signed_in', refetchInterval: 30_000 });
@@ -37,12 +39,12 @@ export default function MatchesScreen() {
   return (
     <FlatList
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={styles.list}
+      contentContainerStyle={[styles.list, { paddingBottom: 24 + tabInset }]}
       data={items}
       keyExtractor={(r) => r.id}
       refreshControl={<RefreshControl refreshing={entries.isRefetching} onRefresh={() => void entries.refetch()} tintColor={theme.brand} />}
       ListHeaderComponent={entries.error ? <Notice tone="error" text={errorText(t, entries.error)} /> : null}
-      ListEmptyComponent={<EmptyState text={t('matches.empty')} action={{ title: t('matches.findEvent'), onPress: () => router.navigate('/events') }} />}
+      ListEmptyComponent={<EmptyState icon="matches" text={t('matches.empty')} action={{ title: t('matches.findEvent'), onPress: () => router.navigate('/events') }} />}
       renderItem={({ item }) => <EntryCard entry={item} />}
     />
   );

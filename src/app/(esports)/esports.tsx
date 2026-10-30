@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionTitle } from '@/components/esports';
 import { SectionsChip } from '@/components/sections';
@@ -11,6 +11,7 @@ import { PhotoTint } from '@/components/photo-tile';
 import { AnimatedPressable, Button, Reveal } from '@/components/ui';
 import { Radius } from '@/constants/motion';
 import { SECTION_PHOTOS } from '@/constants/section-photos';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { config } from '@/lib/config';
@@ -22,11 +23,13 @@ import { points } from '@/lib/player';
 /** Esports Home: All sections, the pitch, sign-in, and top players. */
 export default function EsportsHome() {
   const theme = useTheme();
+  const qc = useQueryClient();
+  const tabInset = useTabBarInset();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { status } = useAuth();
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingTop: insets.top + 12 }]}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingTop: insets.top + 12, paddingBottom: 24 + tabInset }]} refreshControl={<RefreshControl refreshing={false} onRefresh={() => void qc.invalidateQueries({ queryKey: ['top-players'] })} tintColor={theme.brand} />}>
       <SectionsChip />
       <Reveal style={[styles.hero, { backgroundColor: '#0A1A12' }]}>
         <Image source={SECTION_PHOTOS.esports} style={StyleSheet.absoluteFill} contentFit="cover" transition={250} accessible={false} />

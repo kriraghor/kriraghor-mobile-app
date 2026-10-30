@@ -4,8 +4,9 @@ import { Tabs } from 'expo-router/js-tabs';
 
 import { useTranslation } from 'react-i18next';
 import { useReducedMotion } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionsButton } from '@/components/sections';
+import { GlassTabBar } from '@/components/tab-bar';
+import { SectionScene } from '@/components/transition';
 import { withTypeface } from '@/constants/fonts';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
@@ -31,24 +32,21 @@ const TABS: { name: string; label: Label; icon: IconName }[] = [
 export default function GymLayout() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
-  const insets = useSafeAreaInsets();
   const reduce = useReducedMotion();
   const { status } = useAuth();
   const unread = useQuery({ queryKey: keys.unread, queryFn: unreadCount, enabled: status === 'signed_in' });
   const waiting = useWaitingInvites();
   const badge = (n: number) => (status === 'signed_in' && n ? (n > 99 ? '99+' : n) : undefined);
   return (
+    <SectionScene>
     <Tabs
+      // The floating glass bar shared by both sections (components/tab-bar.tsx).
+      tabBar={(props) => <GlassTabBar {...props} />}
       screenOptions={{
-        tabBarActiveTintColor: theme.brand,
-        tabBarInactiveTintColor: theme.textSecondary,
-        // Room for Bangla letters, which sit taller than Latin ones, plus the phone's gesture bar.
-        tabBarStyle: { backgroundColor: theme.backgroundElement, borderTopColor: theme.line, height: 72 + insets.bottom, paddingTop: 8, paddingBottom: 10 + insets.bottom },
-        tabBarLabelStyle: withTypeface({ fontSize: 12, lineHeight: 18, fontWeight: '600' }, i18n.language),
-        tabBarBadgeStyle: { backgroundColor: theme.brand, color: theme.onBrand },
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.text,
-        headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language),
+        headerTitleStyle: withTypeface({ fontSize: 18, fontWeight: '700' }, i18n.language),
+        headerShadowVisible: false,
         headerRight: () => <SectionsButton />,
         // A short crossfade between tabs (none with reduce motion).
         animation: reduce ? 'none' : 'fade',
@@ -67,5 +65,6 @@ export default function GymLayout() {
         />
       ))}
     </Tabs>
+    </SectionScene>
   );
 }

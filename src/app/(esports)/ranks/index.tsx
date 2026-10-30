@@ -4,8 +4,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { Segments } from '@/components/esports';
+import { Icon } from '@/components/icons/Icon';
+import { ChoiceChips, Sheet } from '@/components/sheet';
 import { ThemedText } from '@/components/themed-text';
 import { EmptyState, Notice, SkeletonList } from '@/components/ui';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
+import { Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { named } from '@/lib/esports';
@@ -20,6 +24,7 @@ import { useMe } from '@/lib/use-me';
  */
 export default function RanksScreen() {
   const theme = useTheme();
+  const tabInset = useTabBarInset();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
   const me = useMe();
@@ -27,6 +32,7 @@ export default function RanksScreen() {
   const [game, setGame] = useState<string | null>(null);
   const [scope, setScope] = useState<'rolling' | 'season'>('rolling');
   const [season, setSeason] = useState<string | undefined>(undefined);
+  const [picker, setPicker] = useState(false);
   const gameKey = game ?? games.data?.[0]?.key ?? null;
   const board = useQuery({
     queryKey: ['leaderboard', gameKey, scope, season ?? 'current'],
@@ -41,7 +47,7 @@ export default function RanksScreen() {
   return (
     <FlatList
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={{ paddingBottom: 24, flexGrow: 1 }}
+      contentContainerStyle={{ paddingBottom: 24 + tabInset, flexGrow: 1 }}
       data={data?.items ?? []}
       keyExtractor={(r) => r.userId}
       refreshControl={<RefreshControl refreshing={board.isRefetching} onRefresh={() => void board.refetch()} tintColor={theme.brand} />}
@@ -59,7 +65,23 @@ export default function RanksScreen() {
             onChange={(k) => setScope(k as 'rolling' | 'season')}
           />
           {scope === 'season' && data?.seasons?.length ? (
-            <Segments items={data.seasons.map((s) => ({ key: s, label: seasonLabel(s, lang) }))} value={season ?? data.seasonKey} onChange={setSeason} />
+            // Seasons pile up every quarter: a picker button and a sheet instead of a sideways row.
+            <View style={styles.pad}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${t('ranks.season')}: ${seasonLabel(season ?? data.seasonKey, lang)}`}
+                onPress={() => setPicker(true)}
+                style={({ pressed }) => [styles.picker, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, pressed && { opacity: 0.8 }]}>
+                <Icon name="calendar-check" size={18} color={theme.text} />
+                <ThemedText type="smallBold" style={{ flex: 1 }}>
+                  {seasonLabel(season ?? data.seasonKey, lang)}
+                </ThemedText>
+                <Icon name="chevron-right" size={18} color={theme.textSecondary} style={{ transform: [{ rotate: '90deg' }] }} />
+              </Pressable>
+              <Sheet visible={picker} onClose={() => setPicker(false)} title={t('ranks.chooseSeason')}>
+                <ChoiceChips label={t('ranks.season')} items={data.seasons.map((s) => ({ key: s, label: seasonLabel(s, lang) }))} value={season ?? data.seasonKey} onChange={(k) => (setSeason(k), setPicker(false))} />
+              </Sheet>
+            </View>
           ) : null}
           {scope === 'rolling' ? (
             <ThemedText type="small" themeColor="textSecondary" style={styles.rule}>
@@ -73,7 +95,7 @@ export default function RanksScreen() {
           ) : null}
         </View>
       }
-      ListEmptyComponent={board.isLoading ? <SkeletonList rows={6} height={56} label={t('common.loading')} /> : <EmptyState text={t('ranks.empty')} />}
+      ListEmptyComponent={board.isLoading ? <SkeletonList rows={6} height={56} label={t('common.loading')} /> : <EmptyState icon="ranks" text={t('ranks.empty')} />}
       renderItem={({ item }) => <Row row={item} mine={item.userId === me.data?.id} lang={lang} />}
     />
   );
@@ -110,6 +132,7 @@ function Row({ row, mine, lang }: { row: LeaderRow; mine: boolean; lang: Lang })
 
 const styles = StyleSheet.create({
   pad: { paddingHorizontal: 16, paddingBottom: 8 },
+  picker: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, borderRadius: Radius.control, borderWidth: 1 },
   rule: { paddingHorizontal: 16, paddingBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, minHeight: 56 },
   rank: { width: 36, height: 36, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
