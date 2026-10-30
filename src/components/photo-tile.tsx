@@ -66,12 +66,22 @@ export function ZoomOverlay({ rect, out, onIn, onOut, children }: { rect: Box; o
 
   useEffect(() => {
     const target = out ? 0 : 1;
-    const done = out ? onOut : onIn;
+    const duration = reduce ? Duration.fade : Duration.zoom;
+    // Once per direction: from the animation's end, or from a timer if frames are not running (a
+    // backgrounded web tab), so the person is never left on the hub with nothing happening.
+    let called = false;
+    const done = () => {
+      if (called) return;
+      called = true;
+      (out ? onOut : onIn)();
+    };
     p.set(
-      withTiming(target, { duration: reduce ? Duration.fade : Duration.zoom, easing: Easing.bezier(0.2, 0.9, 0.25, 1) }, (finished) => {
+      withTiming(target, { duration, easing: Easing.bezier(0.2, 0.9, 0.25, 1) }, (finished) => {
         if (finished) runOnJS(done)();
       })
     );
+    const timer = setTimeout(done, duration + 300);
+    return () => clearTimeout(timer);
   }, [out, reduce, p, onIn, onOut]);
 
   const style = useAnimatedStyle(() => {
