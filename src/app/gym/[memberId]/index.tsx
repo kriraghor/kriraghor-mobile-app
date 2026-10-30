@@ -94,7 +94,7 @@ export default function GymMembershipScreen() {
 
       {!readOnly ? (
         <View style={styles.links}>
-          <RowLink icon="qrcode" label={t('gym.checkinQr')} onPress={() => router.push({ pathname: '/gym/checkin', params: { m: memberId } })} />
+          <RowLink icon="qrcode" label={t('gym.checkinQr')} onPress={() => router.navigate({ pathname: '/gym/checkin', params: { m: memberId } })} />
         </View>
       ) : null}
 

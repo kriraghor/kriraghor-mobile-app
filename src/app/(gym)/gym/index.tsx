@@ -5,12 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Pill, SectionTitle } from '@/components/esports';
 import { Card, ErrorNotice, GymGate, gymWeb, openWeb, RowLink } from '@/components/gym';
+import { TodayCard } from '@/components/gym-today';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { cardPayState, dateOnly, groupsOn, latestTicks, linkedGyms, progressOn, textOf, todayFirst } from '@/lib/gym';
-import { myDues, type Due, type MembershipCard, type PlanItem } from '@/lib/gym-api';
+import { cardPayState, dateOnly, linkedGyms } from '@/lib/gym';
+import { myDues, type Due, type MembershipCard } from '@/lib/gym-api';
 import { count, money, type Lang } from '@/lib/format';
 import { useMyGyms, useMyPlans, usePayDue, useWaitingInvites } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
@@ -49,7 +50,7 @@ export default function GymHome() {
       <ErrorNotice error={gyms.error} onRetry={() => void gyms.refetch()} />
 
       {canShowQr ? (
-        <Pressable accessibilityRole="button" onPress={() => router.push('/gym/checkin')} style={({ pressed }) => [styles.qrButton, { backgroundColor: theme.brand }, pressed && { opacity: 0.85 }]}>
+        <Pressable accessibilityRole="button" onPress={() => router.navigate('/gym/checkin')} style={({ pressed }) => [styles.qrButton, { backgroundColor: theme.brand }, pressed && { opacity: 0.85 }]}>
           <MaterialCommunityIcons name="qrcode" size={24} color={theme.onBrand} />
           <ThemedText type="smallBold" style={{ color: theme.onBrand, fontSize: 16 }}>
             {t('gym.checkinQr')}
@@ -84,7 +85,7 @@ export default function GymHome() {
       ) : null}
 
       <SectionTitle>{t('gym.more')}</SectionTitle>
-      <RowLink icon="ticket-outline" label={t('gymPasses.title')} onPress={() => router.push('/gym/passes')} />
+      <RowLink icon="ticket-outline" label={t('gymPasses.title')} onPress={() => router.navigate('/gym/passes')} />
       <RowLink icon="whistle-outline" label={t('gymSubs.title')} onPress={() => router.push('/gym/subscriptions')} />
       <RowLink icon="map-search-outline" label={t('gym.findGym')} onPress={() => openWeb(gymWeb('/gyms'))} external />
     </ScrollView>
@@ -150,54 +151,10 @@ function GymCard({ m, dues, pay }: { m: MembershipCard; dues: Due[]; pay: Return
   );
 }
 
-/** Today's workout and meals in one card (M24-FR-65), each opening its plan; hidden without a live plan for today. */
-function TodayCard({ items, today }: { items: PlanItem[]; today: string | null }) {
-  const theme = useTheme();
-  const { t, i18n } = useTranslation();
-  const lang = i18n.language as Lang;
-  const live = today ? todayFirst(items).filter((i) => !i.readOnly && i.todayIndex !== null) : [];
-  if (!today || !live.length) return null;
-  return (
-    <Card>
-      <ThemedText type="smallBold" style={{ fontSize: 16 }}>
-        {t('gymPlan.todayTitle')} · {dateOnly(today, lang, { weekday: true, year: false })}
-      </ThemedText>
-      {live.map((it) => {
-        const groups = groupsOn(it, today) ?? [];
-        const refs = groups.flatMap((g) => g.refs);
-        const p = progressOn(refs, latestTicks(it.ticks), today);
-        const name = it.kind === 'workout' ? groups.map((g) => textOf(g.name, lang)).join(', ') || it.title : it.title;
-        return (
-          <Pressable
-            key={it.assignmentId}
-            accessibilityRole="button"
-            onPress={() => router.push({ pathname: '/gym/plans/[assignmentId]', params: { assignmentId: it.assignmentId } })}
-            style={({ pressed }) => [styles.todayRow, { borderTopColor: theme.line }, pressed && { opacity: 0.85 }]}>
-            <MaterialCommunityIcons name={it.kind === 'workout' ? 'dumbbell' : 'food-apple-outline'} size={22} color={theme.brandText} />
-            <View style={{ flex: 1 }}>
-              <ThemedText type="smallBold" numberOfLines={2}>
-                {refs.length || it.kind === 'diet' ? name : t('gymPlan.restDay')}
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
-                {it.gym?.name ?? ''}
-              </ThemedText>
-            </View>
-            {refs.length ? (
-              <ThemedText type="smallBold">{t('gymPlan.progress', { done: count(p.done, lang), total: count(p.total, lang) })}</ThemedText>
-            ) : null}
-            <MaterialCommunityIcons name="chevron-right" size={20} color={theme.textSecondary} />
-          </Pressable>
-        );
-      })}
-    </Card>
-  );
-}
-
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 32 },
   qrButton: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 16 },
   cardTop: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
   gymName: { fontSize: 18, lineHeight: 26, fontWeight: '700' },
   owe: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' },
-  todayRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, borderTopWidth: 1, paddingTop: 8 },
 });

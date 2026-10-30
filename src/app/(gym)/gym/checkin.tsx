@@ -40,6 +40,13 @@ export default function GymCheckin() {
   const gyms = useMyGyms();
   const [mode, setMode] = useState<Mode>(params.mode === 'scan' ? 'scan' : 'qr');
   const [chosen, setChosen] = useState<string | null>(params.m ?? null);
+  // A tab stays mounted: a later link with another gym (?m=) or ?mode=scan switches to it.
+  const [seen, setSeen] = useState({ m: params.m, mode: params.mode });
+  if (seen.m !== params.m || seen.mode !== params.mode) {
+    setSeen({ m: params.m, mode: params.mode });
+    if (params.m) setChosen(params.m);
+    if (params.mode === 'scan' || params.mode === 'qr') setMode(params.mode);
+  }
 
   if (status !== 'signed_in' || gyms.isLoading) return <GymGate loading={gyms.isLoading} />;
   const linked = linkedGyms(gyms.data?.items ?? []);
@@ -65,7 +72,7 @@ export default function GymCheckin() {
             <ThemedText type="small" themeColor="textSecondary">
               {t('gymCheckin.noLinkedBody')}
             </ThemedText>
-            <Button title={t('gym.requests')} variant="outline" onPress={() => router.replace('/gym/requests')} />
+            <Button title={t('gym.requests')} variant="outline" onPress={() => router.push('/gym/requests')} />
           </Card>
         ) : null}
         {member && linked.length > 1 ? (
