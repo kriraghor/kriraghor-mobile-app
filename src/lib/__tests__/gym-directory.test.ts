@@ -1,4 +1,4 @@
-import { gymListParams, joinablePackages, joinState, passDates, ratingText, weekOf } from '../gym-directory';
+import { activeFilterCount, gymListParams, joinablePackages, joinState, NO_FILTERS, passDates, ratingText, searchAreas, weekOf } from '../gym-directory';
 
 const G = 'g1';
 const hours = [
@@ -53,5 +53,25 @@ describe('ratingText', () => {
     expect(ratingText(5, 1)).toBe('5.0');
     expect(ratingText(null, 0)).toBeNull();
     expect(ratingText(4, 0)).toBeNull();
+  });
+});
+
+describe('the filters sheet', () => {
+  it('counts area and price, not the sort', () => {
+    expect(activeFilterCount(NO_FILTERS)).toBe(0);
+    expect(activeFilterCount({ sort: 'rating' })).toBe(0);
+    expect(activeFilterCount({ sort: 'price', areaId: 'a' })).toBe(1);
+    expect(activeFilterCount({ sort: 'newest', areaId: 'a', priceMaxTaka: 2500 })).toBe(2);
+  });
+
+  it('searches areas in English or Bangla', () => {
+    const areas = [
+      { id: '1', nameEn: 'Mirpur', nameBn: 'মিরপুর' },
+      { id: '2', nameEn: 'Uttara', nameBn: 'উত্তরা' },
+    ];
+    expect(searchAreas(areas, '')).toHaveLength(2);
+    expect(searchAreas(areas, ' mir ').map((a) => a.id)).toEqual(['1']);
+    expect(searchAreas(areas, 'উত্ত').map((a) => a.id)).toEqual(['2']);
+    expect(searchAreas(areas, 'xyz')).toEqual([]);
   });
 });
