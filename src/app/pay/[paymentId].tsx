@@ -15,6 +15,7 @@ import { dateTime, money, type Lang } from '@/lib/format';
 import { payInApp, type PayMethod, type PayOutcome } from '@/lib/payment-flow';
 import { keys } from '@/lib/use-realtime';
 import { SignedInOnly } from '@/components/guest';
+import { useToast } from '@/components/toast';
 
 const METHODS: PayMethod[] = ['bkash', 'nagad', 'card'];
 
@@ -29,6 +30,7 @@ function PayScreen() {
   const { paymentId, memberId } = useLocalSearchParams<{ paymentId: string; memberId?: string }>();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const lang = i18n.language as Lang;
   const qc = useQueryClient();
   const payment = useQuery({ queryKey: ['payment', paymentId], queryFn: () => getPayment(paymentId) });
@@ -70,7 +72,10 @@ function PayScreen() {
   const gym = kind !== 'entry';
   const paidText = kind === 'gym_fee' ? t('pay.feePaid') : kind === 'gym_pass' ? t('pay.passPaid') : kind === 'trainer' ? t('pay.trainerPaid') : t('pay.paid');
   const message: Record<PayOutcome, string> = { paid: paidText, failed: t('pay.failed'), cancelled: t('pay.cancelled'), expired: gym ? t('pay.gymExpired') : t('pay.expired'), pending: t('pay.pending') };
-  const done = () => router.navigate(payDoneRoute(kind, memberId) as never);
+  const done = () => {
+    if (phase === 'paid' && kind === 'gym_pass') toast(t('guest.passBought'));
+    router.navigate(payDoneRoute(kind, memberId) as never);
+  };
 
   return (
     <View style={[styles.page, { flex: 1, backgroundColor: theme.background }]}>

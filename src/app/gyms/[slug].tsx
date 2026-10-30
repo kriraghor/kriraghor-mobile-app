@@ -5,9 +5,11 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, Pressable, RefreshControl, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Pill, SectionTitle } from '@/components/esports';
 import { Card, ErrorNotice } from '@/components/gym';
 import { ThemedText } from '@/components/themed-text';
+import { useToast } from '@/components/toast';
 import { Button, EmptyState, Field, Notice, Reveal, SkeletonList } from '@/components/ui';
 import { Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
@@ -42,20 +44,26 @@ export default function GymPageScreen() {
         <ErrorNotice error={q.error} onRetry={() => void q.refetch()} />
       </View>
     );
-  const g = q.data;
+  return <GymBody g={q.data} refreshing={q.isRefetching} onRefresh={() => void q.refetch()} />;
+}
+
+/** The loaded page, with a sticky Pay bar while a pass is chosen. */
+function GymBody({ g, refreshing, onRefresh }: { g: GymPage; refreshing: boolean; onRefresh: () => void }) {
+  const theme = useTheme();
+  const purchase = usePassPurchase(g);
   return (
     <>
       <Stack.Screen options={{ title: g.name }} />
       <ScrollView
         style={{ backgroundColor: theme.background }}
-        contentContainerStyle={styles.page}
-        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => void q.refetch()} tintColor={theme.brand} />}>
+        contentContainerStyle={[styles.page, purchase.ready ? { paddingBottom: 140 } : null]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.brand} />}>
         <Photos g={g} />
         <Reveal index={1} style={styles.section}>
           <About g={g} />
         </Reveal>
         <Reveal index={2} style={styles.section}>
-          <BuyPass g={g} />
+          <BuyPass g={g} p={purchase} />
         </Reveal>
         <Reveal index={3} style={styles.section}>
           <Join g={g} />
@@ -64,6 +72,7 @@ export default function GymPageScreen() {
           <Hours g={g} />
         </Reveal>
       </ScrollView>
+      {purchase.ready ? <PayBar p={purchase} /> : null}
     </>
   );
 }
@@ -130,13 +139,11 @@ function About({ g }: { g: GymPage }) {
   );
 }
 
-/** Buy a pass: pick a pass and a date; Pay starts the payment (sign-in first for a guest). */
-function BuyPass({ g }: { g: GymPage }) {
-  const theme = useTheme();
-  const { t, i18n: i } = useTranslation();
-  const lang = i.language as Lang;
+type Purchase = ReturnType<typeof usePassPurchase>;
+
+/** The pass being chosen (package and date) and buying it: Pay starts the payment (sign-in first for a guest). */
+function usePassPurchase(g: GymPage) {
   const gate = useGate();
-  const { status } = useAuth();
   const [packageId, setPackageId] = useState(g.packages[0]?.id);
   const pkg = g.packages.find((p) => p.id === packageId) ?? g.packages[0];
   const dates = pkg ? passDates(pkg.kind, g.hours, g.today, g.advanceDays) : [];
@@ -152,19 +159,8 @@ function BuyPass({ g }: { g: GymPage }) {
     setError(null);
   };
 
-  if (!g.taking || !pkg) {
-    return (
-      <Card>
-        <ThemedText type="smallBold">{t('gymPage.buyTitle')}</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
-          {t('gymPage.notSelling')}
-        </ThemedText>
-      </Card>
-    );
-  }
-
   const buy = async () => {
-    if (!date) return;
+    if (!date || !pkg) return;
     setBusy(true);
     setError(null);
     try {
@@ -177,6 +173,53 @@ function BuyPass({ g }: { g: GymPage }) {
       setBusy(false);
     }
   };
+  const ready = Boolean(g.taking && pkg && date);
+  return { pkg, dates, date, busy, error, ready, choose, setPackageId, setPicked, pay: () => gate('buy_pass', () => void buy()) };
+}
+
+/** The sticky bar: the chosen pass and its date, and Pay. */
+function PayBar({ p }: { p: Purchase }) {
+  const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const { t, i18n: i } = useTranslation();
+  const lang = i.language as Lang;
+  if (!p.pkg) return null;
+  return (
+    <View style={[styles.payBar, { paddingBottom: 12 + insets.bottom, backgroundColor: theme.backgroundElement, borderTopColor: theme.line }]}>
+      <View style={{ flex: 1 }}>
+        <ThemedText type="smallBold" numberOfLines={1}>
+          {t(`gymPage.kind.${p.pkg.kind}`)}
+        </ThemedText>
+        {p.date ? (
+          <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+            {dateOnly(p.date, lang, { weekday: true, year: false })}
+          </ThemedText>
+        ) : null}
+      </View>
+      <View style={{ flex: 1.2 }}>
+        <Button title={t('gymPage.payNow', { price: money(p.pkg.price, lang) })} busy={p.busy} disabled={!p.date} onPress={p.pay} />
+      </View>
+    </View>
+  );
+}
+
+/** Buy a pass: pick a pass and a date (Pay is the sticky bar at the bottom). */
+function BuyPass({ g, p }: { g: GymPage; p: Purchase }) {
+  const theme = useTheme();
+  const { t, i18n: i } = useTranslation();
+  const lang = i.language as Lang;
+  const { status } = useAuth();
+  const { pkg, dates, date, error, choose, setPackageId, setPicked } = p;
+  if (!g.taking || !pkg) {
+    return (
+      <Card>
+        <ThemedText type="smallBold">{t('gymPage.buyTitle')}</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {t('gymPage.notSelling')}
+        </ThemedText>
+      </Card>
+    );
+  }
 
   const known = error instanceof ApiError && i18n.exists(`gymPage.errors.${error.code}`) ? t(`gymPage.errors.${error.code}` as never) : null;
 
@@ -248,7 +291,6 @@ function BuyPass({ g }: { g: GymPage }) {
         </ThemedText>
       ) : null}
       {known ? <Notice tone="error" text={known} /> : <ErrorNotice error={error} />}
-      <Button title={t('gymPage.payNow', { price: money(pkg.price, lang) })} busy={busy} disabled={!date} onPress={() => gate('buy_pass', () => void buy())} />
     </Card>
   );
 }
@@ -256,6 +298,7 @@ function BuyPass({ g }: { g: GymPage }) {
 /** Join this gym (M24-FR-16): shown while the gym takes join requests; a member or a waiting request sees that instead. */
 function Join({ g }: { g: GymPage }) {
   const { t } = useTranslation();
+  const toast = useToast();
   const qc = useQueryClient();
   const gate = useGate();
   const { status } = useAuth();
@@ -300,6 +343,7 @@ function Join({ g }: { g: GymPage }) {
     try {
       await joinGym({ gymId: g.id, ...(packageId ? { packageId } : {}), ...(note.trim() ? { note: note.trim().slice(0, 300) } : {}) });
       setSent(true);
+      toast(t('gymPage.joinSent'));
       void qc.invalidateQueries({ queryKey: keys.gym });
     } catch (e) {
       setError(e);
@@ -395,5 +439,6 @@ const styles = StyleSheet.create({
   chip: { minHeight: 48, paddingHorizontal: 16, borderRadius: Radius.pill, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   price: { fontSize: 18, lineHeight: 26, fontWeight: '800' },
   total: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', borderTopWidth: 1, paddingTop: 12 },
+  payBar: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
   hourRow: { flexDirection: 'row', gap: 12, paddingVertical: 10, borderBottomWidth: 1 },
 });

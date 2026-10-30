@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
 import { AnimatedSplash } from '@/components/AnimatedSplash';
+import { ToastProvider } from '@/components/toast';
 import { FONT_ASSETS, withTypeface } from '@/constants/fonts';
 // Importing the i18n module also initialises it (English or Bangla from the phone).
 import { restoreLanguage } from '@/i18n';
@@ -98,7 +99,9 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <AuthProvider>
-          <Navigator ready={ready} />
+          <ToastProvider>
+            <Navigator ready={ready} />
+          </ToastProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
