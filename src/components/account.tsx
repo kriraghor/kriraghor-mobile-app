@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { CountBadge } from '@/components/gym';
 import { useLeaveToHub } from '@/components/transition';
 import { ThemedText } from '@/components/themed-text';
@@ -52,7 +52,7 @@ export function AccountScreen({ section }: { section: Section }) {
         <View style={styles.pad}>
           <NavRow icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
         </View>
-        <EmptyState text={t('account.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />
+        <EmptyState icon="account" text={t('account.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />
       </View>
     );
   }
@@ -60,7 +60,7 @@ export function AccountScreen({ section }: { section: Section }) {
   const pushText = !push ? t('account.notificationsHelp') : push.status === 'granted' ? t('account.pushRegistered') : push.reason === 'denied' ? t('account.pushDenied') : t('account.pushUnavailable');
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]} refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void me.refetch()} tintColor={theme.brand} />}>
       {me.error ? <Notice tone="error" text={problemMessage(me.error, t('common.somethingWrong'))} /> : null}
       {me.data ? (
         <>

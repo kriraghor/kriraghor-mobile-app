@@ -43,7 +43,7 @@ export default function EventsScreen() {
             ) : null}
           </View>
         }
-        ListEmptyComponent={events.isLoading ? <SkeletonList rows={3} height={200} label={t('common.loading')} /> : <EmptyState text={group === 'open' ? t('events.empty') : t('events.emptyGroup')} />}
+        ListEmptyComponent={events.isLoading ? <SkeletonList rows={3} height={200} label={t('common.loading')} /> : <EmptyState icon="events" action={group !== 'open' ? { title: t('events.groups.open'), onPress: () => setGroup('open') } : undefined} text={group === 'open' ? t('events.empty') : t('events.emptyGroup')} />}
         renderItem={({ item, index }) => (
           <Reveal index={index} style={styles.item}>
             <EventCard event={item} />

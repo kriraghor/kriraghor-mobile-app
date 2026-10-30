@@ -44,7 +44,7 @@ export default function MatchesScreen() {
       keyExtractor={(r) => r.id}
       refreshControl={<RefreshControl refreshing={entries.isRefetching} onRefresh={() => void entries.refetch()} tintColor={theme.brand} />}
       ListHeaderComponent={entries.error ? <Notice tone="error" text={errorText(t, entries.error)} /> : null}
-      ListEmptyComponent={<EmptyState text={t('matches.empty')} action={{ title: t('matches.findEvent'), onPress: () => router.navigate('/events') }} />}
+      ListEmptyComponent={<EmptyState icon="matches" text={t('matches.empty')} action={{ title: t('matches.findEvent'), onPress: () => router.navigate('/events') }} />}
       renderItem={({ item }) => <EntryCard entry={item} />}
     />
   );

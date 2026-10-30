@@ -37,7 +37,7 @@ export default function GymPageScreen() {
   const q = useQuery({ queryKey: ['gym-page', slug], queryFn: () => gymPage(slug), retry: false });
 
   if (q.isLoading) return <SkeletonList rows={3} height={180} label={t('common.loading')} />;
-  if (q.error instanceof ApiError && q.error.status === 404) return <EmptyState text={t('gymPage.notFound')} action={{ title: t('gymPage.back'), onPress: () => router.replace('/gyms') }} />;
+  if (q.error instanceof ApiError && q.error.status === 404) return <EmptyState icon="gym" text={t('gymPage.notFound')} action={{ title: t('gymPage.back'), onPress: () => router.replace('/gyms') }} />;
   if (!q.data)
     return (
       <View style={{ flex: 1, padding: 16, backgroundColor: theme.background }}>

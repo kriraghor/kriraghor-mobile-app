@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Pill, SectionTitle } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
 import { Notice } from '@/components/ui';
@@ -28,7 +28,7 @@ export default function PlayerScreen() {
   const heading = p.games[0]?.ign ?? p.displayName;
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]} refreshControl={<RefreshControl refreshing={page.isRefetching} onRefresh={() => void page.refetch()} tintColor={theme.brand} />}>
       <Stack.Screen options={{ title: heading }} />
       <ThemedText style={styles.title}>{heading}</ThemedText>
       {p.username ? <ThemedText themeColor="textSecondary">@{p.username}</ThemedText> : null}

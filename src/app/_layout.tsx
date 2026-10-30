@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
 import { AnimatedSplash } from '@/components/AnimatedSplash';
 import { ToastProvider } from '@/components/toast';
+import { useTheme } from '@/hooks/use-theme';
 import { FONT_ASSETS, withTypeface } from '@/constants/fonts';
 // Importing the i18n module also initialises it (English or Bangla from the phone).
 import { restoreLanguage } from '@/i18n';
@@ -46,6 +47,7 @@ function Navigator({ ready }: { ready: boolean }) {
 
 function AppStack() {
   const { t, i18n } = useTranslation();
+  const theme = useTheme();
   // A launch that opened another screen (a link or a notification) never jumps to the remembered section.
   const pathname = usePathname();
   // The hub and the sections animate themselves (components/transition.tsx), so the stack does not.
@@ -54,7 +56,15 @@ function AppStack() {
     if (pathname !== HUB) setStartSection(null);
   }, [pathname]);
   return (
-    <Stack screenOptions={{ headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language) }}>
+    <Stack
+      screenOptions={{
+        // One header everywhere: an 18 pt bold title on the screen's own background, no hairline, a back arrow without text.
+        headerTitleStyle: withTypeface({ fontSize: 18, fontWeight: '700' }, i18n.language),
+        headerStyle: { backgroundColor: theme.background },
+        headerTintColor: theme.text,
+        headerShadowVisible: false,
+        headerBackButtonDisplayMode: 'minimal',
+      }}>
       {/* The hub, then the two in-app sections (each its own tabs). */}
       <Stack.Screen name="index" options={{ headerShown: false, title: t('common.appName'), animation: scene }} />
       <Stack.Screen name="(esports)" options={{ headerShown: false, title: t('hub.tiles.esports.title'), animation: scene }} />

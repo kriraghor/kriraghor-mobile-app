@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Pill, SectionTitle, Segments } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Field, Notice } from '@/components/ui';
@@ -56,7 +56,7 @@ function SquadsScreen() {
   const gameName = (id: string) => named(games.data?.find((g) => g.id === id), lang);
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={squads.isRefetching} onRefresh={() => void squads.refetch()} tintColor={theme.brand} />}>
       {note ? <Notice tone={note.tone} text={note.text} /> : null}
 
       {invites.map((s) => {

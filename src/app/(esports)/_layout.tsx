@@ -45,7 +45,8 @@ export default function EsportsLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.text,
-        headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language),
+        headerTitleStyle: withTypeface({ fontSize: 18, fontWeight: '700' }, i18n.language),
+        headerShadowVisible: false,
         headerRight: () => <SectionsButton />,
         // A short crossfade between tabs (none with reduce motion).
         animation: reduce ? 'none' : 'fade',
