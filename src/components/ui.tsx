@@ -1,7 +1,10 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, View, type PressableProps, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
+import Animated, { FadeInDown, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
+import { Duration, ENTER_OFFSET, PRESS_SCALE, Radius, Springs } from '@/constants/motion';
+import { staggerDelay } from '@/lib/motion';
 import { withTypeface } from '@/constants/fonts';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -19,7 +22,7 @@ type FieldProps = TextInputProps & {
   right?: ReactNode;
 };
 
-/** Form primitives on the Kriraghor tokens: 48px targets, square corners (shape lock). */
+/** Form primitives on the Kriraghor tokens: 48px targets, labels above, errors below, Radius.control corners. */
 export function Field({ label, error, hint, hintTone = 'muted', errorText, right, style, ...input }: FieldProps) {
   const theme = useTheme();
   const { i18n } = useTranslation();
@@ -154,24 +157,84 @@ export function TextLink({ title, onPress, disabled, align = 'left', tone = 'bra
   );
 }
 
+const APressable = Animated.createAnimatedComponent(Pressable);
+
+/**
+ * The one pressable for cards, rows, tiles and buttons: it shrinks to 0.97 on a spring while held
+ * (feedback), and with reduce motion on it dims a little instead. `style` must be a plain style, not
+ * a function of the pressed state.
+ */
+export function AnimatedPressable({ style, onPressIn, onPressOut, disabled, children, ...rest }: Omit<PressableProps, 'style'> & { style?: StyleProp<ViewStyle> }) {
+  const reduce = useReducedMotion();
+  const scale = useSharedValue(1);
+  const dim = useSharedValue(1);
+  // Opacity is animated only with reduce motion on, so a disabled button keeps its own dimming.
+  const animated = useAnimatedStyle(() => (reduce ? { opacity: dim.value } : { transform: [{ scale: scale.value }] }));
+  return (
+    <APressable
+      {...rest}
+      disabled={disabled}
+      onPressIn={(e) => {
+        if (reduce) dim.set(withTiming(0.85, { duration: Duration.micro }));
+        else scale.set(withSpring(PRESS_SCALE, Springs.press));
+        onPressIn?.(e);
+      }}
+      onPressOut={(e) => {
+        if (reduce) dim.set(withTiming(1, { duration: Duration.micro }));
+        else scale.set(withSpring(1, Springs.press));
+        onPressOut?.(e);
+      }}
+      style={[style, animated]}>
+      {children}
+    </APressable>
+  );
+}
+
+/** Fades a card or list item in, rising 12 points, 40 ms after the one before (reduce motion: none). */
+export function Reveal({ index = 0, children, style }: { index?: number; children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  return (
+    <Animated.View entering={FadeInDown.delay(staggerDelay(index)).duration(Duration.enter).withInitialValues({ opacity: 0, transform: [{ translateY: ENTER_OFFSET }] })} style={style}>
+      {children}
+    </Animated.View>
+  );
+}
+
+/** A grey block that gently pulses while a list loads (stops once the content arrives; still with reduce motion). */
+export function Skeleton({ height = 16, width = '100%', radius = Radius.control, style }: { height?: number; width?: number | `${number}%`; radius?: number; style?: StyleProp<ViewStyle> }) {
+  const theme = useTheme();
+  const reduce = useReducedMotion();
+  const pulse = useSharedValue(1);
+  useEffect(() => {
+    if (!reduce) pulse.set(withRepeat(withTiming(0.45, { duration: 700 }), -1, true));
+  }, [reduce, pulse]);
+  const animated = useAnimatedStyle(() => ({ opacity: pulse.value }));
+  return <Animated.View accessible={false} style={[{ height, width, borderRadius: radius, backgroundColor: theme.backgroundSelected }, animated, style]} />;
+}
+
+/** A loading list: a few card-shaped skeletons, labelled for screen readers. */
+export function SkeletonList({ rows = 3, height = 120, label }: { rows?: number; height?: number; label: string }) {
+  return (
+    <View accessible accessibilityLabel={label} accessibilityRole="progressbar" style={{ gap: 12, padding: 16 }}>
+      {Array.from({ length: rows }, (_, i) => (
+        <Skeleton key={i} height={height} radius={Radius.card} />
+      ))}
+    </View>
+  );
+}
+
 export function Button({ title, onPress, busy, disabled, variant = 'primary' }: { title: string; onPress: () => void; busy?: boolean; disabled?: boolean; variant?: 'primary' | 'outline' }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
   const primary = variant === 'primary';
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole="button"
       accessibilityState={{ busy: !!busy, disabled: !!busy || !!disabled }}
       disabled={busy || disabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.button,
-        primary ? { backgroundColor: theme.brand } : { borderWidth: 2, borderColor: theme.text },
-        pressed && { opacity: 0.85 },
-        disabled && !busy && { opacity: 0.5 },
-      ]}>
+      style={[styles.button, primary ? { backgroundColor: theme.brand } : { borderWidth: 2, borderColor: theme.text }, disabled && !busy ? { opacity: 0.5 } : null]}>
       {busy ? <ActivityIndicator color={primary ? theme.onBrand : theme.text} /> : <Text style={withTypeface(StyleSheet.flatten([styles.buttonText, { color: primary ? theme.onBrand : theme.text }]), i18n.language)}>{title}</Text>}
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
@@ -181,7 +244,7 @@ export function Notice({ text, tone = 'info' }: { text: string; tone?: 'info' | 
   return (
     <Text
       accessibilityLiveRegion="polite"
-      style={withTypeface(StyleSheet.flatten([styles.notice, { borderLeftColor: tone === 'error' ? theme.danger : theme.brand, color: tone === 'error' ? theme.danger : theme.text }]), i18n.language)}>
+      style={withTypeface(StyleSheet.flatten([styles.notice, { backgroundColor: theme.backgroundElement, borderLeftColor: tone === 'error' ? theme.danger : theme.brand, color: tone === 'error' ? theme.danger : theme.text }]), i18n.language)}>
       {text}
     </Text>
   );
@@ -190,20 +253,20 @@ export function Notice({ text, tone = 'info' }: { text: string; tone?: 'info' | 
 const styles = StyleSheet.create({
   field: { gap: 4 },
   label: { fontSize: 14, fontWeight: '600' },
-  input: { minHeight: 48, borderWidth: 2, paddingHorizontal: 12, fontSize: 16 },
-  inputInRow: { flex: 1, borderWidth: 0, minHeight: 44 },
-  inputRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 2, minHeight: 48 },
+  input: { minHeight: 48, borderWidth: 2, borderRadius: Radius.control, paddingHorizontal: 12, fontSize: 16 },
+  inputInRow: { flex: 1, borderWidth: 0, borderRadius: 0, minHeight: 44 },
+  inputRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 2, borderRadius: Radius.control, minHeight: 48, overflow: 'hidden' },
   below: { fontSize: 13, lineHeight: 19 },
   eye: { width: 48, height: 44, alignItems: 'center', justifyContent: 'center' },
   codeRow: { flexDirection: 'row', gap: 8 },
-  codeBox: { flex: 1, height: 56, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  codeBox: { flex: 1, height: 56, borderWidth: 2, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center' },
   codeDigit: { fontSize: 24, lineHeight: 32, fontWeight: '700' },
   codeHidden: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.02, color: 'transparent', fontSize: 1 },
   link: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: 4 },
   linkText: { fontSize: 15, fontWeight: '700' },
-  button: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
+  button: { minHeight: 48, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
   buttonText: { fontSize: 16, fontWeight: '700' },
-  notice: { borderLeftWidth: 4, paddingHorizontal: 12, paddingVertical: 8, fontSize: 14 },
+  notice: { borderLeftWidth: 4, borderRadius: Radius.control, overflow: 'hidden', paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, lineHeight: 20 },
 });
 
 /** A screen with nothing to show yet: a short line and, when it helps, one action. */
