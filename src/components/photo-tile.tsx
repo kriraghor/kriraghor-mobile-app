@@ -103,7 +103,7 @@ export const tileStyle: StyleProp<ViewStyle> = { borderRadius: Radius.card, over
 
 const styles = StyleSheet.create({
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  iconChip: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.14)' },
+  iconChip: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(10,26,18,0.55)', borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.28)' },
   text: { gap: 2 },
   title: { fontSize: 20, lineHeight: 28, fontWeight: '800' },
   titleBig: { fontSize: 28, lineHeight: 36, fontWeight: '800' },

@@ -43,7 +43,7 @@ export default function EsportsLayout() {
         tabBarActiveTintColor: theme.brand,
         tabBarInactiveTintColor: theme.textSecondary,
         // Room for Bangla letters, which sit taller than Latin ones, plus the phone's gesture bar.
-        tabBarStyle: { backgroundColor: theme.backgroundElement, borderTopColor: theme.line, height: 64 + insets.bottom, paddingTop: 6, paddingBottom: 8 + insets.bottom },
+        tabBarStyle: { backgroundColor: theme.backgroundElement, borderTopColor: theme.line, height: 72 + insets.bottom, paddingTop: 8, paddingBottom: 10 + insets.bottom },
         tabBarLabelStyle: withTypeface({ fontSize: 12, lineHeight: 18, fontWeight: '600' }, i18n.language),
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.text,
