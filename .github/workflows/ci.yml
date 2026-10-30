@@ -14,14 +14,11 @@ jobs:
     uses: kriraghor/kriraghor-infrastructure/.github/workflows/expo-app.yml@main
     secrets: inherit
 
-  eas-build:
-    name: Build Android APK (${{ matrix.profile }})
+  eas-update:
+    name: Publish Production OTA Update
     needs: [infrastructure-checks]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        profile: [preview, production]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,7 +35,7 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Build Android APK
+      - name: Publish EAS Update to Production
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: eas build --platform android --profile ${{ matrix.profile }} --non-interactive
+        run: eas update --channel production --auto --non-interactive
