@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import { goToHub } from '@/lib/section-nav';
@@ -33,12 +33,17 @@ export function useZoomScene(enterFrom: number, enterMs: number, exitTo: number,
   const enter = useSharedValue(0);
   const exit = useSharedValue(0);
 
-  useEffect(() => {
+  // Start entering on the first layout, not on mount: mounting a section is heavy, and an animation
+  // started at mount would spend its first frames before anything is on screen.
+  const started = useSharedValue(false);
+  const onLayout = useCallback(() => {
+    if (started.value) return;
+    started.set(true);
     enter.set(withTiming(1, { duration: reduce ? ZOOM.fade : enterMs, easing: easeOut }));
-  }, [enter, reduce, enterMs]);
+  }, [started, enter, reduce, enterMs]);
 
   const style = useAnimatedStyle(() => {
-    const opacity = enter.value * (1 - exit.value);
+    const opacity = Math.min(1, Math.max(0, enter.value * (1 - exit.value)));
     if (reduce) return { opacity };
     const scale = (enterFrom + (1 - enterFrom) * enter.value) * (1 + (exitTo - 1) * exit.value);
     return { opacity, transform: [{ scale }] };
@@ -55,7 +60,7 @@ export function useZoomScene(enterFrom: number, enterMs: number, exitTo: number,
     [exit, reduce, exitMs]
   );
 
-  return { style, leave };
+  return { style, leave, onLayout };
 }
 
 const LeaveToHub = createContext<(() => void) | null>(null);
@@ -67,11 +72,13 @@ export function useLeaveToHub() {
 
 /** Wraps a section's tabs: they zoom in on arrival and out on the way back to the hub. */
 export function SectionScene({ children }: { children: ReactNode }) {
-  const { style, leave } = useZoomScene(ZOOM.sectionIn.from, ZOOM.sectionIn.duration, ZOOM.sectionOut.scale, ZOOM.sectionOut.duration);
+  const { style, leave, onLayout } = useZoomScene(ZOOM.sectionIn.from, ZOOM.sectionIn.duration, ZOOM.sectionOut.scale, ZOOM.sectionOut.duration);
   const toHub = useMemo(() => () => leave(() => void goToHub()), [leave]);
   return (
     <LeaveToHub.Provider value={toHub}>
-      <Animated.View style={[styles.fill, style]}>{children}</Animated.View>
+      <Animated.View style={[styles.fill, style]} onLayout={onLayout}>
+        {children}
+      </Animated.View>
     </LeaveToHub.Provider>
   );
 }

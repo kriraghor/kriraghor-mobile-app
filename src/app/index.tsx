@@ -78,7 +78,7 @@ function HubScreen() {
   const me = useMe();
   const [leaving, setLeaving] = useState(false);
   // Enters from 1.06 (zooming out of a section); leaves to 1.08 (zooming into one).
-  const { style, leave } = useZoomScene(ZOOM.hubIn.from, ZOOM.hubIn.duration, ZOOM.hubOut.scale, ZOOM.hubOut.duration);
+  const { style, leave, onLayout } = useZoomScene(ZOOM.hubIn.from, ZOOM.hubIn.duration, ZOOM.hubOut.scale, ZOOM.hubOut.duration);
   useEffect(prefetchPhotos, []);
 
   const name = status === 'signed_in' ? firstName(me.data?.displayName) : '';
@@ -94,7 +94,7 @@ function HubScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      <Animated.View style={[{ flex: 1 }, style]} pointerEvents={leaving ? 'none' : 'auto'}>
+      <Animated.View style={[{ flex: 1 }, style]} onLayout={onLayout} pointerEvents={leaving ? 'none' : 'auto'}>
         <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 32 }]}>
           <View style={styles.bar}>
             <View style={styles.brand} accessible accessibilityRole="header" accessibilityLabel={t('hub.logo')}>
