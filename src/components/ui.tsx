@@ -190,8 +190,13 @@ export function AnimatedPressable({ style, onPressIn, onPressOut, disabled, chil
   );
 }
 
-/** Fades a card or list item in, rising 12 points, 40 ms after the one before (reduce motion: none). */
+/**
+ * Fades a card or list item in, rising 12 points, 40 ms after the one before (reduce motion: none).
+ * Not on the web build (previews only): Reanimated's web entering animations take items out of the
+ * layout while they run, so lists there render without them.
+ */
 export function Reveal({ index = 0, children, style }: { index?: number; children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  if (Platform.OS === 'web') return <View style={style}>{children}</View>;
   return (
     <Animated.View entering={FadeInDown.delay(staggerDelay(index)).duration(Duration.enter).withInitialValues({ opacity: 0, transform: [{ translateY: ENTER_OFFSET }] })} style={style}>
       {children}

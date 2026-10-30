@@ -3,7 +3,7 @@ import { Redirect, router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { useReducedMotion, withTiming, type EntryAnimationsValues } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TileFace, tileStyle, ZoomOverlay } from '@/components/photo-tile';
@@ -95,7 +95,7 @@ function HubScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      <Animated.View entering={reduce ? undefined : zoomOutEntering} style={{ flex: 1 }}>
+      <Animated.View entering={reduce || Platform.OS === 'web' ? undefined : zoomOutEntering} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 32 }]}>
           <Reveal style={styles.head}>
             <ThemedText style={styles.title} accessibilityRole="header">

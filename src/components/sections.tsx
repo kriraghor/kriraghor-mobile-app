@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
+import { Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
 import { HUB, SECTION_HOME, type Section } from '@/lib/section';
 import { sections } from '@/lib/section-store';
@@ -52,5 +53,5 @@ export function SectionsChip() {
 
 const styles = StyleSheet.create({
   icon: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
-  chip: { minHeight: 48, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, borderWidth: 1.5 },
+  chip: { minHeight: 48, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, borderWidth: 1, borderRadius: Radius.control },
 });

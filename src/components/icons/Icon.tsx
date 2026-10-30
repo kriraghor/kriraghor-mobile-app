@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { ColorValue, StyleProp, ViewStyle } from 'react-native';
+import { Platform, type ColorValue, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { GLYPHS, type GlyphElement, type IconName } from './glyphs';
 
@@ -37,16 +37,13 @@ function element(el: GlyphElement, i: number, color: ColorValue, strokeWidth: nu
 function IconBase({ name, size = 24, color, strokeWidth = 1.75, active = false, accessibilityLabel, style }: Props) {
   const glyph = GLYPHS[name] as readonly GlyphElement[];
   const labelled = Boolean(accessibilityLabel);
+  // The web build hands Svg props to the DOM, so it gets ARIA attributes instead of the native ones.
+  const a11y =
+    Platform.OS === 'web'
+      ? ((labelled ? { role: 'img', 'aria-label': accessibilityLabel } : { 'aria-hidden': true }) as object)
+      : { accessible: labelled, accessibilityLabel, accessibilityRole: labelled ? ('image' as const) : undefined, importantForAccessibility: labelled ? ('yes' as const) : ('no-hide-descendants' as const) };
   return (
-    <Svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      style={style}
-      accessible={labelled}
-      accessibilityLabel={accessibilityLabel}
-      accessibilityRole={labelled ? 'image' : undefined}
-      importantForAccessibility={labelled ? 'yes' : 'no-hide-descendants'}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" style={style} {...a11y}>
       {glyph.map((el, i) => element(el, i, color, strokeWidth, active))}
     </Svg>
   );
