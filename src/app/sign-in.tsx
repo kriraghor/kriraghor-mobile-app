@@ -184,6 +184,12 @@ export default function SignIn() {
             <StepTitle title={step.purpose === 'signup' ? t('signIn.signupTitle') : t('signIn.codeTitle')} sub={step.purpose === 'signup' ? t('signIn.signupVerify') : t('signIn.sub')} />
           </>
         ) : null}
+        {step.kind === 'code' ? (
+          <>
+            <BackLink onPress={() => go({ kind: 'target', purpose: step.purpose })} />
+            <StepTitle title={t('signIn.checkTitle')} />
+          </>
+        ) : null}
         {step.kind === 'signup' ? <StepTitle title={t('signIn.signupTitle')} sub={t('signIn.signupSub')} /> : null}
         {step.kind === 'resetTarget' || step.kind === 'resetCode' ? (
           <>

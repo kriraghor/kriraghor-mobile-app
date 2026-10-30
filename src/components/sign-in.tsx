@@ -50,7 +50,7 @@ export function Footer({ text, action, onPress }: { text: string; action: string
 }
 
 /**
- * "Check your messages": where the code went (with Change), six boxes that verify by themselves
+ * The code step under "Check your messages": where the code went (with Change), six boxes that verify by themselves
  * when full, and Resend after the countdown (60 s, or what the server said).
  */
 export function CodeStep({
@@ -85,8 +85,6 @@ export function CodeStep({
 
   return (
     <>
-      <BackLink onPress={onChange} />
-      <StepTitle title={t('signIn.checkTitle')} />
       <View style={styles.sentTo}>
         <ThemedText themeColor="textSecondary">{t('signIn.codeSentTo', { target: maskTarget(target) })}</ThemedText>
         <TextLink title={t('signIn.change')} onPress={onChange} />

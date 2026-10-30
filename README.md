@@ -43,18 +43,23 @@ Run `npx eas-cli@latest init` once to create the EAS project and set `EAS_PROJEC
 
 ## Screens
 
+The app opens on the **hub**: a greeting and six tiles. **Esports** and **Gym** are sections inside the app, each with its own tabs; **Venues**, **Shop**, **Hire** and **Events** open kriraghor.com (`/venues`, `/shop`, `/hiring`, `/events`) in the in-app browser, where sign-in is the website's own. The last section chosen is kept on the phone (`kg.section`, `src/lib/section.ts`): a cold start opens it straight away, and **All sections** (a header button, the first item on Esports Home, a row in Account) forgets it and goes back to the hub. Notifications and links always open their own screen, whatever section is remembered.
+
 | Route | What it does |
 |---|---|
-| `(tabs)/index`, `events`, `matches`, `ranks` | Esports home, events, my matches, leaderboards and player pages (M21) |
-| `(tabs)/account` | Account, language, notifications, and rows for notifications, game IDs, squads, winnings and **Gym** (badge: gym invites waiting) |
+| `index` | The hub: greeting (the name when signed in), Sign in when signed out, the six tiles, a note that the website tiles open kriraghor.com |
+| `sign-in` (modal) | M01 sign-in like kriraghor.com: password first (mobile, email or username, show/hide), **Get a one-time code instead** (six boxes, SMS autofill, 60 s resend), Forgot password (code, new password, then signed in with it), Create an account (code, then name, optional username with a live check, optional password). Closes back to where it was opened, else the hub. Rules in `src/lib/auth-flow.ts` |
+| `(esports)/esports`, `events`, `matches`, `ranks`, `account` | Esports section tabs: Home, events, my matches, leaderboards and player pages (M21), Account |
+| `(gym)/gym`, `gym/today`, `gym/checkin`, `gym/passes`, `gym/account` | Gym section tabs: My gyms, Today (today's workout and meals, then all my plans), Check-in, Passes, Account |
+| Account (both sections, `src/components/account.tsx`) | Account, language, notifications, and rows for notifications, game IDs, squads, winnings, **Gym** (Esports only; badge: gym invites waiting) and All sections |
 | `register/[id]`, `pay/[paymentId]`, `room/[matchId]`, `result/[matchId]`, `game-ids`, `squads`, `split/[registrationId]`, `winnings`, `payout-account`, `notifications` | Esports entry, paying (M06), room reveal, results and disputes, game IDs, squads, prize split, winnings and withdrawals, the bell |
-| `gym` | My gyms: package, days left, what I owe with **Pay** (or "Pay at the counter"), invites badge, today's workout and meals, my check-in QR, past gyms, passes and trainers; no gyms: Find a gym on gym.kriraghor.com |
+| `gym` (tab) | My gyms: package, days left, what I owe with **Pay** (or "Pay at the counter"), invites badge, today's workout and meals, my check-in QR, past gyms, passes and trainers; no gyms: Find a gym on gym.kriraghor.com |
 | `gym/requests` | Gym invites (what the gym will see, Accept, Decline), my join requests (Cancel), expired ones greyed |
 | `gym/[memberId]` | One membership: packages and freezes, dues with Pay, payments, receipts (open on gym.kriraghor.com), plans, health note, Unlink |
 | `gym/[memberId]/attendance` | Check-in calendar by month, Saturday first |
 | `gym/plans/[assignmentId]` | Today first with Done ticks and notes (and the days back the API allows), the week, the whole plan, video links, the safety line |
-| `gym/checkin` | My rotating QR (brightness up, screen awake) and scanning the gym's entrance QR with the camera |
-| `gym/passes`, `gym/subscriptions` | M20 passes (QR and backup code while active) and trainer subscriptions (renew, cancel, report on gym.kriraghor.com) |
+| `gym/checkin` (tab) | My rotating QR (brightness up, screen awake) and scanning the gym's entrance QR with the camera |
+| `gym/passes` (tab), `gym/subscriptions` | M20 passes (QR and backup code while active) and trainer subscriptions (renew, cancel, report on gym.kriraghor.com) |
 
 The pay screen follows the payment's purpose: esports entries go back to Matches; gym fees say "Fee paid" and go back to the membership; passes and trainer months go back to their lists.
 
