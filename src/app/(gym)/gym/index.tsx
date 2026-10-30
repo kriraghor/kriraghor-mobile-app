@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Pill, SectionTitle } from '@/components/esports';
-import { Card, ErrorNotice, GymGate, gymWeb, openWeb, RowLink } from '@/components/gym';
+import { Card, ErrorNotice, GymGate, RowLink } from '@/components/gym';
+import { GymDirectory } from '@/components/gym-directory';
 import { TodayCard } from '@/components/gym-today';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui';
@@ -20,7 +21,8 @@ import { keys } from '@/lib/use-realtime';
  * My gyms (M24 §4.5 gym/index, mirrors gym.kriraghor.com /me): invites waiting (a badge), today's
  * workout and meals, my check-in QR, each gym I belong to with its package, days left and what is
  * outstanding (Pay when the gym takes fees online, else "Pay at the counter"), past gyms apart, then my
- * passes and trainer subscriptions (M20). No gyms → find one on gym.kriraghor.com.
+ * passes and trainer subscriptions (M20). No gyms → the in-app gym directory. Signed out, this tab is
+ * the directory itself, so a guest can browse gyms, buy a pass or ask to join.
  */
 export default function GymHome() {
   const theme = useTheme();
@@ -33,8 +35,9 @@ export default function GymHome() {
   const waiting = useWaitingInvites();
   const payDue = usePayDue();
 
-  const gate = <GymGate loading={gyms.isLoading} />;
-  if (status !== 'signed_in' || gyms.isLoading) return gate;
+  // A guest gets the gym directory here (browse, buy a pass, ask to join); members get My gyms.
+  if (status === 'signed_out') return <GymDirectory />;
+  if (status !== 'signed_in' || gyms.isLoading) return <GymGate loading />;
 
   const items = gyms.data?.items ?? [];
   const current = items.filter((m) => m.linked);
@@ -69,7 +72,7 @@ export default function GymHome() {
           <ThemedText type="small" themeColor="textSecondary">
             {t('gym.noGymsBody')}
           </ThemedText>
-          <Button title={t('gym.findGym')} onPress={() => openWeb(gymWeb('/gyms'))} />
+          <Button title={t('gym.findGym')} onPress={() => router.push('/gyms')} />
         </Card>
       ) : null}
       {current.map((m) => (
@@ -87,7 +90,7 @@ export default function GymHome() {
       <SectionTitle>{t('gym.more')}</SectionTitle>
       <RowLink icon="ticket-outline" label={t('gymPasses.title')} onPress={() => router.navigate('/gym/passes')} />
       <RowLink icon="whistle-outline" label={t('gymSubs.title')} onPress={() => router.push('/gym/subscriptions')} />
-      <RowLink icon="map-search-outline" label={t('gym.findGym')} onPress={() => openWeb(gymWeb('/gyms'))} external />
+      <RowLink icon="map-search-outline" label={t('gym.findGym')} onPress={() => router.push('/gyms')} />
     </ScrollView>
   );
 }

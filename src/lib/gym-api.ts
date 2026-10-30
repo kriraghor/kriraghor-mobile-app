@@ -72,3 +72,19 @@ export const entranceCheckin = (token: string) => call<EntranceCheckin>('POST', 
 export const myPasses = (status: 'active' | 'used' | 'expired') => call<S['GymPassList']>('GET', '/me/passes', { query: { status } });
 export const myPass = (code: string) => call<PassResult>('GET', `/me/passes/${enc(code)}`);
 export const mySubscriptions = () => call<S['TrainerSubscriptionList']>('GET', '/me/subscriptions');
+
+// ---------------------------------------------------------------- the public gym directory (M20 §4, M24 §4.1): no sign-in needed
+export type GymList = S['GymList'];
+export type GymCard = S['GymCard'];
+export type GymPage = S['GymPage'];
+export type GymPackage = GymPage['packages'][number];
+export type Area = { id: string; nameEn: string; nameBn: string };
+
+export const listGyms = (query: Record<string, string | number>) => call<GymList>('GET', '/gym/gyms', { query });
+export const gymPage = (slug: string) => call<GymPage>('GET', `/gym/gyms/${enc(slug)}`);
+export const listAreas = async () => (await call<{ items: Area[] }>('GET', '/catalog/areas', { query: { service: 'delivery' } })).items;
+
+/** Buy a pass (gate buy_gym_pass: a verified phone): one payment into escrow, paid on pay/[paymentId]. */
+export const buyPass = (packageId: string, validFrom: string, key: string) => call<PassResult>('POST', '/gym/passes', { body: { packageId, validFrom }, key });
+/** Ask a gym to add me as a member (M24-FR-16; needs a verified phone, never NID). */
+export const joinGym = (body: { gymId: string; packageId?: string; note?: string }) => call<unknown>('POST', '/me/gym-join-requests', { body });

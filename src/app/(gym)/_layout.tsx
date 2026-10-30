@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Tabs } from 'expo-router/js-tabs';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionsButton } from '@/components/sections';
 import { withTypeface } from '@/constants/fonts';
@@ -32,6 +33,7 @@ export default function GymLayout() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
+  const reduce = useReducedMotion();
   const { status } = useAuth();
   const unread = useQuery({ queryKey: keys.unread, queryFn: unreadCount, enabled: status === 'signed_in' });
   const waiting = useWaitingInvites();
@@ -49,13 +51,16 @@ export default function GymLayout() {
         headerTintColor: theme.text,
         headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language),
         headerRight: () => <SectionsButton />,
+        // A short crossfade between tabs (none with reduce motion).
+        animation: reduce ? 'none' : 'fade',
       }}>
       {TABS.map((tab) => (
         <Tabs.Screen
           key={tab.name}
           name={tab.name}
           options={{
-            title: t(`gymTabs.${tab.label}`),
+            // A guest's first tab is the gym directory (Gyms); a member's is My gyms.
+            title: tab.label === 'home' && status !== 'signed_in' ? t('gymDir.tab') : t(`gymTabs.${tab.label}`),
             tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name={tab.icon} color={color} size={size} />,
             // Invites waiting on My gyms (where they are answered); unread notifications on Account.
             tabBarBadge: tab.label === 'home' ? badge(waiting) : tab.label === 'account' ? badge(unread.data ?? 0) : undefined,
