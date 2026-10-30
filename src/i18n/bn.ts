@@ -728,6 +728,12 @@ export const bn: Messages = {
     cancel: 'gym.kriraghor.com-এ বাতিল করুন',
     problem: 'gym.kriraghor.com-এ সমস্যা জানান',
   },
+  updates: {
+    title: 'আপডেট তৈরি',
+    body: 'ক্রীড়াঘরের নতুন সংস্করণ ডাউনলোড হয়েছে। এখনই চালু করতে রিস্টার্ট করুন, নইলে পরের বার অ্যাপ খুললে চালু হবে।',
+    later: 'পরে',
+    restart: 'এখনই রিস্টার্ট',
+  },
   account: {
     title: 'অ্যাকাউন্ট',
     signedOut: 'আপনি সাইন ইন করেননি।',
