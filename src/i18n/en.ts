@@ -730,6 +730,12 @@ export const en = {
     cancel: 'Cancel on gym.kriraghor.com',
     problem: 'Report a problem on gym.kriraghor.com',
   },
+  updates: {
+    title: 'Update ready',
+    body: 'A new version of Kriraghor has downloaded. Restart now to use it, or it will start next time you open the app.',
+    later: 'Later',
+    restart: 'Restart now',
+  },
   account: {
     title: 'Account',
     signedOut: 'You are not signed in.',
