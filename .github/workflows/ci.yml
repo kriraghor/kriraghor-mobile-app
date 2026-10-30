@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # "Run workflow" in the Actions tab publishes the current main again by hand.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,7 +24,12 @@ jobs:
   eas-update:
     name: Publish OTA Update (${{ matrix.channel }})
     needs: [infrastructure-checks]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    # One publish per channel at a time, in push order, so the newest commit is always the last
+    # update on the channel (two merges seconds apart could otherwise finish out of order).
+    concurrency:
+      group: eas-update-${{ matrix.channel }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
