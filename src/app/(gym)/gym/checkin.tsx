@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Brightness from 'expo-brightness';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
@@ -40,6 +40,13 @@ export default function GymCheckin() {
   const gyms = useMyGyms();
   const [mode, setMode] = useState<Mode>(params.mode === 'scan' ? 'scan' : 'qr');
   const [chosen, setChosen] = useState<string | null>(params.m ?? null);
+  // A tab stays mounted: a later link with another gym (?m=) or ?mode=scan switches to it.
+  const [seen, setSeen] = useState({ m: params.m, mode: params.mode });
+  if (seen.m !== params.m || seen.mode !== params.mode) {
+    setSeen({ m: params.m, mode: params.mode });
+    if (params.m) setChosen(params.m);
+    if (params.mode === 'scan' || params.mode === 'qr') setMode(params.mode);
+  }
 
   if (status !== 'signed_in' || gyms.isLoading) return <GymGate loading={gyms.isLoading} />;
   const linked = linkedGyms(gyms.data?.items ?? []);
@@ -65,7 +72,7 @@ export default function GymCheckin() {
             <ThemedText type="small" themeColor="textSecondary">
               {t('gymCheckin.noLinkedBody')}
             </ThemedText>
-            <Button title={t('gym.requests')} variant="outline" onPress={() => router.replace('/gym/requests')} />
+            <Button title={t('gym.requests')} variant="outline" onPress={() => router.push('/gym/requests')} />
           </Card>
         ) : null}
         {member && linked.length > 1 ? (
@@ -268,7 +275,7 @@ function CheckinResult({ c }: { c: EntranceCheckin }) {
   return (
     <Card style={{ borderColor: warn ? theme.prize : theme.brand, borderWidth: 2 }}>
       <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-        <MaterialCommunityIcons name={warn ? 'alert-outline' : 'check-circle-outline'} size={26} color={warn ? theme.text : theme.brandText} />
+        <Icon name={warn ? 'alert' : 'check'} size={26} color={warn ? theme.text : theme.brandText} />
         <ThemedText type="smallBold" style={{ flex: 1, fontSize: 16 }}>
           {c.counted ? t('gymCheckin.in', { gym: c.gym?.name ?? '' }) : t('gymCheckin.already', { time: c.firstCheckInToday ? timeOnly(c.firstCheckInToday, lang) : '' })}
         </ThemedText>

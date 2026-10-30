@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { EventCard, Segments } from '@/components/esports';
-import { EmptyState, Notice } from '@/components/ui';
+import { EmptyState, Notice, Reveal, SkeletonList } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { named, type StatusGroup } from '@/lib/esports';
@@ -41,11 +41,11 @@ export default function EventsScreen() {
             ) : null}
           </View>
         }
-        ListEmptyComponent={events.isLoading ? <ActivityIndicator color={theme.brand} style={styles.loading} /> : <EmptyState text={group === 'open' ? t('events.empty') : t('events.emptyGroup')} />}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
+        ListEmptyComponent={events.isLoading ? <SkeletonList rows={3} height={200} label={t('common.loading')} /> : <EmptyState text={group === 'open' ? t('events.empty') : t('events.emptyGroup')} />}
+        renderItem={({ item, index }) => (
+          <Reveal index={index} style={styles.item}>
             <EventCard event={item} />
-          </View>
+          </Reveal>
         )}
       />
     </View>

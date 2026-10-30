@@ -31,6 +31,12 @@ export default function GymPasses() {
   const params = useLocalSearchParams<{ code?: string }>();
   const [group, setGroup] = useState<Group>('active');
   const [open, setOpen] = useState<string | null>(params.code ?? null);
+  // A tab stays mounted: a later link to another pass (?code=) opens that one.
+  const [seenCode, setSeenCode] = useState(params.code);
+  if (seenCode !== params.code) {
+    setSeenCode(params.code);
+    if (params.code) setOpen(params.code);
+  }
   const list = useQuery({ queryKey: keys.gymPasses(group), queryFn: async () => (await myPasses(group)).items, enabled: status === 'signed_in' });
 
   if (status !== 'signed_in') return <GymGate loading={false} />;

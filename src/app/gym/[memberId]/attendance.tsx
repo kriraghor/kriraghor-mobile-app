@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -100,7 +100,7 @@ function MonthButton({ icon, label, onPress, disabled }: { icon: 'chevron-left' 
   const theme = useTheme();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: !!disabled }} disabled={disabled} onPress={onPress} style={[styles.monthButton, { borderColor: theme.line, opacity: disabled ? 0.4 : 1 }]}>
-      <MaterialCommunityIcons name={icon} size={24} color={theme.text} />
+      <Icon name={icon} size={24} color={theme.text} />
     </Pressable>
   );
 }

@@ -12,6 +12,7 @@ import { errorText } from '@/lib/errors';
 import { eventCta, named, title, type TournamentDetail } from '@/lib/esports';
 import { getEvent, myRegistrations } from '@/lib/esports-api';
 import { count, dateTime, money, type Lang } from '@/lib/format';
+import { useGate } from '@/lib/use-gate';
 import { keys, useRoomEvents } from '@/lib/use-realtime';
 
 /** An event (M21 §4.1): prizes, schedule, points, rules, live slots, and the one action for this player. */
@@ -22,6 +23,7 @@ export default function EventScreen() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
   const { status } = useAuth();
+  const gate = useGate();
   const qc = useQueryClient();
   const event = useQuery({ queryKey: keys.event(id), queryFn: () => getEvent(id) });
   const mine = useQuery({ queryKey: keys.registrations, queryFn: myRegistrations, enabled: status === 'signed_in' });
@@ -109,7 +111,8 @@ export default function EventScreen() {
         {cta.kind === 'register' || cta.kind === 'waitlist' ? (
           <Button
             title={cta.kind === 'waitlist' ? t('event.joinWaitlist') : free ? t('event.registerFree') : t('event.register', { fee: money(e.entryFee.amount, lang) })}
-            onPress={() => (status === 'signed_in' ? router.push({ pathname: '/register/[id]', params: { id: e.id } }) : router.push('/sign-in'))}
+            // Guests browse freely; Register asks for a sign-in, then carries on to the entry form (M21).
+            onPress={() => gate('register_event', () => router.push({ pathname: '/register/[id]', params: { id: e.id } }))}
           />
         ) : cta.kind === 'registered' ? (
           <>

@@ -14,6 +14,7 @@ import { ApiError, getRoom } from '@/lib/esports-api';
 import { dateTime, type Lang } from '@/lib/format';
 import { acceptCredentials, credentialsFor, onCredentialsChange } from '@/lib/room-credentials';
 import { keys } from '@/lib/use-realtime';
+import { SignedInOnly } from '@/components/guest';
 
 // Phones block screenshots of this screen; browsers (the web preview) cannot, so it is a no-op there.
 const useNoScreenshots = Platform.OS === 'web' ? () => undefined : usePreventScreenCapture;
@@ -23,7 +24,7 @@ const useNoScreenshots = Platform.OS === 'web' ? () => undefined : usePreventScr
  * password come from the API or the socket and stay in memory (never stored, never logged); the
  * newest version wins, so a rotation replaces them on screen at once. Screenshots are blocked here.
  */
-export default function RoomScreen() {
+function RoomScreen() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
@@ -123,3 +124,12 @@ const styles = StyleSheet.create({
   value: { fontSize: 28, lineHeight: 36, fontWeight: '800', fontFamily: 'monospace', letterSpacing: 1 },
   copy: { minHeight: 48, minWidth: 72, borderWidth: 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function RoomScreenRoute() {
+  return (
+    <SignedInOnly>
+      <RoomScreen />
+    </SignedInOnly>
+  );
+}

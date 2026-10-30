@@ -1,10 +1,11 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon, type IconName } from '@/components/icons/Icon';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useState, type ComponentProps } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { CountBadge } from '@/components/gym';
+import { goToHub } from '@/components/sections';
 import { ThemedText } from '@/components/themed-text';
 import { Button, EmptyState, Notice } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
@@ -13,13 +14,17 @@ import { api, problemMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import type { PushRegistration } from '@/lib/notifications';
 import { enablePush } from '@/lib/push';
+import type { Section } from '@/lib/section';
 import { useWaitingInvites } from '@/lib/use-gym';
 
 type Me = { id: string; displayName: string; phone: string | null; email: string | null; roles: { role: string; status: string }[] };
 const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', bn: 'বাংলা' };
 
-/** The signed-in account (GET /me), the language and notifications. */
-export default function AccountScreen() {
+/**
+ * The signed-in account (GET /me), the language and notifications. The Account tab of both sections
+ * (Esports and Gym) renders this one screen; inside Gym the Gym row is left out (it is the section).
+ */
+export function AccountScreen({ section }: { section: Section }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const { status, signOut } = useAuth();
@@ -35,10 +40,16 @@ export default function AccountScreen() {
     },
   });
 
+  // Signing out, or All sections: forget the section and show the hub.
+  const toHub = goToHub;
+
   if (status === 'signed_out') {
     return (
       <View style={{ flex: 1, backgroundColor: theme.background }}>
         <LanguagePicker padded />
+        <View style={styles.pad}>
+          <NavRow icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
+        </View>
         <EmptyState text={t('account.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />
       </View>
     );
@@ -63,11 +74,12 @@ export default function AccountScreen() {
         <ThemedText themeColor="textSecondary">{t('common.loading')}</ThemedText>
       )}
 
-      <NavRow icon="bell-outline" label={t('notifications.title')} onPress={() => router.push('/notifications')} />
-      <NavRow icon="gamepad-variant-outline" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
-      <NavRow icon="account-group-outline" label={t('squads.title')} onPress={() => router.push('/squads')} />
-      <NavRow icon="trophy-outline" label={t('winnings.title')} onPress={() => router.push('/winnings')} />
-      <NavRow icon="dumbbell" label={t('gym.title')} badge={waiting} onPress={() => router.push('/gym')} />
+      <NavRow icon="bell" label={t('notifications.title')} onPress={() => router.push('/notifications')} />
+      <NavRow icon="id-card" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
+      <NavRow icon="people" label={t('squads.title')} onPress={() => router.push('/squads')} />
+      <NavRow icon="wallet" label={t('winnings.title')} onPress={() => router.push('/winnings')} />
+      {section === 'esports' ? <NavRow icon="gym" label={t('gym.title')} badge={waiting} onPress={() => router.push('/gym')} /> : null}
+      <NavRow icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
 
       <LanguagePicker />
 
@@ -79,7 +91,7 @@ export default function AccountScreen() {
         {push?.status !== 'granted' ? <Button title={t('account.enableNotifications')} variant="outline" onPress={() => void enablePush().then(setPush)} /> : null}
       </View>
 
-      <Button title={t('common.signOut')} onPress={() => void signOut().then(() => router.replace('/'))} />
+      <Button title={t('common.signOut')} onPress={() => void signOut().then(toHub)} />
     </ScrollView>
   );
 }
@@ -113,16 +125,16 @@ function LanguagePicker({ padded }: { padded?: boolean }) {
 }
 
 /** A row that opens another screen (48px target, icon and label). */
-function NavRow({ icon, label, onPress, badge = 0 }: { icon: ComponentProps<typeof MaterialCommunityIcons>['name']; label: string; onPress: () => void; badge?: number }) {
+function NavRow({ icon, label, onPress, badge = 0 }: { icon: IconName; label: string; onPress: () => void; badge?: number }) {
   const theme = useTheme();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.nav, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, pressed && { opacity: 0.85 }]}>
-      <MaterialCommunityIcons name={icon} size={22} color={theme.text} />
+      <Icon name={icon} size={22} color={theme.text} />
       <ThemedText type="smallBold" style={{ flex: 1 }}>
         {label}
       </ThemedText>
       <CountBadge n={badge} />
-      <MaterialCommunityIcons name="chevron-right" size={22} color={theme.textSecondary} />
+      <Icon name="chevron-right" size={22} color={theme.textSecondary} />
     </Pressable>
   );
 }

@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { SectionTitle } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Field, Notice } from '@/components/ui';
@@ -12,13 +12,14 @@ import { errorText } from '@/lib/errors';
 import { addPayoutAccount, payoutAccounts, sendPayoutCode } from '@/lib/esports-api';
 import { dateTime, type Lang } from '@/lib/format';
 import { normaliseWallet } from '@/lib/player';
+import { SignedInOnly } from '@/components/guest';
 
 /**
  * The payout account (M07): one bKash or Nagad wallet in the player's own name. A code to the
  * verified phone confirms it is them; finance then checks the name against the NID before it is
  * used. Account numbers are never shown in full.
  */
-export default function PayoutAccountScreen() {
+function PayoutAccountScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
@@ -105,7 +106,7 @@ export default function PayoutAccountScreen() {
           <Field label={t('payout.number')} value={number} onChangeText={setNumber} keyboardType="phone-pad" editable={!codeSent} placeholder="01XXXXXXXXX" maxLength={16} />
           <Field label={t('payout.name')} value={name} onChangeText={setName} editable={!codeSent} maxLength={120} autoComplete="name" />
           <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: declared }} disabled={codeSent} onPress={() => setDeclared(!declared)} style={styles.declare}>
-            <MaterialCommunityIcons name={declared ? 'checkbox-marked' : 'checkbox-blank-outline'} size={24} color={declared ? theme.brand : theme.textSecondary} />
+            <Icon name={declared ? 'checkbox-on' : 'checkbox'} size={24} color={declared ? theme.brand : theme.textSecondary} />
             <ThemedText type="small" style={{ flex: 1 }}>
               {t('payout.declare')}
             </ThemedText>
@@ -130,3 +131,12 @@ const styles = StyleSheet.create({
   type: { flex: 1, minHeight: 48, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   declare: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function PayoutAccountScreenRoute() {
+  return (
+    <SignedInOnly>
+      <PayoutAccountScreen />
+    </SignedInOnly>
+  );
+}

@@ -13,13 +13,14 @@ import { count, type Lang } from '@/lib/format';
 import { canSplit, checkSplit, equalSplit, splitPlayers, type SplitRow } from '@/lib/player';
 import { useMe } from '@/lib/use-me';
 import { keys } from '@/lib/use-realtime';
+import { SignedInOnly } from '@/components/guest';
 
 /**
  * The squad's prize split (M21 §6.5): whole percents per player adding up to 100, set by whoever
  * registered the entry until the event starts. Kill rewards are never split. Without a split the
  * prize is shared equally.
  */
-export default function SplitScreen() {
+function SplitScreen() {
   const { registrationId } = useLocalSearchParams<{ registrationId: string }>();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
@@ -106,3 +107,12 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1.5, paddingHorizontal: 12, minHeight: 56 },
   input: { width: 64, minHeight: 44, borderWidth: 2, textAlign: 'right', paddingHorizontal: 8, fontSize: 16 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function SplitScreenRoute() {
+  return (
+    <SignedInOnly>
+      <SplitScreen />
+    </SignedInOnly>
+  );
+}

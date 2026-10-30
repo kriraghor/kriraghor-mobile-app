@@ -13,6 +13,7 @@ import { acceptInvite, createSquad, declineInvite, inviteToSquad, joinSquad, lea
 import { count, type Lang } from '@/lib/format';
 import { useMe } from '@/lib/use-me';
 import { keys } from '@/lib/use-realtime';
+import { SignedInOnly } from '@/components/guest';
 
 type SquadItem = Squad & { inviteCode: string | null; maxMembers: number; myMemberId: string };
 
@@ -20,7 +21,7 @@ type SquadItem = Squad & { inviteCode: string | null; maxMembers: number; myMemb
  * Squads (M21-FR-05): one per game. Invitations first (accept or decline), then my squads with
  * their invite code, members and what the captain can do; create one or join with a code below.
  */
-export default function SquadsScreen() {
+function SquadsScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
@@ -220,3 +221,12 @@ const styles = StyleSheet.create({
   memberActions: { gap: 6, minWidth: 120 },
   buttons: { flexDirection: 'row', gap: 8 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function SquadsScreenRoute() {
+  return (
+    <SignedInOnly>
+      <SquadsScreen />
+    </SignedInOnly>
+  );
+}

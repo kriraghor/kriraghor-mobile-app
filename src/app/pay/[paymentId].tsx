@@ -14,6 +14,7 @@ import { errorText } from '@/lib/errors';
 import { dateTime, money, type Lang } from '@/lib/format';
 import { payInApp, type PayMethod, type PayOutcome } from '@/lib/payment-flow';
 import { keys } from '@/lib/use-realtime';
+import { SignedInOnly } from '@/components/guest';
 
 const METHODS: PayMethod[] = ['bkash', 'nagad', 'card'];
 
@@ -24,7 +25,7 @@ const METHODS: PayMethod[] = ['bkash', 'nagad', 'card'];
  * a gym fee (M24 gym_membership_fee) says "Fee paid" and goes back to the membership (memberId param)
  * or My gyms; a gym pass and a trainer month go back to their lists. Gym data is re-read after paying.
  */
-export default function PayScreen() {
+function PayScreen() {
   const { paymentId, memberId } = useLocalSearchParams<{ paymentId: string; memberId?: string }>();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
@@ -127,3 +128,12 @@ const styles = StyleSheet.create({
   method: { flex: 1, minHeight: 52, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   waiting: { flexDirection: 'row', gap: 12, alignItems: 'center', paddingVertical: 12 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function PayScreenRoute() {
+  return (
+    <SignedInOnly>
+      <PayScreen />
+    </SignedInOnly>
+  );
+}

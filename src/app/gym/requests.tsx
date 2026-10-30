@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -135,7 +135,7 @@ function RequestCard({ r, onDone }: { r: GymRequest; onDone: (d: { text: string;
           <ThemedText type="smallBold">{t('gymRequests.willSee')}</ThemedText>
           {(r.shares.length ? r.shares : SHARES).map((s) => (
             <View key={s} style={styles.share}>
-              <MaterialCommunityIcons name="check" size={16} color={theme.brandText} />
+              <Icon name="check" size={16} color={theme.brandText} />
               <ThemedText type="small" style={{ flex: 1 }}>
                 {(SHARES as readonly string[]).includes(s) ? t(`gymRequests.share.${s as (typeof SHARES)[number]}`) : s}
               </ThemedText>

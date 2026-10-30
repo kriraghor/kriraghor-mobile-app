@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
+import { AnimatedPressable } from '@/components/ui';
+import { Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
 import { named, title, type TournamentCard } from '@/lib/esports';
 import { count, dateTime, money, type Lang } from '@/lib/format';
@@ -86,10 +88,10 @@ export function EventCard({ event }: { event: TournamentCard }) {
   const free = event.entryFee.amount === 0;
   const full = event.slotsTaken >= event.maxSlots;
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole="button"
       onPress={() => router.push({ pathname: '/events/[id]', params: { id: event.id } })}
-      style={({ pressed }) => [styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.line }, pressed && { opacity: 0.85 }]}>
+      style={[styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.line }]}>
       <View style={styles.cardTop}>
         <Pill text={named(event.game, lang)} tone="brand" />
         <Pill text={event.entryUnit === 'squad' ? t('events.squadOf', { size: event.mode.teamSize }) : t('events.solo')} />
@@ -125,18 +127,18 @@ export function EventCard({ event }: { event: TournamentCard }) {
       </ThemedText>
       {/* Amber marks prize money only (docs 09): a thin bar on the card's edge, not the whole card. */}
       <View style={[styles.prizeRule, { backgroundColor: theme.prize }]} />
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
 const styles = StyleSheet.create({
-  pill: { borderWidth: 1.5, paddingHorizontal: 8, paddingVertical: 2, alignSelf: 'flex-start' },
+  pill: { borderWidth: 1.5, borderRadius: Radius.pill, paddingHorizontal: 10, paddingVertical: 2, alignSelf: 'flex-start' },
   segments: { gap: 8, paddingHorizontal: 16, paddingVertical: 12 },
-  segment: { minHeight: 44, paddingHorizontal: 16, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  segment: { minHeight: 48, paddingHorizontal: 16, borderWidth: 2, borderRadius: Radius.pill, alignItems: 'center', justifyContent: 'center' },
   section: { textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 8 },
   infoRow: { flexDirection: 'row', gap: 12, paddingVertical: 6 },
-  bar: { height: 6, width: '100%', overflow: 'hidden' },
-  card: { borderWidth: 1.5, padding: 16, gap: 8, overflow: 'hidden' },
+  bar: { height: 6, width: '100%', overflow: 'hidden', borderRadius: 3 },
+  card: { borderWidth: 1, borderRadius: Radius.card, padding: 16, gap: 8, overflow: 'hidden' },
   cardTop: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   cardTitle: { fontSize: 18, lineHeight: 26, fontWeight: '700' },
   money: { flexDirection: 'row', alignItems: 'flex-end', marginVertical: 4 },

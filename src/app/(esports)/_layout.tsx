@@ -1,9 +1,11 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon, type IconName } from '@/components/icons/Icon';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs } from 'expo-router/js-tabs';
-import type { ComponentProps } from 'react';
+
 import { useTranslation } from 'react-i18next';
+import { useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SectionsButton } from '@/components/sections';
 import { withTypeface } from '@/constants/fonts';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
@@ -11,20 +13,23 @@ import { unreadCount } from '@/lib/esports-api';
 import { useWaitingInvites } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
 
-type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 const TABS: { name: string; label: 'home' | 'events' | 'matches' | 'ranks' | 'account'; icon: IconName }[] = [
-  { name: 'index', label: 'home', icon: 'home-variant' },
-  { name: 'events', label: 'events', icon: 'trophy' },
-  { name: 'matches', label: 'matches', icon: 'sword-cross' },
-  { name: 'ranks', label: 'ranks', icon: 'podium' },
-  { name: 'account', label: 'account', icon: 'account-circle' },
+  { name: 'esports', label: 'home', icon: 'home' },
+  { name: 'events', label: 'events', icon: 'events' },
+  { name: 'matches', label: 'matches', icon: 'matches' },
+  { name: 'ranks', label: 'ranks', icon: 'ranks' },
+  { name: 'account', label: 'account', icon: 'account' },
 ];
 
-/** Five tabs, esports first (M21 §4.3). Every tab has an icon and a label. */
-export default function TabsLayout() {
+/**
+ * The Esports section (hub tile Esports): five tabs, esports first (M21 §4.3). Every tab has an icon
+ * and a label; screens with a header carry the All sections button.
+ */
+export default function EsportsLayout() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
+  const reduce = useReducedMotion();
   const { status } = useAuth();
   // Unread notifications on the Account tab (M08-FR-04); refreshed by notification.created.
   const unread = useQuery({ queryKey: keys.unread, queryFn: unreadCount, enabled: status === 'signed_in' });
@@ -38,11 +43,14 @@ export default function TabsLayout() {
         tabBarActiveTintColor: theme.brand,
         tabBarInactiveTintColor: theme.textSecondary,
         // Room for Bangla letters, which sit taller than Latin ones, plus the phone's gesture bar.
-        tabBarStyle: { backgroundColor: theme.backgroundElement, borderTopColor: theme.line, height: 64 + insets.bottom, paddingTop: 6, paddingBottom: 8 + insets.bottom },
+        tabBarStyle: { backgroundColor: theme.backgroundElement, borderTopColor: theme.line, height: 72 + insets.bottom, paddingTop: 8, paddingBottom: 10 + insets.bottom },
         tabBarLabelStyle: withTypeface({ fontSize: 12, lineHeight: 18, fontWeight: '600' }, i18n.language),
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.text,
         headerTitleStyle: withTypeface({ fontWeight: '700' }, i18n.language),
+        headerRight: () => <SectionsButton />,
+        // A short crossfade between tabs (none with reduce motion).
+        animation: reduce ? 'none' : 'fade',
       }}>
       {TABS.map((tab) => (
         <Tabs.Screen
@@ -51,8 +59,8 @@ export default function TabsLayout() {
           options={{
             title: t(`tabs.${tab.label}`),
             // Home has no header; Events and Ranks have their own stacks (list, then a page).
-            headerShown: !['index', 'events', 'ranks'].includes(tab.name),
-            tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name={tab.icon} color={color} size={size} />,
+            headerShown: !['esports', 'events', 'ranks'].includes(tab.name),
+            tabBarIcon: ({ color, size, focused }) => <Icon name={tab.icon} color={color} size={size} active={focused} />,
             tabBarBadge: tab.name === 'account' ? badge : undefined,
             tabBarBadgeStyle: { backgroundColor: theme.brand, color: theme.onBrand },
           }}

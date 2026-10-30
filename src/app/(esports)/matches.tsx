@@ -2,10 +2,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { Pill } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { Button, EmptyState, Notice } from '@/components/ui';
+import { SignInPrompt } from '@/components/guest';
+import { Button, EmptyState, Notice, SkeletonList } from '@/components/ui';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
@@ -28,8 +29,9 @@ export default function MatchesScreen() {
   const { status } = useAuth();
   const entries = useQuery({ queryKey: keys.registrations, queryFn: myRegistrations, enabled: status === 'signed_in', refetchInterval: 30_000 });
 
-  if (status !== 'signed_in') return <EmptyState text={t('matches.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />;
-  if (entries.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  // My matches are the person's own: a guest gets Sign in, or keeps browsing events.
+  if (status !== 'signed_in') return <SignInPrompt text={t('matches.signedOut')} icon="matches" browse={{ title: t('guest.browseEvents'), onPress: () => router.navigate('/events') }} />;
+  if (entries.isLoading) return <View style={{ flex: 1, backgroundColor: theme.background }}><SkeletonList label={t('common.loading')} /></View>;
 
   const items = (entries.data ?? []).filter((r) => r.status !== 'cancelled');
   return (

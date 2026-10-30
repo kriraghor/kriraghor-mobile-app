@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Icon } from '@/components/icons/Icon';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -14,6 +14,7 @@ import { errorText } from '@/lib/errors';
 import { named, title, type Squad } from '@/lib/esports';
 import { dateTime, money, type Lang } from '@/lib/format';
 import { keys } from '@/lib/use-realtime';
+import { SignedInOnly } from '@/components/guest';
 
 /**
  * Register for an event (M21-FR-08 to FR-10). Solo: the player's verified game ID. Squad: the
@@ -21,7 +22,7 @@ import { keys } from '@/lib/use-realtime';
  * substitutes. The server holds a slot (pay next), confirms a free entry, or puts the entry on the
  * waitlist. One Idempotency-Key per attempt; a retry after a network error reuses it.
  */
-export default function RegisterScreen() {
+function RegisterScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useTheme();
   const { t, i18n } = useTranslation();
@@ -187,7 +188,7 @@ function Choice({ label, selected, disabled, onPress }: { label: string; selecte
       disabled={disabled}
       onPress={onPress}
       style={[styles.choice, { borderColor: selected ? theme.brand : theme.line, backgroundColor: selected ? theme.backgroundSelected : theme.backgroundElement, opacity: disabled ? 0.45 : 1 }]}>
-      <MaterialCommunityIcons name={selected ? 'checkbox-marked' : 'checkbox-blank-outline'} size={22} color={selected ? theme.brand : theme.textSecondary} />
+      <Icon name={selected ? 'checkbox-on' : 'checkbox'} size={22} color={selected ? theme.brand : theme.textSecondary} />
       <ThemedText type="smallBold" style={{ flex: 1, color: selected ? theme.brandText : theme.text }}>
         {label}
       </ThemedText>
@@ -200,3 +201,12 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
   choice: { minHeight: 48, borderWidth: 2, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 10 },
 });
+
+/** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
+export default function RegisterScreenRoute() {
+  return (
+    <SignedInOnly>
+      <RegisterScreen />
+    </SignedInOnly>
+  );
+}

@@ -94,7 +94,7 @@ export default function GymMembershipScreen() {
 
       {!readOnly ? (
         <View style={styles.links}>
-          <RowLink icon="qrcode" label={t('gym.checkinQr')} onPress={() => router.push({ pathname: '/gym/checkin', params: { m: memberId } })} />
+          <RowLink icon="checkin" label={t('gym.checkinQr')} onPress={() => router.navigate({ pathname: '/gym/checkin', params: { m: memberId } })} />
         </View>
       ) : null}
 
@@ -176,11 +176,11 @@ export default function GymMembershipScreen() {
       )}
 
       <SectionTitle>{t('gymMember.more')}</SectionTitle>
-      <RowLink icon="calendar-check-outline" label={t('gymAttendance.title')} onPress={() => router.push({ pathname: '/gym/[memberId]/attendance', params: { memberId } })} />
+      <RowLink icon="calendar-check" label={t('gymAttendance.title')} onPress={() => router.push({ pathname: '/gym/[memberId]/attendance', params: { memberId } })} />
       {(card?.plans ?? []).map((p) => (
         <RowLink
           key={p.assignmentId}
-          icon={p.kind === 'workout' ? 'dumbbell' : 'food-apple-outline'}
+          icon={p.kind === 'workout' ? 'gym' : 'food'}
           label={p.title}
           hint={t(`gymPlan.kind.${p.kind}`)}
           onPress={() => router.push({ pathname: '/gym/plans/[assignmentId]', params: { assignmentId: p.assignmentId } })}
