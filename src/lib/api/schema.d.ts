@@ -12440,6 +12440,8 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Part of the title, English or Bangla (M21-FR-33) */
+                    q?: string;
                     game?: string;
                     mode?: string;
                     tier?: "daily" | "weekly" | "monthly" | "major";
@@ -14703,6 +14705,8 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Part of the title, English or Bangla (M21-FR-33) */
+                    q?: string;
                     game?: string;
                     mode?: string;
                     tier?: "daily" | "weekly" | "monthly" | "major";
@@ -17018,6 +17022,8 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    /** @description Part of the venue name (M09-FR-28) */
+                    q?: string;
                     sport?: string;
                     areaId?: string;
                     lat?: number;
@@ -34633,7 +34639,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Live gyms by area, facility, name and monthly price; sorted by the day pass price, rating, newest or distance from a position sent with the query (never stored), within a radius */
+        /** Live gyms by area, facility, name and monthly price; sorted by the monthly price, rating, newest or distance from a position sent with the query (never stored), within a radius */
         get: {
             parameters: {
                 query?: {
@@ -34647,7 +34653,7 @@ export interface paths {
                     radiusKm?: number;
                     /** @description The monthly package costs at most this (poisha); gyms without a monthly package are left out */
                     priceMax?: number | null;
-                    /** @description Default nearest with a position, else price (the day pass) */
+                    /** @description Default nearest with a position, else price (the monthly package) */
                     sort?: "price" | "rating" | "newest" | "nearest";
                     cursor?: string;
                     limit?: number;
@@ -34845,7 +34851,7 @@ export interface paths {
                         packageId: string;
                         /**
                          * Format: date
-                         * @description A day pass: the date; month and quarter: the first day
+                         * @description The first day
                          */
                         validFrom: string;
                     };
@@ -34879,7 +34885,7 @@ export interface paths {
                         "application/problem+json": components["schemas"]["Problem"];
                     };
                 };
-                /** @description Error. Codes: GYM_NOT_AVAILABLE, PASS_CAPACITY_FULL */
+                /** @description Error. Codes: GYM_NOT_AVAILABLE */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -35017,7 +35023,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Cancel: a day pass before its date, a month or quarter pass before its first use, in full (FR-06) */
+        /** Cancel: a pass before its first use, in full (FR-06) */
         post: {
             parameters: {
                 query?: never;
@@ -35549,8 +35555,6 @@ export interface paths {
                         lng?: number | null;
                         about?: string | null;
                         facilityIds?: string[];
-                        /** @description Day passes sold per date at most (empty = no limit) */
-                        dailyCapacity?: number | null;
                     };
                 };
             };
@@ -35709,8 +35713,6 @@ export interface paths {
                         lng?: number | null;
                         about?: string | null;
                         facilityIds?: string[];
-                        /** @description Day passes sold per date at most (empty = no limit) */
-                        dailyCapacity?: number | null;
                     };
                 };
             };
@@ -35877,7 +35879,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Every active package (M24-FR-24): day, month, quarter, 6 months, 12 months (one each) and custom days (at most gym_manage.max_custom_packages); admission fee, channel desk/online/both, visit limit, order. A day pass sold online (within gym.day_pass_min/max_poisha) is needed only to submit */
+        /** Every active package (M24-FR-24): month, quarter, 6 months, 12 months (one each) and custom days (at most gym_manage.max_custom_packages); admission fee, channel desk/online/both, visit limit, order. A day pass sold online (within gym.day_pass_min/max_poisha) is needed only to submit */
         put: {
             parameters: {
                 query?: never;
@@ -35890,10 +35892,10 @@ export interface paths {
             requestBody?: {
                 content: {
                     "application/json": {
-                        /** @description Every active package: one per kind except custom (at most gym_manage.max_custom_packages); a day pass sold online is needed only to submit. Days: 1, gym.month_days, gym.quarter_days, gym.half_year_days, gym.year_days, or the custom days */
+                        /** @description Every active package: one per kind except custom (at most gym_manage.max_custom_packages); one sold online is needed only to submit. Days: gym.month_days, gym.quarter_days, gym.half_year_days, gym.year_days, or the custom days */
                         packages: {
                             /** @enum {string} */
-                            kind: "day" | "month" | "quarter" | "half_year" | "year" | "custom";
+                            kind: "month" | "quarter" | "half_year" | "year" | "custom";
                             title: string;
                             price: number;
                             /** @description Custom packages only (1–366); other kinds take their days from settings */
@@ -62224,6 +62226,7 @@ export interface components {
                 nameBn: string;
                 icon: string | null;
             }[];
+            /** @description Always null: gyms sell no day pass since 2 Nov 2026. Installed apps still read it; it goes in a later release. */
             dayPrice: number | null;
             monthPrice: number | null;
             quarterPrice: number | null;
@@ -62256,6 +62259,7 @@ export interface components {
                 nameBn: string;
                 icon: string | null;
             }[];
+            /** @description Always null: gyms sell no day pass since 2 Nov 2026. Installed apps still read it; it goes in a later release. */
             dayPrice: number | null;
             monthPrice: number | null;
             quarterPrice: number | null;
@@ -62522,7 +62526,6 @@ export interface components {
             lng: number | null;
             about: string | null;
             facilityIds: string[];
-            dailyCapacity: number | null;
             photos: {
                 /** Format: uuid */
                 id: string;
@@ -62540,8 +62543,6 @@ export interface components {
                 text: string | null;
             } | null;
             limits: {
-                dayMin: number;
-                dayMax: number;
                 minPhotos: number;
                 maxPhotos: number;
                 /** @description gym_manage.max_custom_packages (M24-FR-24) */

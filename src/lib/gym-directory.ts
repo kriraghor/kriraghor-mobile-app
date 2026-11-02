@@ -22,21 +22,16 @@ export function gymListParams(f: GymFilters, limit = 24): Record<string, string 
 
 type Hours = { dow: number; openTime: string; closeTime: string; womenOnly: boolean }[];
 
-export const dowOf = (date: string) => new Date(`${date}T00:00:00Z`).getUTCDay();
-
 /** Hours grouped by weekday, Saturday first (the Bangladesh week). */
 export function weekOf(hours: Hours): { dow: number; windows: Hours }[] {
   return [6, 0, 1, 2, 3, 4, 5].map((dow) => ({ dow, windows: hours.filter((h) => h.dow === dow).sort((a, b) => a.openTime.localeCompare(b.openTime)) }));
 }
 
-/** The dates a pass can start: a day pass only on open days, longer passes on any of the next `advanceDays`. */
-export function passDates(kind: string, hours: Hours, today: string, advanceDays: number): string[] {
-  const days = Array.from({ length: Math.max(0, advanceDays) }, (_, i) => addDays(today, i));
-  return kind === 'day' ? days.filter((d) => hours.some((h) => h.dow === dowOf(d))) : days;
-}
+/** The dates a subscription can start: any of the next `advanceDays`. */
+export const passDates = (today: string, advanceDays: number): string[] => Array.from({ length: Math.max(0, advanceDays) }, (_, i) => addDays(today, i));
 
-/** The packages a member can ask for when joining: not day passes, and not sold at the desk only. */
-export const joinablePackages = <P extends { kind: string; channel?: string }>(packages: P[]) => packages.filter((p) => p.kind !== 'day' && (p.channel ?? 'online') !== 'desk');
+/** The packages a member can ask for when joining: not sold at the desk only. */
+export const joinablePackages = <P extends { channel?: string }>(packages: P[]) => packages.filter((p) => (p.channel ?? 'online') !== 'desk');
 
 type Membership = { memberId: string; linked: boolean; status: string; gym: { id: string } | null };
 type Request = { id: string; direction: string; status: string; gym: { id: string } | null };

@@ -146,7 +146,7 @@ function usePassPurchase(g: GymPage) {
   const gate = useGate();
   const [packageId, setPackageId] = useState(g.packages[0]?.id);
   const pkg = g.packages.find((p) => p.id === packageId) ?? g.packages[0];
-  const dates = pkg ? passDates(pkg.kind, g.hours, g.today, g.advanceDays) : [];
+  const dates = pkg ? passDates(g.today, g.advanceDays) : [];
   const [picked, setPicked] = useState<string | undefined>();
   const date = picked && dates.includes(picked) ? picked : dates[0];
   // A new Idempotency-Key per choice: a retry of the same choice replays, a new choice is a new pass.
@@ -239,7 +239,7 @@ function BuyPass({ g, p }: { g: GymPage; p: Purchase }) {
               <View style={{ flex: 1 }}>
                 <ThemedText type="smallBold">{t(`gymPage.kind.${p.kind}`)}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {p.kind === 'day' ? t('gymPage.oneVisit') : t('gymPage.forDays', { n: count(p.days, lang) })}
+                  {t('gymPage.forDays', { n: count(p.days, lang) })}
                 </ThemedText>
               </View>
               <ThemedText style={styles.price}>{money(p.price, lang)}</ThemedText>
@@ -248,7 +248,7 @@ function BuyPass({ g, p }: { g: GymPage; p: Purchase }) {
         })}
       </View>
       <ThemedText type="small" themeColor="textSecondary">
-        {pkg.kind === 'day' ? t('gymPage.pickDay') : t('gymPage.pickStart')}
+        {t('gymPage.pickStart')}
       </ThemedText>
       {dates.length ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} accessibilityRole="radiogroup">
@@ -273,7 +273,7 @@ function BuyPass({ g, p }: { g: GymPage; p: Purchase }) {
           {t('gymPage.noOpenDays')}
         </ThemedText>
       )}
-      {pkg.kind !== 'day' && date ? (
+      {date ? (
         <ThemedText type="small" themeColor="textSecondary">
           {t('gymPage.validUntil', { date: dateOnly(addDays(date, pkg.days - 1), lang) })}
         </ThemedText>
