@@ -23,17 +23,15 @@ describe("a gym's week and pass dates", () => {
     expect(w[1].windows).toEqual([]);
   });
 
-  it('a day pass only on open days; a longer pass on any day ahead', () => {
-    // 2026-10-31 is a Saturday, 2026-11-02 a Monday.
-    expect(passDates('day', hours, '2026-10-31', 4)).toEqual(['2026-10-31', '2026-11-02']);
-    expect(passDates('month', hours, '2026-10-31', 3)).toEqual(['2026-10-31', '2026-11-01', '2026-11-02']);
-    expect(passDates('day', hours, '2026-10-31', 0)).toEqual([]);
+  it('a subscription can start on any day ahead', () => {
+    expect(passDates('2026-10-31', 3)).toEqual(['2026-10-31', '2026-11-01', '2026-11-02']);
+    expect(passDates('2026-10-31', 0)).toEqual([]);
   });
 });
 
 describe('joining a gym', () => {
-  it('only packages sold online, not day passes', () => {
-    const p = [{ id: '1', kind: 'day' }, { id: '2', kind: 'month', channel: 'desk' }, { id: '3', kind: 'month', channel: 'both' }, { id: '4', kind: 'quarter' }];
+  it('only packages sold online', () => {
+    const p = [{ id: '2', kind: 'month', channel: 'desk' }, { id: '3', kind: 'month', channel: 'both' }, { id: '4', kind: 'quarter' }];
     expect(joinablePackages(p).map((x) => x.id)).toEqual(['3', '4']);
   });
 

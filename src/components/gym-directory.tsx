@@ -255,7 +255,6 @@ export function GymCardItem({ card }: { card: GymCard }) {
           </ThemedText>
         </View>
         <View style={styles.prices}>
-          {card.dayPrice !== null ? <Price label={t('gymDir.dayPass')} value={money(card.dayPrice, lang)} /> : null}
           {card.monthPrice !== null ? <Price label={t('gymDir.monthly')} value={money(card.monthPrice, lang)} /> : null}
         </View>
       </View>
