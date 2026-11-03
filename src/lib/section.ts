@@ -27,7 +27,7 @@ export const TILES: readonly Tile[] = [
   { key: 'venues', webPath: '/venues' },
   { key: 'shop', webPath: '/shop' },
   { key: 'hire', webPath: '/hiring' },
-  { key: 'events', webPath: '/events' },
+  { key: 'events', webPath: '/tournaments' },
 ];
 
 export type TileTarget = { section: Section; route: (typeof SECTION_HOME)[Section] } | { external: string };

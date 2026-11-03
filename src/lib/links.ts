@@ -87,6 +87,11 @@ export function linkToRoute(link: string | null | undefined, gymUrl: string = co
     const base = gymUrl.replace(/\/+$/, '');
     return { external: `${base}${path === '/' ? '' : path}${url.search}` };
   }
+  // The tournament feed (M26) lives on kriraghor.com. Only the esports site's own old /tournaments
+  // links are esports events.
+  if (/^\/(?:me\/)?tournaments(?:\/|$)/.test(path) && !host?.startsWith('esports.')) {
+    return { external: `${config.webUrl}${path}${url.search}` };
+  }
   for (const [re, to] of RULES) {
     const m = path.match(re);
     if (m) return to(m);

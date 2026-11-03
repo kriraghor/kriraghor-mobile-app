@@ -139,6 +139,12 @@ describe('esports and kriraghor.com links keep working', () => {
     expect(linkToRoute(`/en/me/matches/${M}/room`)).toBe(`/room/${M}`);
   });
 
+  it('the tournament feed opens on kriraghor.com, not as an esports event (M26)', () => {
+    expect(linkToRoute('/tournaments/mirpur-cup-97268976')).toEqual({ external: expect.stringMatching(/\/tournaments\/mirpur-cup-97268976$/) });
+    expect(linkToRoute('/me/tournaments?thread=abc')).toEqual({ external: expect.stringMatching(/\/me\/tournaments\?thread=abc$/) });
+    expect(linkToRoute('https://kriraghor.com/tournaments/mirpur-cup-97268976')).toEqual({ external: expect.stringMatching(/\/tournaments\/mirpur-cup-97268976$/) });
+  });
+
   it('winnings, squads, the payout account and player pages (decided by host: /p/ is a profile off the gym host)', () => {
     expect(linkToRoute('https://esports.kriraghor.com/me/winnings')).toBe('/winnings');
     expect(linkToRoute('https://esports.kriraghor.com/me/esports/squads')).toBe('/squads');

@@ -1,7 +1,7 @@
 /**
  * English texts. The Bangla file (bn.ts) must have exactly the same keys: its type is derived from
  * this one, so a missing or extra key fails `npm run typecheck`, and a test checks the values.
- * Names people see (kriraghor-docs 04 §0): Venues, Events, Showcases.
+ * Names people see (kriraghor-docs 04 §0): Venues, Tournaments, Showcases.
  */
 export const en = {
   common: {
@@ -17,7 +17,7 @@ export const en = {
   },
   tabs: {
     home: 'Home',
-    events: 'Events',
+    events: 'Tournaments',
     matches: 'Matches',
     ranks: 'Ranks',
     account: 'Account',
@@ -25,12 +25,12 @@ export const en = {
   home: {
     heroTitle: 'Play PUBG Mobile and Free Fire.',
     heroPrize: 'Win real prizes.',
-    heroSub: 'Events, venues and gear in one account.',
+    heroSub: 'Tournaments, venues and gear in one account.',
     myAccount: 'My account',
   },
   events: {
-    title: 'Events',
-    empty: 'No events open right now. New ones appear here first.',
+    title: 'Tournaments',
+    empty: 'No tournaments open right now. New ones appear here first.',
     emptyGroup: 'Nothing here right now.',
     groups: { open: 'Open', upcoming: 'Upcoming', live: 'Live', finished: 'Finished' },
     allGames: 'All games',
@@ -65,7 +65,7 @@ export const en = {
     opensAt: 'Registration opens {{at}}',
     closed: 'Registration is closed',
     inviteOnly: 'Invite only',
-    cancelled: 'This event was cancelled. Every entry is refunded in full.',
+    cancelled: 'This tournament was cancelled. Every entry is refunded in full.',
   },
   register: {
     title: 'Register',
@@ -75,7 +75,7 @@ export const en = {
     addGameId: 'Add my game ID',
     playingAs: 'Playing as {{ign}} ({{uid}})',
     squad: 'Squad',
-    noSquad: 'This is a squad event. Create or join a {{game}} squad first.',
+    noSquad: 'This is a squad tournament. Create or join a {{game}} squad first.',
     onlyCaptain: 'Only the squad captain can register the squad.',
     pickPlayers: 'Choose {{count}} players',
     substitutes: 'Substitutes (up to {{count}})',
@@ -113,8 +113,8 @@ export const en = {
   matches: {
     title: 'My matches',
     signedOut: 'Sign in to see your matches, check in and get the room ID.',
-    empty: 'No entries yet. Pick an event to play.',
-    findEvent: 'Find an event',
+    empty: 'No entries yet. Pick a tournament to play.',
+    findEvent: 'Find a tournament',
     slot: 'Slot {{slot}}',
     match: 'Match {{seq}} · {{at}}',
     roomIn: 'Room ID in {{time}}',
@@ -203,9 +203,9 @@ export const en = {
     ESPORTS_UID_TAKEN: 'This game ID is already linked to another account.',
     ESPORTS_UID_FORMAT: 'This does not look like a valid player ID for this game.',
     ESPORTS_PROFILE_EXISTS: 'You already have a game ID for this game.',
-    ESPORTS_INVITE_ONLY: 'This event is invite only.',
+    ESPORTS_INVITE_ONLY: 'This tournament is invite only.',
     ESPORTS_REGISTRATION_CLOSED: 'Registration is closed.',
-    ESPORTS_ALREADY_REGISTERED: 'You are already registered for this event.',
+    ESPORTS_ALREADY_REGISTERED: 'You are already registered for this tournament.',
     ESPORTS_OFFER_EXPIRED: 'The offer has expired.',
     SLOTS_FULL: 'All slots are taken.',
     ESPORTS_CHECKIN_CLOSED: 'Check-in is closed.',
@@ -220,7 +220,7 @@ export const en = {
     ESPORTS_SQUAD_FULL: 'This squad is full.',
     ESPORTS_SQUAD_INVITE_UNKNOWN: 'This invitation is no longer open.',
     SPLIT_INVALID: 'List every player once, in whole percents adding up to 100.',
-    ESPORTS_SPLIT_LOCKED: 'The event has started; the split can no longer change.',
+    ESPORTS_SPLIT_LOCKED: 'The tournament has started; the split can no longer change.',
     ESPORTS_REGISTRATION_STATE: 'This entry cannot do that now.',
     KYC_REQUIRED: 'Verify your NID first.',
     KYC_PENDING: 'Your NID is still being checked.',
@@ -249,17 +249,17 @@ export const en = {
   ranks: {
     chooseSeason: 'Choose a season',
     title: 'Ranks',
-    empty: 'Leaderboards appear after the first finished event.',
+    empty: 'Leaderboards appear after the first finished tournament.',
     rolling: 'Last 90 days',
     season: 'Season',
-    played: '{{count}} events',
+    played: '{{count}} tournaments',
     points: 'pts',
-    rule: 'Rolling ranks need at least {{min}} finished events. Bigger events count more, and recent ones count more than old ones.',
+    rule: 'Rolling ranks need at least {{min}} finished tournaments. Bigger tournaments count more, and recent ones count more than old ones.',
     topPlayers: 'Top players',
     you: 'You',
   },
   player: {
-    events: 'Events',
+    events: 'Tournaments',
     wins: 'Wins',
     kills: 'Kills',
     rank: 'Rank #{{rank}}',
@@ -297,7 +297,7 @@ export const en = {
   split: {
     title: 'Prize split',
     action: 'Prize split',
-    help: 'How your squad shares a place prize, in whole percents adding up to 100. Kill rewards always go to the player who got them. You can change it until the event starts.',
+    help: 'How your squad shares a place prize, in whole percents adding up to 100. Kill rewards always go to the player who got them. You can change it until the tournament starts.',
     equal: 'Split equally',
     total: 'Total {{total}}%',
     save: 'Save split',
@@ -314,7 +314,7 @@ export const en = {
     dailyLeft: '{{amount}} left today',
     withdraw: 'Withdraw {{amount}}',
     withdrawn: 'Withdrawal {{code}} requested. It goes to your {{account}}.',
-    empty: 'No winnings yet. Prizes land here when an event you played is finalised.',
+    empty: 'No winnings yet. Prizes land here when a tournament you played is finalised.',
     place: 'Place {{place}}',
     killReward: 'Kill reward',
     status: { pending: 'Pending', credited: 'Credited', reversed: 'Taken back' },
@@ -439,16 +439,16 @@ export const en = {
     welcome: 'Welcome to Kriraghor',
     sub: 'What would you like to do?',
     signInNote: 'Sign in once for esports, your gym and kriraghor.com.',
-    webNote: 'Venues, Shop, Hire and Events open kriraghor.com in the app’s browser. Sign in there with the same account.',
+    webNote: 'Venues, Shop, Hire and Tournaments open kriraghor.com in the app’s browser. Sign in there with the same account.',
     opensWebsite: 'Opens kriraghor.com',
     allSections: 'All sections',
     tiles: {
-      esports: { title: 'Esports', body: 'PUBG Mobile and Free Fire events with prizes' },
+      esports: { title: 'Esports', body: 'PUBG Mobile and Free Fire tournaments with prizes' },
       gym: { title: 'Gym', body: 'Your gyms, plans and check-in QR' },
       venues: { title: 'Venues', body: 'Book turfs and courts' },
       shop: { title: 'Shop', body: 'New and used sports gear' },
       hire: { title: 'Hire', body: 'Players, coaches and pros' },
-      events: { title: 'Events', body: 'Sports and esports events' },
+      events: { title: 'Tournaments', body: 'Find one or post yours' },
     },
   },
   gymTabs: {
@@ -474,7 +474,7 @@ export const en = {
     passBought: 'Subscription bought. Find it under the Passes tab.',
     title: 'Sign in to continue',
     body: 'You can look around without an account. Sign in to register, pay, check in and see your own things.',
-    browseEvents: 'Browse events',
+    browseEvents: 'Browse tournaments',
   },
   gymDir: {
     filters: 'Filters',
