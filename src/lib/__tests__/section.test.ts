@@ -32,7 +32,7 @@ describe('the hub tiles', () => {
       { external: 'https://kriraghor.com/venues' },
       { external: 'https://kriraghor.com/shop' },
       { external: 'https://kriraghor.com/hiring' },
-      { external: 'https://kriraghor.com/events' },
+      { external: 'https://kriraghor.com/tournaments' },
     ]);
   });
 });
