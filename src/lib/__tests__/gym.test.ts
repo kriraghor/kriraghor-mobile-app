@@ -302,7 +302,7 @@ describe('gym requests (M24-FR-15, FR-16)', () => {
     expect(requestState({ ...invite, status: 'accepted' }, now)).toBe('closed');
     expect(requestState({ ...join, status: 'declined' }, now)).toBe('closed');
     expect(requestState({ ...join, status: 'cancelled' }, now)).toBe('closed');
-    expect(requestState(invite)).toBe('answer'); // against the clock
+    expect(requestState({ ...invite, expiresAt: new Date(Date.now() + 86400000).toISOString() })).toBe('answer'); // against the clock: a day from now
   });
 
   it('the badge counts only invites waiting for me', () => {

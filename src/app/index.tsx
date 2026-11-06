@@ -13,6 +13,7 @@ import { useZoomScene, ZOOM } from '@/components/transition';
 import { AnimatedPressable, Reveal } from '@/components/ui';
 import { Radius } from '@/constants/motion';
 import { SECTION_PHOTOS } from '@/constants/section-photos';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { config } from '@/lib/config';
@@ -21,7 +22,7 @@ import { openSection } from '@/lib/section-nav';
 import { dayPart, firstName, initials } from '@/lib/ui-logic';
 import { useMe } from '@/lib/use-me';
 
-const LOGO = require('../../assets/brand/logo-mark.png');
+const LOGO = { light: require('../../assets/brand/logo-mark.png'), dark: require('../../assets/brand/logo-mark-dark.png') };
 
 const ICONS: Record<TileKey, IconName> = {
   esports: 'esports',
@@ -72,6 +73,7 @@ export default function Hub() {
 
 function HubScreen() {
   const theme = useTheme();
+  const scheme = useColorScheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { status } = useAuth();
@@ -98,7 +100,7 @@ function HubScreen() {
         <ScrollView contentContainerStyle={[styles.page, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 32 }]}>
           <View style={styles.bar}>
             <View style={styles.brand} accessible accessibilityRole="header" accessibilityLabel={t('hub.logo')}>
-              <Image source={LOGO} style={styles.logo} contentFit="contain" accessible={false} />
+              <Image source={scheme === 'dark' ? LOGO.dark : LOGO.light} style={styles.logo} contentFit="contain" accessible={false} />
               <ThemedText style={styles.wordmark}>{t('hub.logo')}</ThemedText>
             </View>
             {status === 'signed_in' ? (

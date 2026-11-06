@@ -25,8 +25,9 @@ describe('English and Bangla texts', () => {
     expect(untranslated).toEqual([]);
   });
 
-  it('use the names people see: Events and Venues, never tournaments or grounds', () => {
+  it('use the names people see: Tournaments and Venues, never grounds (3 Nov 2026)', () => {
     const english = enLeaves.map(([, v]) => v).join(' ');
-    expect(english).not.toMatch(/tournament|ground/i);
+    expect(english).toMatch(/Tournaments/);
+    expect(english).not.toMatch(/ground/i);
   });
 });

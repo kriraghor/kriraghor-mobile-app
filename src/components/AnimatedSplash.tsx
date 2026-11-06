@@ -8,16 +8,16 @@ import { withTypeface } from '@/constants/fonts';
 /** The same size as the native splash image (app.config.ts imageWidth), so the hand-over is seamless. */
 export const SPLASH_MARK = 96;
 
+// The logo's pieces. The bottle and the lower arm are black on light and white on dark.
 const PIECES = [
-  { key: 'cricket', source: require('../../assets/brand/logo-cricket.png'), out: { x: -0.32, y: -0.32, r: -22 } },
-  { key: 'esports', source: require('../../assets/brand/logo-esports.png'), out: { x: -0.3, y: 0.34, r: 18 } },
-  { key: 'football', source: require('../../assets/brand/logo-football.png'), out: { x: 0.38, y: -0.04, r: 26 } },
+  { key: 'bottle', source: { light: require('../../assets/brand/logo-bottle.png'), dark: require('../../assets/brand/logo-bottle-dark.png') }, out: { x: -0.08, y: -0.34, r: -8 } },
+  { key: 'upper', source: { light: require('../../assets/brand/logo-upper.png'), dark: require('../../assets/brand/logo-upper.png') }, out: { x: 0.34, y: -0.3, r: -18 } },
+  { key: 'lower', source: { light: require('../../assets/brand/logo-lower.png'), dark: require('../../assets/brand/logo-lower-dark.png') }, out: { x: 0.34, y: 0.3, r: 18 } },
 ] as const;
 
 /**
  * The app's loading animation (kriraghor-docs 09 §8): it starts exactly where the native splash
- * ends (the whole logo), the three pieces burst apart and spring back together from their three
- * sides, keep gently parting and joining while the app loads, then a ring ripples, the wordmark
+ * ends (the whole logo), the three pieces burst apart and spring back together, keep gently parting and joining while the app loads, then a ring ripples, the wordmark
  * rises and it fades into the app. Under reduced motion it only fades.
  */
 export function AnimatedSplash({ ready, onDone }: { ready: boolean; onDone: () => void }) {
@@ -96,7 +96,7 @@ export function AnimatedSplash({ ready, onDone }: { ready: boolean; onDone: () =
         {PIECES.map((p) => (
           <Animated.Image
             key={p.key}
-            source={p.source}
+            source={p.source[scheme === 'dark' ? 'dark' : 'light']}
             style={[
               StyleSheet.absoluteFill,
               {
