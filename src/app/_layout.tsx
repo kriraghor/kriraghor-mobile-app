@@ -86,6 +86,10 @@ function AppStack() {
       <Stack.Screen name="gym/[memberId]/attendance" options={{ title: t('gymAttendance.title') }} />
       <Stack.Screen name="gym/plans/[assignmentId]" options={{ title: t('gymPlan.title') }} />
       <Stack.Screen name="gym/subscriptions" options={{ title: t('gymSubs.title') }} />
+      <Stack.Screen name="gym/classes" options={{ title: t('gymClasses.title') }} />
+      <Stack.Screen name="gym/visits" options={{ title: t('gymVisits.title') }} />
+      <Stack.Screen name="gym/visit" options={{ title: t('gymVisit.title') }} />
+      <Stack.Screen name="gym/work" options={{ title: t('gymWork.title') }} />
       {/* The public gym directory and gym pages (M20 §4): open to guests. */}
       <Stack.Screen name="gyms/index" options={{ title: t('gymDir.tab') }} />
       <Stack.Screen name="gyms/[slug]" options={{ title: '' }} />

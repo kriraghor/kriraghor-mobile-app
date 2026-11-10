@@ -4,8 +4,9 @@ import { call } from './esports-api';
 /**
  * Gym member API (M24 §9.2 member endpoints, M20 passes and trainer subscriptions), on the same
  * `call` as the esports screens: errors throw ApiError with the problem+json code. The shapes come
- * from the backend's OpenAPI (src/lib/api/schema.d.ts, `npm run api:sync`). Members only: no owner
- * or staff endpoint is called from the app, and no NID is ever asked for (gym members never need it).
+ * from the backend's OpenAPI (src/lib/api/schema.d.ts, `npm run api:sync`). The app is for members and
+ * guests; the only staff calls are a staff member's own clock and payslips (the last block). No NID is
+ * ever asked for (gym members never need it).
  */
 type S = components['schemas'];
 
@@ -88,3 +89,53 @@ export const listAreas = async () => (await call<{ items: Area[] }>('GET', '/cat
 export const buyPass = (packageId: string, validFrom: string, key: string) => call<PassResult>('POST', '/gym/passes', { body: { packageId, validFrom }, key });
 /** Ask a gym to add me as a member (M24-FR-16; needs a verified phone, never NID). */
 export const joinGym = (body: { gymId: string; packageId?: string; note?: string }) => call<unknown>('POST', '/me/gym-join-requests', { body });
+
+// ---------------------------------------------------------------- classes (M27-FR-48 to FR-50)
+export type Timetable = S['MyGymTimetable'];
+export type ClassSession = Timetable['items'][number];
+export type ClassBooking = S['GymClassBooking'];
+export type PublicTimetable = S['GymPublicTimetable'];
+
+export const myClasses = (memberId: string) => call<Timetable>('GET', '/me/gym-classes', { query: { memberId } });
+/** Book a place (or join the waitlist when the places are taken). One key per tap. */
+export const bookClass = (sessionId: string, memberId: string, key: string) => call<ClassBooking>('POST', `/me/gym-classes/${enc(sessionId)}/book`, { body: { memberId }, key });
+export const cancelClassBooking = (bookingId: string) => call<ClassBooking>('POST', `/me/gym-bookings/${enc(bookingId)}/cancel`);
+/** The week's classes on a gym's page, with the places left (M27-FR-67): no sign-in. */
+export const gymTimetable = (slug: string) => call<PublicTimetable>('GET', `/gym/gyms/${enc(slug)}/timetable`);
+
+// ---------------------------------------------------------------- points and my body (M27-FR-61, FR-30)
+export type Points = S['MyGymPoints'];
+export type Reward = Points['rewards'][number];
+export type Health = S['GymHealthProfile'];
+export type BloodGroup = NonNullable<Health['bloodGroup']>;
+
+export const myPoints = (memberId: string) => call<Points>('GET', '/me/gym-points', { query: { memberId } });
+export const saveHealth = (memberId: string, body: { bloodGroup?: BloodGroup | null; heightCm?: number | null; weightKg?: number | null; medical?: string | null }) =>
+  call<Health>('PUT', `/me/gym-memberships/${enc(memberId)}/health`, { body });
+
+// ---------------------------------------------------------------- the exercise library (M27-FR-70, FR-71): public, cached
+export type Exercise = S['CatalogExercises']['items'][number];
+export const listExercises = async () => (await call<S['CatalogExercises']>('GET', '/catalog/exercises')).items;
+
+// ---------------------------------------------------------------- free trial visits (M24 §17, FR-110 to FR-112)
+export type VisitSlots = S['GymVisitSlots'];
+export type MyVisit = S['MyGymVisit'];
+
+export const visitSlots = (slug: string) => call<VisitSlots>('GET', `/gym/gyms/${enc(slug)}/visit-slots`);
+export const myVisits = async () => (await call<S['MyGymVisits']>('GET', '/me/gym-visits')).items;
+/** Book a free visit (gate join_gym: a verified phone, never NID). Confirmed at once. One key per tap. */
+export const bookVisit = (body: { gymId: string; date: string; arriveAt: string }, key: string) => call<S['MyGymVisitOne']>('POST', '/me/gym-visits', { body, key });
+export const cancelVisit = (visitId: string) => call<S['MyGymVisitOne']>('POST', `/me/gym-visits/${enc(visitId)}/cancel`);
+
+// ---------------------------------------------------------------- my work at a gym (M27-FR-73, FR-75, FR-81)
+// The only staff calls the app makes: my own clock and my own payslips. Running the desk stays on gym.kriraghor.com.
+export type Workplace = S['GymManageGyms']['items'][number];
+export type MyClock = S['GymMyClock'];
+export type StaffClocked = S['GymStaffClocked'];
+export type Payslip = S['GymMyPayslips']['items'][number];
+
+export const myWorkplaces = async () => (await call<S['GymManageGyms']>('GET', '/manage/gyms')).items;
+export const myClock = (gymId: string) => call<MyClock>('GET', `/manage/gyms/${enc(gymId)}/staff-clock/me`);
+/** Scan the gym's entrance QR: clocks me in, or out when I am in. */
+export const staffClock = (token: string) => call<StaffClocked>('POST', '/me/gym-staff-clock', { body: { token } });
+export const myPayslips = async (gymId: string) => (await call<S['GymMyPayslips']>('GET', `/manage/gyms/${enc(gymId)}/my-payslips`)).items;

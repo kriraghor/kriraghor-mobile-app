@@ -26,6 +26,12 @@ export const keys = {
   gymPasses: (group: string) => ['gym', 'passes', group] as const,
   gymPass: (code: string) => ['gym', 'pass', code] as const,
   gymSubscriptions: ['gym', 'subscriptions'] as const,
+  gymClasses: (memberId: string) => ['gym', 'classes', memberId] as const,
+  gymPoints: (memberId: string) => ['gym', 'points', memberId] as const,
+  gymVisits: ['gym', 'visits'] as const,
+  gymWorkplaces: ['gym', 'workplaces'] as const,
+  gymClock: (gymId: string) => ['gym', 'clock', gymId] as const,
+  gymPayslips: (gymId: string) => ['gym', 'payslips', gymId] as const,
 };
 
 /**

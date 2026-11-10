@@ -41,6 +41,10 @@ const GYM_RULES: [RegExp, (m: RegExpMatchArray) => string, Where][] = [
   [/^\/me\/requests$/, () => '/gym/requests', 'gym+relative'],
   [new RegExp(`^/me/plans/(${UUID})$`), (m) => `/gym/plans/${m[1]}`, 'gym+relative'],
   [/^\/me\/checkin$/, () => '/gym/checkin', 'gym+relative'],
+  [/^\/me\/classes$/, () => '/gym/classes', 'gym+relative'],
+  [/^\/me\/visits$/, () => '/gym/visits', 'gym+relative'],
+  // A staff member's own clock and payslips are in the app; the rest of /manage opens the gym site.
+  [new RegExp(`^/manage/(${UUID})/my-work$`), (m) => `/gym/work?g=${m[1]}`, 'gym+relative'],
   [/^\/me\/passes$/, () => '/gym/passes', 'any'],
   [/^\/me\/passes\/([\w-]+)$/, (m) => `/gym/passes?code=${encodeURIComponent(m[1])}`, 'any'],
   [/^\/me\/subscriptions(?:\/[\w-]+)?$/, () => '/gym/subscriptions', 'any'],

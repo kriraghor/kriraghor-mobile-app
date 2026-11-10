@@ -1,7 +1,7 @@
 import { Icon, type IconName } from '@/components/icons/Icon';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
@@ -15,6 +15,7 @@ import { errorText } from '@/lib/errors';
 import { ApiError } from '@/lib/esports-api';
 import { findItem, safeVideo, splitDuration, textOf, type Bilingual, type Content } from '@/lib/gym';
 import type { Lang } from '@/lib/format';
+import { useExercises } from '@/lib/use-gym';
 
 /** Building blocks of the member gym screens (M24 §4.5): the app's tokens, radius scale, 48px targets. */
 
@@ -134,6 +135,7 @@ export function ItemFacts({ content, itemRef }: { content: Content; itemRef: str
   };
   let facts: (string | null | undefined)[];
   let video: string | null = null;
+  const exerciseKey = (x as { exerciseKey?: string | null }).exerciseKey ?? null;
   if ('portion' in x || content.kind === 'diet') {
     const f = x as { portion?: string | null; kcal?: number | null; proteinG?: number | null };
     facts = [f.portion, f.kcal != null ? t('gymPlan.kcal', { n: f.kcal }) : null, f.proteinG != null ? t('gymPlan.protein', { n: f.proteinG }) : null];
@@ -161,6 +163,7 @@ export function ItemFacts({ content, itemRef }: { content: Content; itemRef: str
           {x.note}
         </ThemedText>
       ) : null}
+      {exerciseKey ? <HowTo exerciseKey={exerciseKey} /> : null}
       {video ? (
         <Pressable accessibilityRole="link" onPress={() => openWeb(video)} style={styles.video} hitSlop={4}>
           <Icon name="play" size={18} color={theme.brandText} />
@@ -169,6 +172,32 @@ export function ItemFacts({ content, itemRef }: { content: Content; itemRef: str
           </ThemedText>
         </Pressable>
       ) : null}
+    </View>
+  );
+}
+
+/** "How to do it" under a library exercise (M27-FR-71): the three short steps in the reader's language. */
+export function HowTo({ exerciseKey }: { exerciseKey: string }) {
+  const theme = useTheme();
+  const { t, i18n } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const ex = useExercises(open).data?.find((e) => e.key === exerciseKey);
+  const steps = (i18n.language === 'bn' ? ex?.stepsBn : ex?.stepsEn) ?? [];
+  return (
+    <View style={{ gap: 4 }}>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen(!open)} style={styles.video} hitSlop={4}>
+        <Icon name="info" size={18} color={theme.brandText} />
+        <ThemedText type="smallBold" style={{ color: theme.brandText }}>
+          {t('gymPlan.howTo')}
+        </ThemedText>
+      </Pressable>
+      {open
+        ? steps.map((s, i) => (
+            <ThemedText key={i} type="small" themeColor="textSecondary">
+              {i + 1}. {s}
+            </ThemedText>
+          ))
+        : null}
     </View>
   );
 }

@@ -15,14 +15,15 @@ import { useAuth } from '@/lib/auth';
 import { cardPayState, dateOnly, linkedGyms } from '@/lib/gym';
 import { myDues, type Due, type MembershipCard } from '@/lib/gym-api';
 import { count, money, type Lang } from '@/lib/format';
-import { useMyGyms, useMyPlans, usePayDue, useWaitingInvites } from '@/lib/use-gym';
+import { useClockWorkplaces, useMyGyms, useMyPlans, usePayDue, useWaitingInvites } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
 
 /**
  * My gyms (M24 §4.5 gym/index, mirrors gym.kriraghor.com /me): invites waiting (a badge), today's
  * workout and meals, my check-in QR, each gym I belong to with its package, days left and what is
  * outstanding (Pay when the gym takes fees online, else "Pay at the counter"), past gyms apart, then my
- * passes and trainer subscriptions (M20). No gyms → the in-app gym directory. Signed out, this tab is
+ * passes and trainer subscriptions (M20), my free visits (M24 §17), my classes (M27-FR-48) and, for
+ * someone who works at a gym, My work (M27-FR-73). No gyms → the in-app gym directory. Signed out, this tab is
  * the directory itself, so a guest can browse gyms, buy a pass or ask to join.
  */
 export default function GymHome() {
@@ -36,6 +37,7 @@ export default function GymHome() {
   const dues = useQuery({ queryKey: keys.gymDues, queryFn: async () => (await myDues()).items, enabled: status === 'signed_in' });
   const waiting = useWaitingInvites();
   const payDue = usePayDue();
+  const work = useClockWorkplaces();
 
   // A guest gets the gym directory here (browse, buy a pass, ask to join); members get My gyms.
   if (status === 'signed_out') return <GymDirectory />;
@@ -65,6 +67,9 @@ export default function GymHome() {
 
       <RowLink icon="download" label={t('gym.requests')} hint={waiting ? t('gym.waiting', { n: waiting }) : undefined} badge={waiting} onPress={() => router.push('/gym/requests')} />
 
+      {canShowQr ? <RowLink icon="people" label={t('gymClasses.title')} onPress={() => router.push('/gym/classes')} /> : null}
+      {work.items.length ? <RowLink icon="clock" label={t('gymWork.title')} hint={t('gymWork.rowHint')} onPress={() => router.push('/gym/work')} /> : null}
+
       <TodayCard items={plans.data?.items ?? []} today={plans.data?.today ?? null} />
 
       <ErrorNotice error={payDue.error} />
@@ -92,6 +97,7 @@ export default function GymHome() {
       <SectionTitle>{t('gym.more')}</SectionTitle>
       <RowLink icon="passes" label={t('gymPasses.title')} onPress={() => router.navigate('/gym/passes')} />
       <RowLink icon="hire" label={t('gymSubs.title')} onPress={() => router.push('/gym/subscriptions')} />
+      <RowLink icon="calendar-check" label={t('gymVisits.title')} onPress={() => router.push('/gym/visits')} />
       <RowLink icon="search" label={t('gym.findGym')} onPress={() => router.push('/gyms')} />
     </ScrollView>
   );

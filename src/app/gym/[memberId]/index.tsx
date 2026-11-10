@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { InfoRow, Pill, SectionTitle } from '@/components/esports';
 import { Card, confirmAction, ErrorNotice, GymGate, openWeb, RowLink } from '@/components/gym';
+import { BodyCard, PointsCard } from '@/components/gym-extras';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Field, Notice } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
@@ -19,7 +20,8 @@ import { keys } from '@/lib/use-realtime';
  * One of my gym memberships (M24 §4.5 gym/[memberId], mirrors /me/memberships/[memberId]): package
  * and period, days left, freeze periods; what is due with Pay (or "Pay at the counter"); payments and
  * receipts (a receipt opens its gym.kriraghor.com/r/[token] page); the check-in calendar; my plans; my
- * health note (shown to the gym's plan writers); Unlink with a confirm. Unlinked or left: read-only.
+ * health note (shown to the gym's plan writers); my points and my body (M27-FR-61, FR-30); my classes;
+ * Unlink with a confirm. Unlinked or left: read-only.
  */
 export default function GymMembershipScreen() {
   const { memberId } = useLocalSearchParams<{ memberId: string }>();
@@ -95,8 +97,11 @@ export default function GymMembershipScreen() {
       {!readOnly ? (
         <View style={styles.links}>
           <RowLink icon="checkin" label={t('gym.checkinQr')} onPress={() => router.navigate({ pathname: '/gym/checkin', params: { m: memberId } })} />
+          <RowLink icon="people" label={t('gymClasses.title')} onPress={() => router.push({ pathname: '/gym/classes', params: { m: memberId } })} />
         </View>
       ) : null}
+
+      {!readOnly ? <PointsCard memberId={memberId} /> : null}
 
       <SectionTitle>{t('gymMember.memberships')}</SectionTitle>
       {!memberships.length ? (
@@ -187,6 +192,7 @@ export default function GymMembershipScreen() {
         />
       ))}
 
+      {!readOnly && m.health ? <BodyCard memberId={memberId} health={m.health} /> : null}
       {!readOnly ? <HealthNote memberId={memberId} text={m.healthNote ?? null} at={m.healthNoteAt ?? null} /> : null}
 
       {!readOnly ? (

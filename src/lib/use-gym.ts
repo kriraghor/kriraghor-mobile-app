@@ -3,8 +3,8 @@ import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { useAuth } from './auth';
 import { ApiError, idempotencyKey } from './esports-api';
-import { myMemberships, myPlans, myRequests, payDue } from './gym-api';
-import { waitingInvites } from './gym';
+import { listExercises, myMemberships, myPlans, myRequests, myWorkplaces, payDue } from './gym-api';
+import { clockWorkplaces, waitingInvites } from './gym';
 import { keys } from './use-realtime';
 
 /** My gyms (current and past), shared by the gym list, the membership page and the check-in QR. */
@@ -60,4 +60,16 @@ export function usePayDue() {
   }
 
   return { pay, busy, error };
+}
+
+/** The exercise library (M27-FR-70): public reference data, read once and kept for the session. */
+export function useExercises(enabled = true) {
+  return useQuery({ queryKey: ['gym-exercises'], queryFn: listExercises, staleTime: 6 * 3_600_000, enabled });
+}
+
+/** The gyms where I am staff and clock myself in (M27-FR-73). Most members work at none, so one quiet call. */
+export function useClockWorkplaces() {
+  const { status } = useAuth();
+  const q = useQuery({ queryKey: keys.gymWorkplaces, queryFn: myWorkplaces, enabled: status === 'signed_in', staleTime: 300_000, retry: false });
+  return { ...q, items: clockWorkplaces(q.data) };
 }

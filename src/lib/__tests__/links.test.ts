@@ -73,6 +73,9 @@ const GYM_PAGES: [string, LinkTarget, LinkTarget][] = [
   ['/me/plans', '/gym', '/gym'],
   [`/me/plans/${M}`, `/gym/plans/${M}`, `/gym/plans/${M}`],
   ['/me/checkin', '/gym/checkin', '/gym/checkin'],
+  ['/me/classes', '/gym/classes', '/gym/classes'], // M27 class notices
+  ['/me/visits', '/gym/visits', '/gym/visits'], // M24 §17 visit notices
+  [`/manage/${M}/my-work`, `/gym/work?g=${M}`, `/gym/work?g=${M}`], // a staff member's payslip notice
   ['/me/passes', '/gym/passes', '/gym/passes'],
   ['/me/passes/GP-7KQ2', '/gym/passes?code=GP-7KQ2', '/gym/passes?code=GP-7KQ2'],
   ['/me/subscriptions', '/gym/subscriptions', '/gym/subscriptions'],

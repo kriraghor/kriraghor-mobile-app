@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Repo** | `kriraghor-mobile` |
-| **Status** | App **0.2.0** (29 Oct 2026): esports (M21) and the member gym screens (M24 prompt 3b, mobile half). Five tabs (Home, Events, Matches, Ranks, Account), English and Bangla, phone OTP sign-in (M01), secure token storage, push that opens the right screen. 0.2.0 adds native modules (camera, brightness, keep-awake, SVG), so it needs a new build; 0.1.0 installs get no OTA updates with the gym screens |
+| **Status** | App **0.2.0** (29 Oct 2026): esports (M21) and the member gym screens (M24 prompt 3b, mobile half). Five tabs (Home, Events, Matches, Ranks, Account), English and Bangla, phone OTP sign-in (M01), secure token storage, push that opens the right screen. 0.2.0 adds native modules (camera, brightness, keep-awake, SVG), so it needs a new build; 0.1.0 installs get no OTA updates with the gym screens. **10 Nov 2026 (over the air, no new build):** my classes, free trial visits, my points and my body, "How to do it" on library exercises, a gym page's class timetable, and My work (clock in and out, payslips) for gym staff (M27, M24 §17) |
 | **Stack** | Expo SDK 57, expo-router, TypeScript strict, React Native 0.86 (New Architecture, Hermes), openapi-fetch, TanStack Query, i18next, socket.io-client, jest-expo |
 | **Decisions** | ADR-002 (shared OpenAPI contract), [ADR-004](../kriraghor-docs/decisions/ADR-004-cross-subdomain-auth.md) (mobile uses body tokens, not cookies) |
 | **First features** | Esports (M21: register, room reveal by push, winnings, withdraw) and booking (M10) |
@@ -52,7 +52,7 @@ The app opens on the **hub**: a greeting and six tiles. **Esports** and **Gym** 
 | Route | What it does |
 |---|---|
 | `index` | The hub: a top bar (logo; Sign in, or my initials opening Account), a greeting in Dhaka time (Good morning, {first name}), six photo tiles (Esports as a wide hero), a note that the website tiles open kriraghor.com |
-| `gyms`, `gyms/[slug]` | The public gym directory (area and monthly price chips, sort) and a gym's page (photos, open now, rating, map, facilities, hours, passes) with **Buy a pass** (then `pay/[paymentId]`) and **Join this gym**, both gated on sign-in and a verified phone. A guest's first Gym tab is this directory |
+| `gyms`, `gyms/[slug]` | The public gym directory (area and monthly price chips, sort) and a gym's page (photos, open now, rating, map, facilities, hours, passes, the class timetable, **Book a free visit** while the gym takes visits) with **Buy a pass** (then `pay/[paymentId]`) and **Join this gym**, both gated on sign-in and a verified phone. A guest's first Gym tab is this directory |
 | `sign-in` (modal) | M01 sign-in like kriraghor.com: password first (mobile, email or username, show/hide), **Get a one-time code instead** (six boxes, SMS autofill, 60 s resend), Forgot password (code, new password, then signed in with it), Create an account (code, then name, optional username with a live check, optional password). Closes back to where it was opened, else the hub. Rules in `src/lib/auth-flow.ts` |
 | `(esports)/esports`, `events`, `matches`, `ranks`, `account` | Esports section tabs: Home, events, my matches, leaderboards and player pages (M21), Account |
 | `(gym)/gym`, `gym/today`, `gym/checkin`, `gym/passes`, `gym/account` | Gym section tabs: My gyms, Today (today's workout and meals, then all my plans), Check-in, Passes, Account |
@@ -60,7 +60,10 @@ The app opens on the **hub**: a greeting and six tiles. **Esports** and **Gym** 
 | `register/[id]`, `pay/[paymentId]`, `room/[matchId]`, `result/[matchId]`, `game-ids`, `squads`, `split/[registrationId]`, `winnings`, `payout-account`, `notifications` | Esports entry, paying (M06), room reveal, results and disputes, game IDs, squads, prize split, winnings and withdrawals, the bell |
 | `gym` (tab) | My gyms: package, days left, what I owe with **Pay** (or "Pay at the counter"), invites badge, today's workout and meals, my check-in QR, past gyms, passes and trainers; no gyms: Find a gym on gym.kriraghor.com |
 | `gym/requests` | Gym invites (what the gym will see, Accept, Decline), my join requests (Cancel), expired ones greyed |
-| `gym/[memberId]` | One membership: packages and freezes, dues with Pay, payments, receipts (open on gym.kriraghor.com), plans, health note, Unlink |
+| `gym/[memberId]` | One membership: packages and freezes, dues with Pay, payments, receipts (open on gym.kriraghor.com), plans, my points and the gym's rewards, my body (height, weight, BMI, blood group), health note, Unlink |
+| `gym/classes` | My classes at my gym (M27-FR-48 to FR-50): the coming sessions with the places left, **Book a place**, **Join the waitlist**, **Cancel my place** |
+| `gym/visit?slug=`, `gym/visits` | A free trial visit (M24 §17): pick a day and an arrival time inside the gym's hours (sign-in and a verified phone when tapped), then the visit's QR and 6-character code for the front desk, Cancel, and earlier visits |
+| `gym/work` | My work, only for staff of a gym with `clock.in` (M27-FR-73, FR-81): whether I am in, today's shift, this month's time, **Scan to clock in / out** on the entrance QR, my payslips. Everything else a staff member does stays on gym.kriraghor.com |
 | `gym/[memberId]/attendance` | Check-in calendar by month, Saturday first |
 | `gym/plans/[assignmentId]` | Today first with Done ticks and notes (and the days back the API allows), the week, the whole plan, video links, the safety line |
 | `gym/checkin` (tab) | My rotating QR (brightness up, screen awake) and scanning the gym's entrance QR with the camera |
