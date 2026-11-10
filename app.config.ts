@@ -54,10 +54,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ['expo-camera', { cameraPermission: CAMERA_TEXT, microphonePermission: false, recordAudioAndroid: false }],
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
+  // These defaults are what an over-the-air update ships: CI's `eas update` sets only APP_ENV, and an
+  // app running an update reads `extra` from that update, not from its build. Keep them equal to the
+  // preview and production profiles in eas.json (src/lib/__tests__/config.test.ts checks it).
   extra: {
     appEnv: APP_ENV,
     apiUrl: process.env.API_URL ?? 'https://api.kriraghor.com/api/v1',
-    realtimeUrl: process.env.REALTIME_URL ?? 'https://api.kriraghor.com',
+    // Socket.IO is its own service (the backend's realtime.js), not the API: api.kriraghor.com
+    // answers /socket.io with 404.
+    realtimeUrl: process.env.REALTIME_URL ?? 'https://kriraghor-realtime.onrender.com',
     webUrl: process.env.WEB_URL ?? 'https://kriraghor.com',
     gymUrl: process.env.GYM_URL ?? 'https://gym.kriraghor.com',
     eas: { projectId: 'f3014002-a260-4797-b25c-5a123d717b7b' },

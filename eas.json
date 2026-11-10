@@ -25,7 +25,7 @@
       "env": {
         "APP_ENV": "preview",
         "API_URL": "https://api.kriraghor.com/api/v1",
-        "REALTIME_URL": "https://api.kriraghor.com",
+        "REALTIME_URL": "https://kriraghor-realtime.onrender.com",
         "WEB_URL": "https://kriraghor.com",
         "GYM_URL": "https://gym.kriraghor.com"
       }
@@ -40,7 +40,7 @@
       "env": {
         "APP_ENV": "production",
         "API_URL": "https://api.kriraghor.com/api/v1",
-        "REALTIME_URL": "https://api.kriraghor.com",
+        "REALTIME_URL": "https://kriraghor-realtime.onrender.com",
         "WEB_URL": "https://kriraghor.com",
         "GYM_URL": "https://gym.kriraghor.com"
       }

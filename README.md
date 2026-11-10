@@ -31,11 +31,15 @@ The backend runs on your machine (`npm run dev` and `npm run dev:realtime` in `.
 
 `app.config.ts` reads `APP_ENV`, `API_URL`, `REALTIME_URL`, `WEB_URL` and `GYM_URL`; `eas.json` sets them per build profile. There is no staging API yet, so **preview builds use the production API**:
 
-| Profile | APP_ENV | API | Web / gym links | Bundle ID |
-|---|---|---|---|---|
-| `development` | development | `http://10.0.2.2:4000/api/v1` | `http://10.0.2.2:3000` / `http://10.0.2.2:3003` | `com.kriraghor.app.development` |
-| `preview` | preview | `https://api.kriraghor.com/api/v1` | `https://kriraghor.com` / `https://gym.kriraghor.com` | `com.kriraghor.app.preview` |
-| `production` | production | `https://api.kriraghor.com/api/v1` | `https://kriraghor.com` / `https://gym.kriraghor.com` | `com.kriraghor.app` |
+| Profile | APP_ENV | API | Realtime (Socket.IO) | Web / gym links | Bundle ID |
+|---|---|---|---|---|---|
+| `development` | development | `http://10.0.2.2:4000/api/v1` | `http://10.0.2.2:4001` | `http://10.0.2.2:3000` / `http://10.0.2.2:3003` | `com.kriraghor.app.development` |
+| `preview` | preview | `https://api.kriraghor.com/api/v1` | `https://kriraghor-realtime.onrender.com` | `https://kriraghor.com` / `https://gym.kriraghor.com` | `com.kriraghor.app.preview` |
+| `production` | production | `https://api.kriraghor.com/api/v1` | `https://kriraghor-realtime.onrender.com` | `https://kriraghor.com` / `https://gym.kriraghor.com` | `com.kriraghor.app` |
+
+**Realtime is its own service.** Socket.IO runs in the backend's `realtime.js` process, on Render at `kriraghor-realtime.onrender.com`; the API at `api.kriraghor.com` answers `/socket.io` with 404, so `REALTIME_URL` must never be the API's address (gym.kriraghor.com's `env.js` has the same value). `realtime.kriraghor.com` is not used: its DNS points at Vercel, and the owner chose to keep the onrender address (10 Nov 2026).
+
+**Where the addresses come from.** A build bakes in its profile's `env` from `eas.json`. An over-the-air update carries its own copy: CI's `eas update` sets only `APP_ENV`, so an update ships the defaults in `app.config.ts`, and an app running an update reads those, not the ones from its build. Keep the defaults equal to the `preview` and `production` profiles (`src/lib/__tests__/config.test.ts` fails when they drift). Changing an address therefore reaches installed apps over the air; a new build is only needed so a fresh install has it on its very first launch.
 
 The app version drives the OTA runtime (`runtimeVersion: appVersion`): bump `version` whenever a native module is added, so older installs never receive JS that needs it. A preview build of the current code: `npx eas-cli@latest build --profile preview --platform android` (uses the Expo account; ask first).
 
