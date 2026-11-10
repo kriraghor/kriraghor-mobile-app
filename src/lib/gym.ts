@@ -273,3 +273,73 @@ export function payDoneRoute(kind: PayKind, memberId?: string | null): string {
       return '/matches';
   }
 }
+
+// ---------------------------------------------------------------- clock times of the day ("18:30")
+const toMinute = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+const toHhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+
+/** Minutes after midnight in Dhaka now (UTC+6, no daylight saving). */
+export const dhakaMinuteNow = (now: number | Date = Date.now()) => Math.floor(((new Date(now).getTime() + DHAKA_MS) % DAY_MS) / 60_000);
+
+/** "18:30" as "6:30 pm" / "সন্ধ্যা ৬:৩০", the way timeOnly writes an instant. */
+export const clockTime = (hhmm: string, lang: Lang = 'en') => timeOnly(`2000-01-01T${hhmm}:00+06:00`, lang);
+
+/** Minutes worked as hours and minutes: 135 → { h: 2, m: 15 }. */
+export const hoursMinutes = (minutes: number) => ({ h: Math.floor(Math.max(0, minutes) / 60), m: Math.max(0, minutes) % 60 });
+
+// ---------------------------------------------------------------- classes (M27-FR-48 to FR-50)
+export type ClassLike = { status: string; startsAt: string; spaces: number; myBooking?: { id: string; status: string } | null };
+/** What a member can do with a session: cancel their place, book one, join the waitlist, or nothing. */
+export type ClassAction = 'cancel' | 'book' | 'waitlist' | 'none';
+
+export function classAction(s: ClassLike, now: number = Date.now()): ClassAction {
+  if (s.status !== 'scheduled' || Date.parse(s.startsAt) <= now) return 'none';
+  const mine = s.myBooking?.status;
+  if (mine === 'booked' || mine === 'waitlisted') return 'cancel';
+  return s.spaces > 0 ? 'book' : 'waitlist';
+}
+
+/** Sessions by Dhaka date, in order, for the day headings. */
+export function byDay<T extends { localDate: string; startsAt: string }>(items: readonly T[]): { date: string; items: T[] }[] {
+  const days = new Map<string, T[]>();
+  for (const s of [...items].sort((a, b) => a.startsAt.localeCompare(b.startsAt))) days.set(s.localDate, [...(days.get(s.localDate) ?? []), s]);
+  return [...days].map(([date, list]) => ({ date, items: list }));
+}
+
+// ---------------------------------------------------------------- free trial visits (M24 §17; mirrors apps/gym lib/gym-visits.ts)
+export type VisitWindow = { openTime: string; closeTime: string };
+export type VisitDayLike = { date: string; windows: readonly unknown[]; placesLeft: number };
+export type VisitLike = { status: string; date: string; arriveAt: string; token?: string | null };
+
+const windowsOf = (windows: readonly unknown[]) => windows.filter((w): w is VisitWindow => !!w && typeof (w as VisitWindow).openTime === 'string' && typeof (w as VisitWindow).closeTime === 'string');
+
+/**
+ * The arrival times offered on a day: every `step` minutes inside each opening window (the closing time
+ * itself is not inside), and on today only times after `nowMinute`. Sorted, without repeats.
+ */
+export function visitTimes(windows: readonly unknown[], { isToday = false, nowMinute = 0, step = 30 }: { isToday?: boolean; nowMinute?: number; step?: number } = {}): string[] {
+  const out = new Set<number>();
+  for (const w of windowsOf(windows)) {
+    const close = toMinute(w.closeTime);
+    for (let m = Math.ceil(toMinute(w.openTime) / step) * step; m < close; m += step) if (!isToday || m > nowMinute) out.add(m);
+  }
+  return [...out].sort((a, b) => a - b).map(toHhmm);
+}
+
+/** The days a person can still pick: open, with a place left, and (today) with a time still ahead. */
+export const bookableDays = <T extends VisitDayLike>(days: readonly T[], at: { today: string; nowMinute: number }): T[] =>
+  days.filter((d) => d.placesLeft > 0 && visitTimes(d.windows, { isToday: d.date === at.today, nowMinute: at.nowMinute }).length > 0);
+
+/** The guest's visits for the screen: what is coming (booked with its QR, soonest first) and the rest as the API sent them (newest first). */
+export function splitVisits<T extends VisitLike>(items: readonly T[]): { coming: T[]; past: T[] } {
+  const coming = items.filter((v) => v.status === 'booked' && v.token).sort((a, b) => (a.date + a.arriveAt).localeCompare(b.date + b.arriveAt));
+  return { coming, past: items.filter((v) => !coming.includes(v)) };
+}
+
+/** The 6-character visit code in two groups of three, easier to read out at the desk. */
+export const codeGroups = (code: string) => `${code.slice(0, 3)} ${code.slice(3)}`;
+
+// ---------------------------------------------------------------- my work at a gym (M27-FR-73)
+/** The gyms where I am staff and may clock myself in (the owner never clocks in). */
+export const clockWorkplaces = <T extends { role: string; permissions?: readonly unknown[] | null }>(gyms: readonly T[] | undefined): T[] =>
+  (gyms ?? []).filter((g) => g.role === 'staff' && (g.permissions ?? []).includes('clock.in'));

@@ -8,6 +8,7 @@ import { Linking, Pressable, RefreshControl, ScrollView, StyleSheet, useWindowDi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Pill, SectionTitle } from '@/components/esports';
 import { Card, ErrorNotice } from '@/components/gym';
+import { Timetable, VisitCta } from '@/components/gym-extras';
 import { ThemedText } from '@/components/themed-text';
 import { useToast } from '@/components/toast';
 import { Button, EmptyState, Field, Notice, Reveal, SkeletonList } from '@/components/ui';
@@ -67,6 +68,8 @@ function GymBody({ g, refreshing, onRefresh }: { g: GymPage; refreshing: boolean
         </Reveal>
         <Reveal index={3} style={styles.section}>
           <Join g={g} />
+          <VisitCta slug={g.slug} />
+          <Timetable slug={g.slug} />
         </Reveal>
         <Reveal index={4} style={styles.section}>
           <Hours g={g} />

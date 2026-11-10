@@ -1,5 +1,15 @@
 import {
   addDays,
+  bookableDays,
+  byDay,
+  classAction,
+  clockTime,
+  clockWorkplaces,
+  codeGroups,
+  dhakaMinuteNow,
+  hoursMinutes,
+  splitVisits,
+  visitTimes,
   canLog,
   cardPayState,
   dateOnly,
@@ -319,5 +329,114 @@ describe('gym requests (M24-FR-15, FR-16)', () => {
     expect(parts.joins.map((r) => r.id)).toEqual(['j']);
     expect(parts.expired.map((r) => r.id)).toEqual(['s', 'g']);
     expect(splitRequests([]).invites).toEqual([]);
+  });
+});
+
+describe('classes (M27-FR-48 to FR-50)', () => {
+  const now = Date.parse('2026-11-10T06:00:00Z');
+  const at = (h: number) => new Date(now + h * 3_600_000).toISOString();
+  const s = (over: Partial<Parameters<typeof classAction>[0]> = {}) => ({ status: 'scheduled', startsAt: at(2), spaces: 3, myBooking: null, ...over });
+
+  it('offers a place, the waitlist or my cancel', () => {
+    expect(classAction(s(), now)).toBe('book');
+    expect(classAction(s({ spaces: 0 }), now)).toBe('waitlist');
+    expect(classAction(s({ myBooking: { id: 'b', status: 'booked' } }), now)).toBe('cancel');
+    expect(classAction(s({ spaces: 0, myBooking: { id: 'b', status: 'waitlisted' } }), now)).toBe('cancel');
+    // A cancelled booking of mine is a free hand again.
+    expect(classAction(s({ myBooking: { id: 'b', status: 'cancelled' } }), now)).toBe('book');
+  });
+
+  it('offers nothing once the class has started, is cancelled or is done', () => {
+    expect(classAction(s({ startsAt: at(0) }), now)).toBe('none');
+    expect(classAction(s({ startsAt: at(-1), myBooking: { id: 'b', status: 'booked' } }), now)).toBe('none');
+    expect(classAction(s({ status: 'cancelled' }), now)).toBe('none');
+    expect(classAction(s({ status: 'done' }), now)).toBe('none');
+  });
+
+  it('groups sessions by Dhaka day, in time order', () => {
+    const items = [
+      { id: 'c', localDate: '2026-11-12', startsAt: '2026-11-12T01:00:00Z' },
+      { id: 'b', localDate: '2026-11-11', startsAt: '2026-11-11T12:30:00Z' },
+      { id: 'a', localDate: '2026-11-11', startsAt: '2026-11-11T01:00:00Z' },
+    ];
+    expect(byDay(items).map((d) => [d.date, d.items.map((x) => x.id)])).toEqual([
+      ['2026-11-11', ['a', 'b']],
+      ['2026-11-12', ['c']],
+    ]);
+    expect(byDay([])).toEqual([]);
+  });
+});
+
+describe('free trial visits (M24 §17)', () => {
+  const day = [{ openTime: '05:30', closeTime: '07:00' }];
+
+  it('offers every half hour inside the opening windows, not the closing time', () => {
+    expect(visitTimes(day)).toEqual(['05:30', '06:00', '06:30']);
+    expect(visitTimes([{ openTime: '06:10', closeTime: '07:10' }])).toEqual(['06:30', '07:00']);
+    expect(visitTimes([...day, { openTime: '06:30', closeTime: '07:30' }])).toEqual(['05:30', '06:00', '06:30', '07:00']);
+    expect(visitTimes(day, { step: 60 })).toEqual(['06:00']);
+  });
+
+  it('on today offers only times still ahead, and ignores a window it cannot read', () => {
+    expect(visitTimes(day, { isToday: true, nowMinute: 6 * 60 })).toEqual(['06:30']);
+    expect(visitTimes(day, { isToday: true, nowMinute: 7 * 60 })).toEqual([]);
+    expect(visitTimes(day, { isToday: false, nowMinute: 7 * 60 })).toHaveLength(3);
+    expect(visitTimes([null, { openTime: '05:30' }, {}])).toEqual([]);
+  });
+
+  it('keeps the days with a place and a time left', () => {
+    const days = [
+      { date: '2026-11-10', windows: day, placesLeft: 2 }, // today, closed by now
+      { date: '2026-11-11', windows: day, placesLeft: 0 }, // full
+      { date: '2026-11-12', windows: [], placesLeft: 3 }, // closed that day
+      { date: '2026-11-13', windows: day, placesLeft: 1 },
+    ];
+    expect(bookableDays(days, { today: '2026-11-10', nowMinute: 20 * 60 }).map((d) => d.date)).toEqual(['2026-11-13']);
+    expect(bookableDays(days, { today: '2026-11-10', nowMinute: 5 * 60 }).map((d) => d.date)).toEqual(['2026-11-10', '2026-11-13']);
+  });
+
+  it('puts booked visits with a QR first, soonest first, and the rest after', () => {
+    const v = (id: string, status: string, date: string, arriveAt: string, token: string | null = null) => ({ id, status, date, arriveAt, token });
+    const items = [v('late', 'booked', '2026-11-12', '07:30', 't2'), v('missed', 'no_show', '2026-11-01', '18:00'), v('soon', 'booked', '2026-11-11', '18:00', 't1'), v('old', 'cancelled', '2026-10-20', '09:00')];
+    const { coming, past } = splitVisits(items);
+    expect(coming.map((x) => x.id)).toEqual(['soon', 'late']);
+    expect(past.map((x) => x.id)).toEqual(['missed', 'old']);
+    // A booked visit of a past day has no token any more: it is history.
+    expect(splitVisits([v('stale', 'booked', '2026-11-01', '09:00')]).past).toHaveLength(1);
+  });
+
+  it('reads the code out in two groups', () => {
+    expect(codeGroups('7KQ2ZB')).toBe('7KQ 2ZB');
+  });
+});
+
+describe('clock times and my work (M27-FR-73)', () => {
+  it('reads the Dhaka minute of the day whatever the phone zone', () => {
+    expect(dhakaMinuteNow(Date.parse('2026-11-10T00:00:00Z'))).toBe(6 * 60);
+    expect(dhakaMinuteNow(Date.parse('2026-11-10T18:15:00Z'))).toBe(15);
+    expect(dhakaMinuteNow(new Date('2026-11-10T17:59:00Z'))).toBe(23 * 60 + 59);
+  });
+
+  it('writes a clock time like an instant', () => {
+    expect(clockTime('18:30')).toBe('6:30 pm');
+    expect(clockTime('05:30', 'bn')).toBe('সকাল ৫:৩০');
+    expect(clockTime('00:00')).toBe('12:00 am');
+  });
+
+  it('splits minutes worked into hours and minutes', () => {
+    expect(hoursMinutes(135)).toEqual({ h: 2, m: 15 });
+    expect(hoursMinutes(0)).toEqual({ h: 0, m: 0 });
+    expect(hoursMinutes(-5)).toEqual({ h: 0, m: 0 });
+  });
+
+  it('lists only the gyms where I am staff with clock.in', () => {
+    const gyms = [
+      { id: 'own', role: 'owner', permissions: null },
+      { id: 'desk', role: 'staff', permissions: ['attendance.mark', 'clock.in'] },
+      { id: 'noclock', role: 'staff', permissions: ['attendance.mark'] },
+      { id: 'bare', role: 'staff' },
+    ];
+    expect(clockWorkplaces(gyms).map((g) => g.id)).toEqual(['desk']);
+    expect(clockWorkplaces(undefined)).toEqual([]);
   });
 });
