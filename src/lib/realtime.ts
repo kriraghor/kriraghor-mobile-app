@@ -3,7 +3,8 @@ import { config } from './config';
 import { getAccessToken, refresh } from './session';
 
 /**
- * Socket.IO (realtime.kriraghor.com). The handshake sends the current access token on every
+ * Socket.IO (the backend's realtime service at `config.realtimeUrl`, a host of its own: the API
+ * does not serve /socket.io). The handshake sends the current access token on every
  * (re)connect, so the server joins this phone to `user:{id}` (room reveals, the bell). Public rooms
  * (an event's slots and status, a match's results) are joined with `subscribe` and re-joined on every
  * connect. Events are hints only: screens re-read the API when one arrives.
