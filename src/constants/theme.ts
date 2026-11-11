@@ -1,34 +1,43 @@
 import { Platform } from 'react-native';
+import { paletteV2 } from './tokens';
 
-/** Kriraghor tokens (kriraghor-docs/00-platform/09): green = every action, amber = prize money only. */
-export const Colors = {
-  light: {
-    text: '#16201B',
-    textSecondary: '#55625B',
-    background: '#F4F3EF',
-    backgroundElement: '#FFFFFF',
-    backgroundSelected: '#ECEBE6',
-    line: '#D5D8D2',
-    brand: '#0B7A4B',
-    brandText: '#075533',
-    onBrand: '#FFFFFF',
-    prize: '#F2A33A',
-    danger: '#B42318',
-  },
-  dark: {
-    text: '#E8ECE9',
-    textSecondary: '#A2AFA7',
-    background: '#0E1411',
-    backgroundElement: '#151D18',
-    backgroundSelected: '#1C2620',
-    line: '#2A3530',
-    brand: '#19995F',
-    brandText: '#8FD8B2',
-    onBrand: '#FFFFFF',
-    prize: '#F2A33A',
-    danger: '#F97066',
-  },
-} as const;
+/**
+ * The app's colours, taken from the shared tokens (UI v2 "Floodlight", 11 Nov 2026), so the app and the
+ * websites cannot drift apart: `tokens.ts` is a copy of kriraghor-frontend packages/tokens (npm run
+ * tokens:copy there), and this file only gives its values the names the screens already use.
+ *
+ * Green is every action. The logo's orange (`accent`, and `prize` for money won) is energy: live,
+ * prizes, highlights. Text on green is `onBrand` and on orange `onAccent`; never a fixed white, because
+ * in the dark theme both colours are bright and take dark text.
+ */
+const named = (p: (typeof paletteV2)['light'] | (typeof paletteV2)['dark']) => ({
+  text: p.ink,
+  textSecondary: p.muted,
+  background: p.bg,
+  backgroundElement: p.surface,
+  backgroundSelected: p.surface2,
+  line: p.line,
+  lineStrong: p.lineStrong,
+  brand: p.brand,
+  brandSoft: p.brandSoft,
+  brandText: p.brandText,
+  onBrand: p.onBrand,
+  accent: p.accent,
+  accentSoft: p.accentSoft,
+  accentText: p.accentText,
+  onAccent: p.onAccent,
+  prize: p.prize,
+  prizeText: p.prizeText,
+  band: p.band,
+  bandText: p.bandText,
+  live: p.live,
+  danger: p.danger,
+  dangerSoft: p.dangerSoft,
+  info: p.info,
+  warning: p.warning,
+});
+
+export const Colors = { light: named(paletteV2.light), dark: named(paletteV2.dark) } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 

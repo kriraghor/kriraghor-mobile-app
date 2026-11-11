@@ -62,6 +62,82 @@ export const palette = {
 
 export type ColorName = keyof (typeof palette)["light"];
 
+/**
+ * UI v2 "Floodlight" (product owner, 11 Nov 2026): the bolder look taken from the logo. Near-black and
+ * warm paper, a more vivid action green, and the logo's orange as the energy colour (live, prizes,
+ * highlights). Text on the orange is always dark (`onAccent`): white on it fails contrast. Every pair
+ * used for text is 4.5:1 or better. The phone app uses these now; the websites switch per area with
+ * data-ui="v2" (tokens.css) until the whole web has moved.
+ */
+export const paletteV2 = {
+  light: {
+    bg: "#f5f4f0",
+    surface: "#ffffff",
+    surface2: "#ecebe6",
+    ink: "#0d1512",
+    muted: "#55615a",
+    line: "#dddfd9",
+    lineStrong: "#868f88",
+    brand: "#00804a",
+    brandHover: "#006b3d",
+    brandSoft: "#ddf3e6",
+    brandText: "#006b3d",
+    onBrand: "#ffffff",
+    band: "#0a0f0c",
+    bandText: "#eef2ef",
+    accent: "#f26a1b",
+    accentHover: "#dd5c10",
+    accentSoft: "#fde6d8",
+    accentText: "#b4460b",
+    onAccent: "#1a0e05",
+    prize: "#f26a1b",
+    prizeInk: "#1a0e05",
+    prizeSoft: "#fde6d8",
+    prizeText: "#b4460b",
+    live: "#e5484d",
+    danger: "#b42318",
+    dangerSoft: "#fdecea",
+    info: "#2c5aa8",
+    infoSoft: "#e8eefa",
+    warning: "#b46714",
+    warningSoft: "#fdf3e3",
+  },
+  dark: {
+    bg: "#0a0f0c",
+    surface: "#121a15",
+    surface2: "#1a241e",
+    ink: "#eef2ef",
+    muted: "#9fada5",
+    line: "#25302a",
+    lineStrong: "#5b6961",
+    brand: "#1fd17f",
+    brandHover: "#45e096",
+    brandSoft: "#0f3524",
+    brandText: "#5ce6a4",
+    onBrand: "#04130b",
+    band: "#060a08",
+    bandText: "#eef2ef",
+    accent: "#ff7a2f",
+    accentHover: "#ff914f",
+    accentSoft: "#3a1f0f",
+    accentText: "#ff9a5c",
+    onAccent: "#1a0e05",
+    prize: "#ff7a2f",
+    prizeInk: "#1a0e05",
+    prizeSoft: "#3a1f0f",
+    prizeText: "#ff9a5c",
+    live: "#e5484d",
+    danger: "#ff7b72",
+    dangerSoft: "#3b1715",
+    info: "#84adff",
+    infoSoft: "#172442",
+    warning: "#f5b052",
+    warningSoft: "#33250f",
+  },
+} as const;
+
+export type ColorNameV2 = keyof (typeof paletteV2)["light"];
+
 /** The shape rule: controls 12, cards/sheets/dialogs 20, chips/badges/avatars full. */
 export const radius = { control: 12, card: 20, pill: 9999 } as const;
 

@@ -1,14 +1,16 @@
+import { duration, radius } from './tokens';
+
 /**
- * The app's shape and motion system: one radius scale, an 8-pt spacing rhythm, and the durations and
+ * The app's shape and motion system (the shape rule and the timings come from the shared tokens): one radius scale, an 8-pt spacing rhythm, and the durations and
  * springs every animation uses. Motion only moves transform and opacity, is motivated (entrance,
  * feedback, state change), never loops for decoration and honours the phone's reduce-motion setting
  * (Reanimated useReducedMotion / ReduceMotion.System: instant or a plain fade).
  */
 export const Radius = {
   /** Tiles, cards, sheets. */
-  card: 20,
+  card: radius.card,
   /** Buttons, inputs, rows, code boxes. */
-  control: 12,
+  control: radius.control,
   /** Pills and chips. */
   pill: 999,
 } as const;
@@ -17,10 +19,10 @@ export const Radius = {
 export const Space = { xs: 4, s: 8, m: 16, l: 24, xl: 32 } as const;
 
 export const Duration = {
-  /** Press feedback, small state changes (150–300 ms). */
-  micro: 180,
-  /** Screen and list entrances. */
-  enter: 260,
+  /** Press feedback, small state changes (the shared "fast"). */
+  micro: duration.fast,
+  /** Screen and list entrances (the shared "base"). */
+  enter: duration.base,
   /** The hub's zoom into or out of a section (≤ 400 ms). */
   zoom: 350,
   /** A plain crossfade when reduce motion is on. */
