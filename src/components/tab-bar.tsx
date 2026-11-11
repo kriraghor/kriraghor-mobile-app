@@ -2,7 +2,8 @@ import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { requireOptionalNativeModule } from 'expo';
 import { useEffect, useId, useState, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, Pressable, StyleSheet, Text, useColorScheme, View, type ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { useScheme } from '@/hooks/theme-scope';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
@@ -50,7 +51,7 @@ const alpha = (hex: string, a: number) => {
  */
 function GlassSurface() {
   const theme = useTheme();
-  const dark = useColorScheme() === 'dark';
+  const dark = useScheme() === 'dark';
   const id = `hl-${useId().replace(/[^a-zA-Z0-9-]/g, '')}`;
   if (NativeGlass) return <NativeGlass style={StyleSheet.absoluteFill} glassEffectStyle="regular" />;
   const web = Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px) saturate(160%)' } as unknown as ViewStyle) : null;
@@ -77,7 +78,7 @@ function GlassSurface() {
  */
 export function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const theme = useTheme();
-  const dark = useColorScheme() === 'dark';
+  const dark = useScheme() === 'dark';
   const insets = useSafeAreaInsets();
   const reduce = useReducedMotion();
   const [width, setWidth] = useState(0);
@@ -154,8 +155,8 @@ function TabItem({ label, focused, badge, renderIcon, onPress, onLongPress }: { 
       <Animated.View style={scale}>
         {renderIcon(focused ? theme.brand : theme.textSecondary)}
         {badge ? (
-          <View style={[styles.badge, { backgroundColor: theme.brand, borderColor: theme.backgroundElement }]}>
-            <Text style={[styles.badgeText, { color: theme.onBrand }]}>{badge}</Text>
+          <View style={[styles.badge, { backgroundColor: theme.accent, borderColor: theme.backgroundElement }]}>
+            <Text style={[styles.badgeText, { color: theme.onAccent }]}>{badge}</Text>
           </View>
         ) : null}
       </Animated.View>
@@ -188,6 +189,6 @@ const styles = StyleSheet.create({
   pill: { position: 'absolute', left: 0, top: PAD, bottom: PAD, borderRadius: RADIUS - PAD },
   item: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center', gap: 2 },
   overlay: { position: 'absolute', left: 0, right: 0, top: 0, textAlign: 'center' },
-  badge: { position: 'absolute', top: -4, right: -10, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
-  badgeText: { fontSize: 10, lineHeight: 12, fontWeight: '700' },
+  badge: { position: 'absolute', top: -5, right: -12, minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 4, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  badgeText: { fontSize: 12, lineHeight: 14, fontWeight: '700' },
 });

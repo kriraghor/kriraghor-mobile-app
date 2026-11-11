@@ -1,6 +1,7 @@
 import { Icon, type IconName } from '@/components/icons/Icon';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs } from 'expo-router/js-tabs';
+import { StatusBar } from 'expo-status-bar';
 
 import { useTranslation } from 'react-i18next';
 import { useReducedMotion } from 'react-native-reanimated';
@@ -8,6 +9,7 @@ import { SectionsButton } from '@/components/sections';
 import { GlassTabBar } from '@/components/tab-bar';
 import { SectionScene } from '@/components/transition';
 import { withTypeface } from '@/constants/fonts';
+import { ThemeScope } from '@/hooks/theme-scope';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { unreadCount } from '@/lib/esports-api';
@@ -25,8 +27,20 @@ const TABS: { name: string; label: 'home' | 'events' | 'matches' | 'ranks' | 'ac
 /**
  * The Esports section (hub tile Esports): five tabs, esports first (M21 §4.3). Every tab has an icon
  * and a label; screens with a header carry the All sections button.
+ *
+ * Dark-first (UI v2): the whole section draws in the dark theme on any phone setting, like the esports
+ * website, with the status bar's icons light to match.
  */
 export default function EsportsLayout() {
+  return (
+    <ThemeScope scheme="dark">
+      <StatusBar style="light" />
+      <EsportsTabs />
+    </ThemeScope>
+  );
+}
+
+function EsportsTabs() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   const reduce = useReducedMotion();

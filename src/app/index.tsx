@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { useQuery } from '@tanstack/react-query';
 import { Redirect, router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
@@ -7,19 +8,23 @@ import { Image as RNImage, Pressable, ScrollView, StyleSheet, View } from 'react
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, type IconName } from '@/components/icons/Icon';
-import { TileFace, tileStyle } from '@/components/photo-tile';
+import { compactTileStyle, TileFace, tileStyle } from '@/components/photo-tile';
 import { ThemedText } from '@/components/themed-text';
 import { useZoomScene, ZOOM } from '@/components/transition';
-import { AnimatedPressable, Reveal } from '@/components/ui';
+import { AnimatedPressable, Reveal, SectionHeading } from '@/components/ui';
 import { Radius } from '@/constants/motion';
 import { SECTION_PHOTOS } from '@/constants/section-photos';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { config } from '@/lib/config';
+import { listEvents } from '@/lib/esports-api';
+import { count, type Lang } from '@/lib/format';
+import { useMyGyms } from '@/lib/use-gym';
 import { SECTION_HOME, setStartSection, startSection, tileTarget, TILES, type Tile, type TileKey } from '@/lib/section';
 import { openSection } from '@/lib/section-nav';
-import { dayPart, firstName, initials } from '@/lib/ui-logic';
+import { dayPart, firstName, hubLive, initials } from '@/lib/ui-logic';
+import { displayFace } from '@/constants/fonts';
 import { useMe } from '@/lib/use-me';
 
 const LOGO = { light: require('../../assets/brand/logo-mark.png'), dark: require('../../assets/brand/logo-mark-dark.png') };
@@ -34,14 +39,17 @@ const ICONS: Record<TileKey, IconName> = {
 };
 
 /**
- * Six cells, no gaps, with rhythm: Esports (the top priority) as a wide hero, then two rows of two,
- * then Events wide.
+ * UI v2: what lives in the app first, what opens the website after. Esports (the top priority) and Gym are
+ * the two large tiles, each with something true right now; Venues, Shop, Hire and Tournaments are a compact
+ * group under their own heading, marked as opening kriraghor.com.
  */
-const ROWS: { keys: TileKey[]; height: number }[] = [
-  { keys: ['esports'], height: 210 },
-  { keys: ['gym', 'venues'], height: 176 },
-  { keys: ['shop', 'hire'], height: 176 },
-  { keys: ['events'], height: 132 },
+const MAIN: { key: TileKey; height: number }[] = [
+  { key: 'esports', height: 224 },
+  { key: 'gym', height: 172 },
+];
+const WEB_ROWS: TileKey[][] = [
+  ['venues', 'shop'],
+  ['hire', 'events'],
 ];
 const TILE_BY_KEY = Object.fromEntries(TILES.map((t) => [t.key, t])) as Record<TileKey, Tile>;
 
@@ -59,9 +67,11 @@ function prefetchPhotos() {
 
 /**
  * The hub, the app's first screen: a top bar (logo; Sign in, or my initials opening Account), a
- * greeting in Dhaka time and six photo tiles. Esports and Gym zoom through into their sections
- * (remembered for the next cold start); Venues, Shop, Hire and Events open kriraghor.com in the
- * in-app browser. On a cold start with a remembered section the hub sends the person straight there.
+ * greeting in Dhaka time, the two sections that live in the app as large photo tiles (Esports with how
+ * many tournaments are open, Gym with the days left on my package), then the four that open
+ * kriraghor.com in the in-app browser as a compact group. Esports and Gym zoom through into their
+ * sections (remembered for the next cold start). On a cold start with a remembered section the hub sends
+ * the person straight there.
  */
 export default function Hub() {
   // Read once on the first mount; cleared after, so coming back here later stays on the hub.
@@ -75,10 +85,19 @@ function HubScreen() {
   const theme = useTheme();
   const scheme = useColorScheme();
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as Lang;
   const { status } = useAuth();
   const me = useMe();
   const [leaving, setLeaving] = useState(false);
+  // Something true right now on each main tile; a tile simply has no chip while this loads or fails.
+  const openEvents = useQuery({ queryKey: ['hub', 'open-events'], queryFn: () => listEvents('open'), retry: false, staleTime: 60_000 });
+  const gyms = useMyGyms();
+  const live = hubLive({ openEvents: openEvents.data?.length ?? null, gymDaysLeft: gyms.data?.items.map((g) => g.current?.daysLeft ?? null) ?? [] });
+  const liveText: Partial<Record<TileKey, string | null>> = {
+    esports: live.esports === null ? null : t('hub.live.open', { n: count(live.esports, lang) }),
+    gym: live.gym === null ? null : t('hub.live.days', { n: count(live.gym, lang) }),
+  };
   // Enters from 1.06 (zooming out of a section); leaves to 1.08 (zooming into one).
   const { style, leave, onLayout } = useZoomScene(ZOOM.hubIn.from, ZOOM.hubIn.duration, ZOOM.hubOut.scale, ZOOM.hubOut.duration);
   useEffect(prefetchPhotos, []);
@@ -136,10 +155,21 @@ function HubScreen() {
           </Reveal>
 
           <View style={styles.grid}>
-            {ROWS.map((row, r) => (
-              <View key={row.keys.join('-')} style={[styles.row, { height: row.height }]}>
-                {row.keys.map((key, c) => (
-                  <HubTile key={key} tileKey={key} index={r * 2 + c + 1} big={key === 'esports'} onOpen={open} />
+            {MAIN.map((m, i) => (
+              <View key={m.key} style={{ height: m.height }}>
+                <HubTile tileKey={m.key} index={i + 1} big={m.key === 'esports'} live={liveText[m.key]} onOpen={open} />
+              </View>
+            ))}
+          </View>
+
+          <Reveal index={3} style={styles.webHead}>
+            <SectionHeading title={t('hub.onWeb')} />
+          </Reveal>
+          <View style={styles.grid}>
+            {WEB_ROWS.map((row, r) => (
+              <View key={row.join('-')} style={[styles.row, { height: 112 }]}>
+                {row.map((key, c) => (
+                  <HubTile key={key} tileKey={key} index={4 + r * 2 + c} compact onOpen={open} />
                 ))}
               </View>
             ))}
@@ -164,18 +194,18 @@ function HubScreen() {
 }
 
 /** One photo tile: springs to 0.97 while held; the release starts the zoom-through or opens the website. */
-function HubTile({ tileKey, index, big, onOpen }: { tileKey: TileKey; index: number; big?: boolean; onOpen: (key: TileKey) => void }) {
+function HubTile({ tileKey, index, big, compact, live, onOpen }: { tileKey: TileKey; index: number; big?: boolean; compact?: boolean; live?: string | null; onOpen: (key: TileKey) => void }) {
   const { t } = useTranslation();
   const web = 'webPath' in TILE_BY_KEY[tileKey];
   return (
     <Reveal index={index} style={{ flex: 1 }}>
       <AnimatedPressable
         accessibilityRole={web ? 'link' : 'button'}
-        accessibilityLabel={`${t(`hub.tiles.${tileKey}.title`)}. ${t(`hub.tiles.${tileKey}.body`)}`}
+        accessibilityLabel={[t(`hub.tiles.${tileKey}.title`), t(`hub.tiles.${tileKey}.body`), live].filter(Boolean).join('. ')}
         accessibilityHint={web ? t('hub.opensWebsite') : undefined}
         onPress={() => onOpen(tileKey)}
-        style={[tileStyle, { flex: 1 }]}>
-        <TileFace photo={SECTION_PHOTOS[tileKey]} icon={ICONS[tileKey]} title={t(`hub.tiles.${tileKey}.title`)} body={t(`hub.tiles.${tileKey}.body`)} web={web} big={big} />
+        style={[compact ? compactTileStyle : tileStyle, { flex: 1 }]}>
+        <TileFace photo={SECTION_PHOTOS[tileKey]} icon={ICONS[tileKey]} title={t(`hub.tiles.${tileKey}.title`)} body={t(`hub.tiles.${tileKey}.body`)} web={web} big={big} live={live} compact={compact} />
       </AnimatedPressable>
     </Reveal>
   );
@@ -186,12 +216,13 @@ const styles = StyleSheet.create({
   bar: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   logo: { width: 36, height: 36 },
-  wordmark: { fontSize: 20, lineHeight: 28, fontWeight: '800' },
+  wordmark: { ...displayFace, fontSize: 22, lineHeight: 28 },
   avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   signIn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, borderRadius: Radius.pill },
   head: { gap: 4, paddingHorizontal: 4 },
-  title: { fontSize: 28, lineHeight: 36, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 34, lineHeight: 40 },
   grid: { gap: 12 },
+  webHead: { marginTop: 8, paddingHorizontal: 4 },
   row: { flexDirection: 'row', gap: 12 },
   note: { flexDirection: 'row', gap: 8, paddingHorizontal: 4 },
   env: { textAlign: 'center' },

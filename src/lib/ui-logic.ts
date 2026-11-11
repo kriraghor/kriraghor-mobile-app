@@ -55,6 +55,15 @@ export type DayPart = 'morning' | 'afternoon' | 'evening';
 export const dhakaHour = (now: Date) => (now.getUTCHours() + 6) % 24;
 
 /** Morning 4:00 to 11:59, afternoon 12:00 to 16:59, evening otherwise (Dhaka time). */
+/**
+ * What the hub's two main tiles can say right now (UI v2): how many tournaments are open, and the fewest
+ * days left on any of my gym packages. Null means "say nothing": nothing loaded, none open, no package.
+ */
+export function hubLive({ openEvents, gymDaysLeft }: { openEvents: number | null; gymDaysLeft: readonly (number | null)[] }): { esports: number | null; gym: number | null } {
+  const days = gymDaysLeft.filter((d): d is number => typeof d === 'number' && d >= 0);
+  return { esports: openEvents && openEvents > 0 ? openEvents : null, gym: days.length ? Math.min(...days) : null };
+}
+
 export function dayPart(now: Date): DayPart {
   const h = dhakaHour(now);
   if (h >= 4 && h < 12) return 'morning';

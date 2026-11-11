@@ -46,8 +46,8 @@ export function CountBadge({ n }: { n: number }) {
   const theme = useTheme();
   if (!n) return null;
   return (
-    <View style={[styles.badge, { backgroundColor: theme.brand }]} accessibilityLabel={String(n)}>
-      <ThemedText type="smallBold" style={{ color: theme.onBrand, fontSize: 12, lineHeight: 16 }}>
+    <View style={[styles.badge, { backgroundColor: theme.accent }]} accessibilityLabel={String(n)}>
+      <ThemedText type="smallBold" style={{ color: theme.onAccent, fontSize: 12, lineHeight: 16 }}>
         {n > 99 ? '99+' : n}
       </ThemedText>
     </View>
@@ -59,7 +59,9 @@ export function RowLink({ icon, label, hint, onPress, badge = 0, external }: { i
   const theme = useTheme();
   return (
     <AnimatedPressable accessibilityRole={external ? 'link' : 'button'} onPress={onPress} style={[styles.row, { borderColor: theme.line, backgroundColor: theme.backgroundElement }]}>
-      <Icon name={icon} size={22} color={theme.text} />
+      <View style={[styles.rowIcon, { backgroundColor: theme.brandSoft }]}>
+        <Icon name={icon} size={20} color={theme.brandText} />
+      </View>
       <View style={{ flex: 1 }}>
         <ThemedText type="smallBold">{label}</ThemedText>
         {hint ? (
@@ -205,7 +207,8 @@ export function HowTo({ exerciseKey }: { exerciseKey: string }) {
 const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: Radius.card, padding: 16, gap: 8 },
   badge: { minWidth: 22, height: 22, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', borderRadius: 11 },
-  row: { minHeight: 52, borderWidth: 1, borderRadius: Radius.control, paddingHorizontal: 14, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  row: { minHeight: 60, borderWidth: 1, borderRadius: Radius.control, paddingHorizontal: 12, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  rowIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   safety: { flexDirection: 'row', gap: 6, alignItems: 'flex-start' },
   video: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 44, alignSelf: 'flex-start' },
 });
