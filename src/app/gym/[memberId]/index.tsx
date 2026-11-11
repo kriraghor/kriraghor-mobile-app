@@ -6,6 +6,7 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { InfoRow, Pill, SectionTitle } from '@/components/esports';
 import { Card, confirmAction, ErrorNotice, GymGate, openWeb, RowLink } from '@/components/gym';
 import { BodyCard, PointsCard } from '@/components/gym-extras';
+import { ProgressCard, RenewCard } from '@/components/gym-progress';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Field, Notice } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
@@ -21,6 +22,7 @@ import { keys } from '@/lib/use-realtime';
  * and period, days left, freeze periods; what is due with Pay (or "Pay at the counter"); payments and
  * receipts (a receipt opens its gym.kriraghor.com/r/[token] page); the check-in calendar; my plans; my
  * health note (shown to the gym's plan writers); my points and my body (M27-FR-61, FR-30); my classes;
+ * Renew (M24 §19) and my body progress (M24 §20);
  * Unlink with a confirm. Unlinked or left: read-only.
  */
 export default function GymMembershipScreen() {
@@ -101,6 +103,8 @@ export default function GymMembershipScreen() {
         </View>
       ) : null}
 
+      {!readOnly ? <RenewCard memberId={memberId} dues={openDues} onPay={(dueId) => void payDue.pay(dueId, memberId)} payBusy={payDue.busy} /> : null}
+      {!readOnly ? <ProgressCard memberId={memberId} /> : null}
       {!readOnly ? <PointsCard memberId={memberId} /> : null}
 
       <SectionTitle>{t('gymMember.memberships')}</SectionTitle>

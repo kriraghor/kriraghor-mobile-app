@@ -38320,6 +38320,8 @@ export interface paths {
                         visitPerPerson?: number;
                         /** @description What to bring and where to go, shown with the booking */
                         visitNote?: string | null;
+                        /** @description M24-FR-121: linked members may renew their own membership in the app */
+                        selfRenewOpen?: boolean;
                     };
                 };
             };
@@ -39669,6 +39671,263 @@ export interface paths {
                 };
                 /** @description Error. Codes: NOT_FOUND */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: VALIDATION_FAILED */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/manage/gyms/{gymId}/members/{memberId}/body": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A member’s body progress (owner and plans.manage; a trainer-only caller sees their own members; feature progress; no-store; M24-FR-131) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    gymId: string;
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymBodyProgress"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: PERMISSION_REQUIRED, PHONE_REQUIRED, ROLE_SUSPENDED, ACCOUNT_SUSPENDED, GYM_TIER_REQUIRED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: VALIDATION_FAILED */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Record a member’s measurements for a date (owner and plans.manage; not while restricted) */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description 8–80 letters, digits, - or _. Retries with the same key and body replay the first response */
+                    "idempotency-key": string;
+                };
+                path: {
+                    gymId: string;
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date
+                         * @description Today when left out; up to gym_manage.body_backdate_days back
+                         */
+                        measuredOn?: string;
+                        weightKg?: number | null;
+                        bodyFatPct?: number | null;
+                        chestCm?: number | null;
+                        waistCm?: number | null;
+                        hipsCm?: number | null;
+                        armCm?: number | null;
+                        thighCm?: number | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymBodyProgress"];
+                    };
+                };
+                /** @description Error. Codes: IDEMPOTENCY_KEY_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: PERMISSION_REQUIRED, PHONE_REQUIRED, ROLE_SUSPENDED, ACCOUNT_SUSPENDED, GYM_TIER_REQUIRED, GYM_ACCOUNT_RESTRICTED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_MEMBER_STATE */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: VALIDATION_FAILED, GYM_BODY_EMPTY, GYM_BODY_RANGE, GYM_DATE_OUT_OF_RANGE */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/manage/gyms/{gymId}/members/{memberId}/body/{entryId}/void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remove one of a member’s entries (owner and plans.manage; kept as void) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    gymId: string;
+                    memberId: string;
+                    entryId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymBodyProgress"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: PERMISSION_REQUIRED, PHONE_REQUIRED, ROLE_SUSPENDED, ACCOUNT_SUSPENDED, GYM_TIER_REQUIRED, GYM_ACCOUNT_RESTRICTED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_BODY_ENTRY_STATE, GYM_MEMBER_STATE */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -42672,6 +42931,455 @@ export interface paths {
             };
         };
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/gym-memberships/{memberId}/renewal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Can I renew this membership myself, with which packages, dates and price; a renewal that already waits (M24-FR-121, FR-122) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MyGymRenewal"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/gym-memberships/{memberId}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renew my membership (gate join_gym): pay online (the payment to open comes back) or at the counter (the fee waits as a due); the gym is told (M24-FR-123, FR-124) */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description 8–80 letters, digits, - or _. Retries with the same key and body replay the first response */
+                    "idempotency-key": string;
+                };
+                path: {
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: uuid
+                         * @description One of the packages the renewal read offers; left out: the current package
+                         */
+                        packageId?: string;
+                        /**
+                         * @description online: the payment to open comes back; counter: the fee waits as an unpaid due
+                         * @enum {string}
+                         */
+                        pay: "online" | "counter";
+                    };
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymRenewedByMember"];
+                    };
+                };
+                /** @description Error. Codes: IDEMPOTENCY_KEY_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: PHONE_REQUIRED, GYM_ONLINE_FEES_UNAVAILABLE */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_SELF_RENEW_OFF, GYM_MEMBER_STATE, GYM_RENEWAL_EXISTS, GYM_NOTHING_TO_RENEW, GYM_RENEW_TOO_EARLY, GYM_MEMBERSHIP_OVERLAP */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: VALIDATION_FAILED, GYM_PACKAGE_UNAVAILABLE */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/gym-memberships/{memberId}/renewal/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Take back a renewal I made, while it has not started and nothing is paid on it (M24-FR-125) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MyGymRenewal"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_NOTHING_TO_RENEW, GYM_MEMBERSHIP_STATE */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/gym-memberships/{memberId}/body": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My body progress at this gym: measurements oldest first with BMI, and the change per measurement (no-store; on: false when the plan lacks it; M24-FR-130) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymBodyProgress"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Record my measurements for a date; a second entry for the same date replaces the first (M24-FR-128, FR-129) */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description 8–80 letters, digits, - or _. Retries with the same key and body replay the first response */
+                    "idempotency-key": string;
+                };
+                path: {
+                    memberId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date
+                         * @description Today when left out; up to gym_manage.body_backdate_days back
+                         */
+                        measuredOn?: string;
+                        weightKg?: number | null;
+                        bodyFatPct?: number | null;
+                        chestCm?: number | null;
+                        waistCm?: number | null;
+                        hipsCm?: number | null;
+                        armCm?: number | null;
+                        thighCm?: number | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymBodyProgress"];
+                    };
+                };
+                /** @description Error. Codes: IDEMPOTENCY_KEY_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_TIER_REQUIRED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: VALIDATION_FAILED, GYM_BODY_EMPTY, GYM_BODY_RANGE, GYM_DATE_OUT_OF_RANGE */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/gym-memberships/{memberId}/body/{entryId}/void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remove an entry I recorded (kept as void, never deleted) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    memberId: string;
+                    entryId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymBodyProgress"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_TIER_REQUIRED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_BODY_ENTRY_STATE */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -72759,6 +73467,7 @@ export interface components {
                     equipment?: boolean;
                     payroll?: boolean;
                     visits?: boolean;
+                    progress?: boolean;
                 };
                 restricted: boolean;
                 /** @enum {string} */
@@ -72787,6 +73496,7 @@ export interface components {
                     equipment?: boolean;
                     payroll?: boolean;
                     visits?: boolean;
+                    progress?: boolean;
                 };
                 restricted: boolean;
                 /** @enum {string} */
@@ -72821,6 +73531,7 @@ export interface components {
                 equipment?: boolean;
                 payroll?: boolean;
                 visits?: boolean;
+                progress?: boolean;
             };
             restricted: boolean;
             /** @enum {string} */
@@ -72909,6 +73620,8 @@ export interface components {
             visitPerPerson: number;
             visitPerPersonMax: number;
             visitNote: string | null;
+            selfRenewOpen: boolean;
+            selfRenewDaysBefore: number;
             /** Format: date-time */
             importConsentUntil: string | null;
             nextMemberCode: string | null;
@@ -73148,6 +73861,11 @@ export interface components {
             visitLimit: number | null;
             /** @enum {string} */
             origin: "new" | "renewal" | "change" | "rejoin" | "import";
+            /**
+             * @description M24-FR-126: made at the desk, or by the member in the app
+             * @enum {string}
+             */
+            createdVia: "desk" | "member";
             /** Format: uuid */
             previousId: string | null;
             /** Format: date */
@@ -73404,6 +74122,130 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
+        GymBodyProgress: {
+            /** Format: uuid */
+            memberId: string;
+            /** @description false: the gym’s plan does not include body progress */
+            on: boolean;
+            heightCm: number | null;
+            /** @description Oldest first */
+            entries: {
+                /** Format: uuid */
+                id: string;
+                /** Format: date */
+                measuredOn: string;
+                weightKg: number | null;
+                bodyFatPct: number | null;
+                chestCm: number | null;
+                waistCm: number | null;
+                hipsCm: number | null;
+                armCm: number | null;
+                thighCm: number | null;
+                /** @enum {string} */
+                byRole: "member" | "staff";
+                /** Format: date-time */
+                createdAt: string;
+                bmi: number | null;
+            }[];
+            change: {
+                weightKg: {
+                    from: number;
+                    to: number;
+                    delta: number;
+                    /** Format: date */
+                    fromOn: string;
+                    /** Format: date */
+                    toOn: string;
+                } | null;
+                bodyFatPct: {
+                    from: number;
+                    to: number;
+                    delta: number;
+                    /** Format: date */
+                    fromOn: string;
+                    /** Format: date */
+                    toOn: string;
+                } | null;
+                chestCm: {
+                    from: number;
+                    to: number;
+                    delta: number;
+                    /** Format: date */
+                    fromOn: string;
+                    /** Format: date */
+                    toOn: string;
+                } | null;
+                waistCm: {
+                    from: number;
+                    to: number;
+                    delta: number;
+                    /** Format: date */
+                    fromOn: string;
+                    /** Format: date */
+                    toOn: string;
+                } | null;
+                hipsCm: {
+                    from: number;
+                    to: number;
+                    delta: number;
+                    /** Format: date */
+                    fromOn: string;
+                    /** Format: date */
+                    toOn: string;
+                } | null;
+                armCm: {
+                    from: number;
+                    to: number;
+                    delta: number;
+                    /** Format: date */
+                    fromOn: string;
+                    /** Format: date */
+                    toOn: string;
+                } | null;
+                thighCm: {
+                    from: number;
+                    to: number;
+                    delta: number;
+                    /** Format: date */
+                    fromOn: string;
+                    /** Format: date */
+                    toOn: string;
+                } | null;
+            };
+            limits: {
+                backdateDays: number;
+                fields: {
+                    weightKg: {
+                        min: number;
+                        max: number;
+                    };
+                    bodyFatPct: {
+                        min: number;
+                        max: number;
+                    };
+                    chestCm: {
+                        min: number;
+                        max: number;
+                    };
+                    waistCm: {
+                        min: number;
+                        max: number;
+                    };
+                    hipsCm: {
+                        min: number;
+                        max: number;
+                    };
+                    armCm: {
+                        min: number;
+                        max: number;
+                    };
+                    thighCm: {
+                        min: number;
+                        max: number;
+                    };
+                };
+            };
+        };
         GymCheckinCalendar: {
             month: string;
             count: number;
@@ -73444,6 +74286,11 @@ export interface components {
                 visitLimit: number | null;
                 /** @enum {string} */
                 origin: "new" | "renewal" | "change" | "rejoin" | "import";
+                /**
+                 * @description M24-FR-126: made at the desk, or by the member in the app
+                 * @enum {string}
+                 */
+                createdVia: "desk" | "member";
                 /** Format: uuid */
                 previousId: string | null;
                 /** Format: date */
@@ -73735,13 +74582,14 @@ export interface components {
                 equipment?: boolean;
                 payroll?: boolean;
                 visits?: boolean;
+                progress?: boolean;
             };
             tiers: {
                 /** @enum {string} */
                 key: "free" | "basic" | "standard" | "pro";
                 maxMembers: number | null;
                 pricePoisha: number;
-                features: ("attendance" | "reminders" | "online_fees" | "reports" | "trainers" | "plans" | "multi_gym" | "expenses" | "lockers" | "pos" | "pnl" | "classes" | "points" | "notices" | "leads" | "staff_attendance" | "equipment" | "payroll" | "visits")[];
+                features: ("attendance" | "reminders" | "online_fees" | "reports" | "trainers" | "plans" | "multi_gym" | "expenses" | "lockers" | "pos" | "pnl" | "classes" | "points" | "notices" | "leads" | "staff_attendance" | "equipment" | "payroll" | "visits" | "progress")[];
                 minGyms?: number;
             }[];
             gyms: {
@@ -73871,7 +74719,7 @@ export interface components {
                 key: "free" | "basic" | "standard" | "pro";
                 maxMembers: number | null;
                 pricePoisha: number;
-                features: ("attendance" | "reminders" | "online_fees" | "reports" | "trainers" | "plans" | "multi_gym" | "expenses" | "lockers" | "pos" | "pnl" | "classes" | "points" | "notices" | "leads" | "staff_attendance" | "equipment" | "payroll" | "visits")[];
+                features: ("attendance" | "reminders" | "online_fees" | "reports" | "trainers" | "plans" | "multi_gym" | "expenses" | "lockers" | "pos" | "pnl" | "classes" | "points" | "notices" | "leads" | "staff_attendance" | "equipment" | "payroll" | "visits" | "progress")[];
                 minGyms?: number;
             }[];
             featureMinTiers: {
@@ -74052,6 +74900,87 @@ export interface components {
             weightKg: number | null;
             bmi: components["schemas"]["GymBmi"];
             medical: string | null;
+        };
+        MyGymRenewal: {
+            /** Format: uuid */
+            memberId: string;
+            gym: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                slug: string;
+            };
+            can: boolean;
+            /** @description Why not: GYM_SELF_RENEW_OFF, GYM_MEMBER_STATE, GYM_RENEWAL_EXISTS, GYM_NOTHING_TO_RENEW or GYM_RENEW_TOO_EARLY */
+            reason: string | null;
+            /**
+             * Format: date
+             * @description When it is too early: the first day a renewal can be made
+             */
+            opensOn: string | null;
+            daysBefore: number;
+            current: {
+                title: string;
+                /** @enum {string} */
+                packageKind: "day" | "month" | "quarter" | "half_year" | "year" | "custom";
+                /** Format: date */
+                endsOn: string;
+                /** @enum {string} */
+                status: "upcoming" | "active" | "frozen" | "expired" | "cancelled" | "changed";
+            } | null;
+            packages: {
+                /** Format: uuid */
+                packageId: string;
+                title: string;
+                /** @enum {string} */
+                kind: "day" | "month" | "quarter" | "half_year" | "year" | "custom";
+                days: number;
+                pricePoisha: number;
+                /** Format: date */
+                startsOn: string;
+                /** Format: date */
+                endsOn: string;
+                current: boolean;
+            }[];
+            /** @description A renewal that already waits to start */
+            renewal: {
+                /** Format: uuid */
+                membershipId: string;
+                title: string;
+                /** @enum {string} */
+                packageKind: "day" | "month" | "quarter" | "half_year" | "year" | "custom";
+                /** Format: date */
+                startsOn: string;
+                /** Format: date */
+                endsOn: string;
+                /** @enum {string} */
+                createdVia: "desk" | "member";
+                /** Format: uuid */
+                dueId: string | null;
+                amountPoisha: number;
+                outstandingPoisha: number;
+                cancellable: boolean;
+            } | null;
+            onlineFees: boolean;
+            onlineFeesReason: string | null;
+        };
+        GymRenewedByMember: {
+            membership: components["schemas"]["GymMembership"];
+            due: {
+                /** Format: uuid */
+                dueId: string;
+                amountPoisha: number;
+                /** Format: date */
+                dueOn: string;
+                status: string;
+            };
+            /** @description Only when paying online: open payUrl */
+            payment: {
+                /** Format: uuid */
+                paymentId: string;
+                payUrl: string;
+                amountPoisha: number;
+            } | null;
         };
         MyGymReceipts: {
             items: {

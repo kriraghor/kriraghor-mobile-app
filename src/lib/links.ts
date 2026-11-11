@@ -34,10 +34,11 @@ const RULES: [RegExp, (m: RegExpMatchArray) => string][] = [
  *   app (M24 §4.3), so older notifications still open the gym screens.
  */
 type Where = 'gym' | 'gym+relative' | 'any';
-const GYM_RULES: [RegExp, (m: RegExpMatchArray) => string, Where][] = [
+const GYM_RULES: [RegExp, (m: RegExpMatchArray, query: URLSearchParams) => string, Where][] = [
   [/^\/me$/, () => '/gym', 'gym'],
   [/^\/me\/(?:dues|memberships|plans)$/, () => '/gym', 'gym+relative'],
-  [new RegExp(`^/me/memberships/(${UUID})$`), (m) => `/gym/${m[1]}`, 'gym+relative'],
+  // A renewal reminder (M24-FR-127) carries ?renew=1 and opens the renew screen.
+  [new RegExp(`^/me/memberships/(${UUID})$`), (m, query) => (query.get('renew') === '1' ? `/gym/renew?m=${m[1]}` : `/gym/${m[1]}`), 'gym+relative'],
   [/^\/me\/requests$/, () => '/gym/requests', 'gym+relative'],
   [new RegExp(`^/me/plans/(${UUID})$`), (m) => `/gym/plans/${m[1]}`, 'gym+relative'],
   [/^\/me\/checkin$/, () => '/gym/checkin', 'gym+relative'],
@@ -85,7 +86,7 @@ export function linkToRoute(link: string | null | undefined, gymUrl: string = co
   for (const [re, to, where] of GYM_RULES) {
     const allowed = where === 'any' || site === 'gym' || (where === 'gym+relative' && site === 'relative');
     const m = allowed ? path.match(re) : null;
-    if (m) return to(m);
+    if (m) return to(m, url.searchParams);
   }
   if (site === 'gym' || GYM_PATH.test(path)) {
     const base = gymUrl.replace(/\/+$/, '');

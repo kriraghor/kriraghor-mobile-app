@@ -139,3 +139,22 @@ export const myClock = (gymId: string) => call<MyClock>('GET', `/manage/gyms/${e
 /** Scan the gym's entrance QR: clocks me in, or out when I am in. */
 export const staffClock = (token: string) => call<StaffClocked>('POST', '/me/gym-staff-clock', { body: { token } });
 export const myPayslips = async (gymId: string) => (await call<S['GymMyPayslips']>('GET', `/manage/gyms/${enc(gymId)}/my-payslips`)).items;
+
+// ---------------------------------------------------------------- M24 §19 and §20: my renewal, my body progress
+export type MyRenewal = S['MyGymRenewal'];
+export type RenewalChoice = MyRenewal['packages'][number];
+export type Renewed = S['GymRenewedByMember'];
+export type RenewPay = 'online' | 'counter';
+export type BodyProgress = S['GymBodyProgress'];
+export type BodyEntry = BodyProgress['entries'][number];
+
+/** Can I renew this membership myself, with which packages; a renewal that already waits (M24-FR-122). */
+export const myRenewal = (memberId: string) => call<MyRenewal>('GET', `/me/gym-memberships/${enc(memberId)}/renewal`);
+/** Renew: `payment` comes back when paying online; at the counter the fee waits as a due (M24-FR-123). */
+export const renewMine = (memberId: string, body: { packageId?: string; pay: RenewPay }, key: string) => call<Renewed>('POST', `/me/gym-memberships/${enc(memberId)}/renew`, { body, key });
+/** Take back a renewal I made, while it has not started and nothing is paid on it (M24-FR-125). */
+export const cancelRenewal = (memberId: string) => call<MyRenewal>('POST', `/me/gym-memberships/${enc(memberId)}/renewal/cancel`);
+/** My measurements over time at this gym; `on: false` when the gym's plan lacks it (M24-FR-130). */
+export const myBody = (memberId: string) => call<BodyProgress>('GET', `/me/gym-memberships/${enc(memberId)}/body`);
+export const addBody = (memberId: string, body: Record<string, number | string>, key: string) => call<BodyProgress>('POST', `/me/gym-memberships/${enc(memberId)}/body`, { body, key });
+export const voidBody = (memberId: string, entryId: string) => call<BodyProgress>('POST', `/me/gym-memberships/${enc(memberId)}/body/${enc(entryId)}/void`);

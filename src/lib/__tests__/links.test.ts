@@ -16,6 +16,8 @@ const GYM_TEMPLATES: [string, string, LinkTarget][] = [
   ['GYM_RENEWAL_DUE (no link)', `${G}/me/memberships/${M}`, `/gym/${M}`],
   ['GYM_MEMBERSHIP_ENDS_TODAY', `${G}/me/memberships/${M}`, `/gym/${M}`],
   ['GYM_MEMBERSHIP_EXPIRED', `${G}/me/memberships/${M}`, `/gym/${M}`],
+  ['GYM_RENEWAL_DUE (renew)', `${G}/me/memberships/${M}?renew=1`, `/gym/renew?m=${M}`],
+  ['GYM_MEMBERSHIP_ENDS_TODAY (renew)', `${G}/bn/me/memberships/${M}?renew=1`, `/gym/renew?m=${M}`],
   ['GYM_MEMBERSHIP_FROZEN', `${G}/me/memberships/${M}`, `/gym/${M}`],
   ['GYM_FEE_OVERDUE (no link)', `${G}/me/dues`, '/gym'],
   ['GYM_PAY_LINK', `${G}/me/dues`, '/gym'],
