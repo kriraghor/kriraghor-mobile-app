@@ -1,12 +1,11 @@
 import { withTypeface } from '../fonts';
 
 // jest hoists this above the import.
-jest.mock('@expo-google-fonts/hind-siliguri', () => ({
-  HindSiliguri_400Regular: 1,
-  HindSiliguri_500Medium: 2,
-  HindSiliguri_600SemiBold: 3,
-  HindSiliguri_700Bold: 4,
-}));
+jest.mock('@expo-google-fonts/hind-siliguri/400Regular', () => ({ HindSiliguri_400Regular: 1 }));
+jest.mock('@expo-google-fonts/hind-siliguri/500Medium', () => ({ HindSiliguri_500Medium: 2 }));
+jest.mock('@expo-google-fonts/hind-siliguri/600SemiBold', () => ({ HindSiliguri_600SemiBold: 3 }));
+jest.mock('@expo-google-fonts/hind-siliguri/700Bold', () => ({ HindSiliguri_700Bold: 4 }));
+jest.mock('@expo-google-fonts/anek-bangla/800ExtraBold', () => ({ AnekBangla_800ExtraBold: 5 }));
 
 describe('the Bangla typeface', () => {
   it('leaves English styles alone', () => {

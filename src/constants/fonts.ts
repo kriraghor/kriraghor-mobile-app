@@ -1,10 +1,10 @@
-import {
-  HindSiliguri_400Regular,
-  HindSiliguri_500Medium,
-  HindSiliguri_600SemiBold,
-  HindSiliguri_700Bold,
-} from '@expo-google-fonts/hind-siliguri';
-import { AnekBangla_800ExtraBold } from '@expo-google-fonts/anek-bangla';
+// One entry point per weight, never the package index: the index requires every weight the family has,
+// and each one would be bundled (eight Anek Bangla files, 2 MB, for the one in use).
+import { AnekBangla_800ExtraBold } from '@expo-google-fonts/anek-bangla/800ExtraBold';
+import { HindSiliguri_400Regular } from '@expo-google-fonts/hind-siliguri/400Regular';
+import { HindSiliguri_500Medium } from '@expo-google-fonts/hind-siliguri/500Medium';
+import { HindSiliguri_600SemiBold } from '@expo-google-fonts/hind-siliguri/600SemiBold';
+import { HindSiliguri_700Bold } from '@expo-google-fonts/hind-siliguri/700Bold';
 import { StyleSheet, type TextStyle } from 'react-native';
 
 /**
