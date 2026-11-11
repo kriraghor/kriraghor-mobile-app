@@ -35914,6 +35914,371 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/gyms/{id}/special-days": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My gym’s holidays and special hours (M20-FR-16): the coming ones, or past and removed ones */
+        get: {
+            parameters: {
+                query?: {
+                    scope?: "upcoming" | "past";
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymSpecialDayList"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_OWNER, ROLE_REQUIRED, ROLE_PENDING, KYC_REQUIRED, PHONE_REQUIRED, ROLE_SUSPENDED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_IN_REVIEW, GYM_STATE */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Add a holiday (closed) or special hours for a range of dates (M20-FR-16). Applies at once, without review; affected class sessions and trial visits are cancelled and the people told */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date
+                         * @description First day (Dhaka), today or later
+                         */
+                        fromOn: string;
+                        /**
+                         * Format: date
+                         * @description Last day; the same day for one day
+                         */
+                        toOn: string;
+                        /**
+                         * @description closed: no opening that day; hours: the windows below replace the week’s
+                         * @enum {string}
+                         */
+                        kind: "closed" | "hours";
+                        /**
+                         * @description Only for kind hours
+                         * @default []
+                         */
+                        windows?: {
+                            openTime: string;
+                            closeTime: string;
+                            /** @default false */
+                            womenOnly?: boolean;
+                        }[];
+                        /** @description Shown to the public, e.g. Eid-ul-Fitr */
+                        title: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymSpecialDay"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_OWNER, ROLE_REQUIRED, ROLE_PENDING, KYC_REQUIRED, PHONE_REQUIRED, ROLE_SUSPENDED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_SPECIAL_DAY_OVERLAP, GYM_SPECIAL_DAY_LIMIT */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: VALIDATION_FAILED, GYM_SPECIAL_DAY_DATES, GYM_SPECIAL_DAY_HOURS */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/gyms/{id}/special-days/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check a holiday or special hours and count what it would cancel: class sessions and booked trial visits (M20-FR-17). Writes nothing */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date
+                         * @description First day (Dhaka), today or later
+                         */
+                        fromOn: string;
+                        /**
+                         * Format: date
+                         * @description Last day; the same day for one day
+                         */
+                        toOn: string;
+                        /**
+                         * @description closed: no opening that day; hours: the windows below replace the week’s
+                         * @enum {string}
+                         */
+                        kind: "closed" | "hours";
+                        /**
+                         * @description Only for kind hours
+                         * @default []
+                         */
+                        windows?: {
+                            openTime: string;
+                            closeTime: string;
+                            /** @default false */
+                            womenOnly?: boolean;
+                        }[];
+                        /** @description Shown to the public, e.g. Eid-ul-Fitr */
+                        title: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymSpecialDayPreview"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_OWNER, ROLE_REQUIRED, ROLE_PENDING, KYC_REQUIRED, PHONE_REQUIRED, ROLE_SUSPENDED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_SPECIAL_DAY_OVERLAP, GYM_SPECIAL_DAY_LIMIT */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: VALIDATION_FAILED, GYM_SPECIAL_DAY_DATES, GYM_SPECIAL_DAY_HOURS */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/gyms/{id}/special-days/{specialDayId}/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remove a coming or running holiday (M20-FR-21); never deleted. Its class sessions come back empty */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    specialDayId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymSpecialDay"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_OWNER, ROLE_REQUIRED, ROLE_PENDING, KYC_REQUIRED, PHONE_REQUIRED, ROLE_SUSPENDED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_SPECIAL_DAY_STATE */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/gyms/{id}/remove": {
         parameters: {
             query?: never;
@@ -50172,6 +50537,169 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/manage/gyms/{gymId}/reports/conversion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Where members come from (M27-FR-87 to FR-90): for the enquiries, free trial visits and join requests that came in during a month, what became of them by today, and the month’s new members by source. Counts only (owner or reports.view; feature reports; a group the plan lacks is null) */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description A month (Dhaka); default this month */
+                    month?: string;
+                };
+                header?: never;
+                path: {
+                    gymId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GymConversionReport"];
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_TIER_REQUIRED, PERMISSION_REQUIRED, GYM_ACCOUNT_RESTRICTED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: VALIDATION_FAILED */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/manage/gyms/{gymId}/reports/conversion/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The conversion report as CSV (owner; feature reports): counts only, no names or phones; at most analytics.exports_per_hour; audited (M27-FR-91) */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description A month (Dhaka); default this month */
+                    month?: string;
+                };
+                header?: never;
+                path: {
+                    gymId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV (UTF-8 with a byte-order mark; taka with two decimals; +06:00 times) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Error. Codes: AUTH_REQUIRED, TOKEN_EXPIRED, TOKEN_AUDIENCE_INVALID, SESSION_REVOKED, AUTHZ_STALE */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: GYM_TIER_REQUIRED, PERMISSION_REQUIRED, GYM_ACCOUNT_RESTRICTED */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: VALIDATION_FAILED, EXPORT_TOO_LARGE */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+                /** @description Error. Codes: EXPORT_LIMIT */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["Problem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -71614,6 +72142,12 @@ export interface components {
             quarterPrice: number | null;
             womenOnlyHours: boolean;
             openNow: boolean;
+            /** @description M20-FR-19: today is a holiday (closed) or has special hours */
+            specialToday: {
+                /** @enum {string} */
+                kind: "closed" | "hours";
+                title: string;
+            } | null;
             ratingAvg: number | null;
             ratingCount: number;
             taking: boolean;
@@ -71645,6 +72179,12 @@ export interface components {
             quarterPrice: number | null;
             womenOnlyHours: boolean;
             openNow: boolean;
+            /** @description M20-FR-19: today is a holiday (closed) or has special hours */
+            specialToday: {
+                /** @enum {string} */
+                kind: "closed" | "hours";
+                title: string;
+            } | null;
             ratingAvg: number | null;
             ratingCount: number;
             taking: boolean;
@@ -71665,6 +72205,8 @@ export interface components {
                 closeTime: string;
                 womenOnly: boolean;
             }[];
+            /** @description M20-FR-19: holidays and special hours from today to gym.special_days_public_days ahead */
+            specialDays: components["schemas"]["GymSpecialDayRef"][];
             packages: {
                 /** Format: uuid */
                 id: string;
@@ -71684,6 +72226,23 @@ export interface components {
             today: string;
             /** @description M24: the gym takes join requests (live, managed on gym.kriraghor.com, switched on); show Join this gym */
             joinRequestsOpen: boolean;
+        };
+        GymSpecialDayRef: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            fromOn: string;
+            /** Format: date */
+            toOn: string;
+            /** @enum {string} */
+            kind: "closed" | "hours";
+            windows: {
+                openTime: string;
+                closeTime: string;
+                /** @default false */
+                womenOnly: boolean;
+            }[];
+            title: string;
         };
         GymTrainerList: {
             items: components["schemas"]["GymTrainerCard"][];
@@ -71954,6 +72513,52 @@ export interface components {
             channel: "desk" | "online" | "both";
             visitLimit: number | null;
             sort: number;
+        };
+        GymSpecialDayList: {
+            /** Format: date */
+            today: string;
+            limits: {
+                maxDays: number;
+                aheadDays: number;
+                maxActive: number;
+                publicDays: number;
+            };
+            items: components["schemas"]["GymSpecialDay"][];
+        };
+        GymSpecialDay: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            fromOn: string;
+            /** Format: date */
+            toOn: string;
+            /** @enum {string} */
+            kind: "closed" | "hours";
+            windows: {
+                openTime: string;
+                closeTime: string;
+                /** @default false */
+                womenOnly: boolean;
+            }[];
+            title: string;
+            /** Format: uuid */
+            gymId: string;
+            /** @enum {string} */
+            status: "active" | "removed";
+            /** @enum {string} */
+            phase: "upcoming" | "running" | "past";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            removedAt: string | null;
+        };
+        GymSpecialDayPreview: {
+            /** @enum {boolean} */
+            ok: true;
+            affected: {
+                classSessions: number;
+                visits: number;
+            };
         };
         GymAdmission: {
             passCode: string;
@@ -75169,6 +75774,56 @@ export interface components {
             };
             sentToday: number;
             dailyCap: number;
+        };
+        GymConversionReport: {
+            period: {
+                month: string;
+                /** Format: date */
+                from: string;
+                /** Format: date */
+                to: string;
+            };
+            /** Format: date */
+            today: string;
+            /** @description null when the plan has no enquiries */
+            enquiries: {
+                received: number;
+                open: number;
+                contacted: number;
+                joined: number;
+                lost: number;
+                /** @description Percent with one decimal; null when there is nothing to divide by */
+                joinedPct: number | null;
+            } | null;
+            /** @description null when the plan has no trial visits */
+            visits: {
+                booked: number;
+                attended: number;
+                missed: number;
+                cancelled: number;
+                waiting: number;
+                joined: number;
+                /** @description Percent with one decimal; null when there is nothing to divide by */
+                joinedPct: number | null;
+            } | null;
+            joinRequests: {
+                received: number;
+                accepted: number;
+                closed: number;
+                waiting: number;
+                /** @description Percent with one decimal; null when there is nothing to divide by */
+                joinedPct: number | null;
+            };
+            members: {
+                total: number;
+                bySource: {
+                    desk: number;
+                    platform: number;
+                    import: number;
+                };
+                fromVisit: number;
+                fromEnquiry: number;
+            };
         };
         GymLeads: {
             items: components["schemas"]["GymLead"][];

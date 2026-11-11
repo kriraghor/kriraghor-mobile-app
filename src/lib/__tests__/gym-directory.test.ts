@@ -1,4 +1,4 @@
-import { activeFilterCount, gymListParams, joinablePackages, joinState, NO_FILTERS, passDates, ratingText, searchAreas, weekOf } from '../gym-directory';
+import { activeFilterCount, gymListParams, isOneDay, openState, joinablePackages, joinState, NO_FILTERS, passDates, ratingText, searchAreas, weekOf } from '../gym-directory';
 
 const G = 'g1';
 const hours = [
@@ -71,5 +71,25 @@ describe('the filters sheet', () => {
     expect(searchAreas(areas, ' mir ').map((a) => a.id)).toEqual(['1']);
     expect(searchAreas(areas, 'উত্ত').map((a) => a.id)).toEqual(['2']);
     expect(searchAreas(areas, 'xyz')).toEqual([]);
+  });
+});
+
+describe('holidays and special hours on the gym page (M20-FR-19)', () => {
+  it('names a holiday today in place of open or closed now', () => {
+    expect(openState({ openNow: false, specialToday: { kind: 'closed', title: 'Eid-ul-Fitr' } })).toEqual({ key: 'closedToday', title: 'Eid-ul-Fitr' });
+    // A holiday wins even if the answer were stale.
+    expect(openState({ openNow: true, specialToday: { kind: 'closed', title: 'Floor repair' } })).toEqual({ key: 'closedToday', title: 'Floor repair' });
+  });
+
+  it('follows open now on an ordinary day and on a day with special hours', () => {
+    expect(openState({ openNow: true, specialToday: null })).toEqual({ key: 'openNow' });
+    expect(openState({ openNow: false })).toEqual({ key: 'closedNow' });
+    expect(openState({ openNow: true, specialToday: { kind: 'hours', title: 'Ramadan' } })).toEqual({ key: 'openNow' });
+    expect(openState({ openNow: false, specialToday: { kind: 'hours', title: 'Ramadan' } })).toEqual({ key: 'closedNow' });
+  });
+
+  it('tells one day from a range', () => {
+    expect(isOneDay({ fromOn: '2026-12-16', toOn: '2026-12-16' })).toBe(true);
+    expect(isOneDay({ fromOn: '2027-03-20', toOn: '2027-03-22' })).toBe(false);
   });
 });
