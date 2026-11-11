@@ -12,7 +12,7 @@ import { AnimatedPressable, Button, EmptyState, Reveal, Skeleton } from '@/compo
 import { Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
-import { activeFilterCount, GYM_SORTS, gymListParams, NO_FILTERS, PRICE_CAPS, ratingText, searchAreas, type DirectoryFilters } from '@/lib/gym-directory';
+import { activeFilterCount, GYM_SORTS, gymListParams, NO_FILTERS, openState, PRICE_CAPS, ratingText, searchAreas, type DirectoryFilters } from '@/lib/gym-directory';
 import { listAreas, listGyms, type GymCard } from '@/lib/gym-api';
 import { count, money, type Lang } from '@/lib/format';
 
@@ -216,6 +216,7 @@ export function GymCardItem({ card }: { card: GymCard }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as Lang;
   const rating = ratingText(card.ratingAvg, card.ratingCount);
+  const open = openState(card);
   return (
     <AnimatedPressable
       accessibilityRole="button"
@@ -231,8 +232,8 @@ export function GymCardItem({ card }: { card: GymCard }) {
       )}
       <View style={styles.body}>
         <View style={styles.row}>
-          <ThemedText type="smallBold" style={{ color: card.openNow ? theme.brandText : theme.textSecondary }}>
-            {card.openNow ? t('gymDir.openNow') : t('gymDir.closedNow')}
+          <ThemedText type="smallBold" style={{ color: open.key === 'openNow' ? theme.brandText : theme.textSecondary }}>
+            {open.key === 'closedToday' ? t('gymDir.closedToday', { title: open.title }) : t(`gymDir.${open.key}`)}
           </ThemedText>
           {card.womenOnlyHours ? (
             <ThemedText type="small" themeColor="textSecondary">

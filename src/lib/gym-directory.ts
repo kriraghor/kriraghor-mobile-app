@@ -27,6 +27,20 @@ export function weekOf(hours: Hours): { dow: number; windows: Hours }[] {
   return [6, 0, 1, 2, 3, 4, 5].map((dow) => ({ dow, windows: hours.filter((h) => h.dow === dow).sort((a, b) => a.openTime.localeCompare(b.openTime)) }));
 }
 
+type SpecialToday = { kind: 'closed' | 'hours'; title: string } | null | undefined;
+
+/**
+ * What the open-now label says (M20-FR-19): a holiday today wins over the week's hours and is named;
+ * a day with special hours is open or closed by those hours, which the server already applied.
+ */
+export function openState(g: { openNow: boolean; specialToday?: SpecialToday }): { key: 'closedToday'; title: string } | { key: 'openNow' | 'closedNow' } {
+  if (g.specialToday?.kind === 'closed') return { key: 'closedToday', title: g.specialToday.title };
+  return { key: g.openNow ? 'openNow' : 'closedNow' };
+}
+
+/** Is a holiday or a day with special hours one day or a range ("20 Mar" or "20 Mar – 22 Mar")? */
+export const isOneDay = (d: { fromOn: string; toOn: string }) => d.fromOn === d.toOn;
+
 /** The dates a subscription can start: any of the next `advanceDays`. */
 export const passDates = (today: string, advanceDays: number): string[] => Array.from({ length: Math.max(0, advanceDays) }, (_, i) => addDays(today, i));
 

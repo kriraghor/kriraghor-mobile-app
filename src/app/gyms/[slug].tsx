@@ -18,7 +18,7 @@ import i18n from '@/i18n';
 import { useAuth } from '@/lib/auth';
 import { ApiError, idempotencyKey } from '@/lib/esports-api';
 import { buyPass, gymPage, joinGym, type GymPage } from '@/lib/gym-api';
-import { joinablePackages, joinState, passDates, ratingText, weekOf } from '@/lib/gym-directory';
+import { isOneDay, joinablePackages, joinState, openState, passDates, ratingText, weekOf } from '@/lib/gym-directory';
 import { addDays, dateOnly } from '@/lib/gym';
 import { count, money, type Lang } from '@/lib/format';
 import { useGate } from '@/lib/use-gate';
@@ -27,7 +27,8 @@ import { keys } from '@/lib/use-realtime';
 
 /**
  * A gym's page (M20 §4, gym.kriraghor.com /gyms/[slug]), open to guests: photos, open now, rating,
- * address and map, facilities, the week's hours (Saturday first, women-only windows), the passes.
+ * address and map, facilities, the week's hours (Saturday first, women-only windows), the holidays and
+ * special hours coming up (M20-FR-19), the passes.
  * Buy a pass and Join this gym ask for a sign-in only when tapped and carry on afterwards; both need
  * a verified phone (PHONE_REQUIRED shows the verify path), never NID.
  */
@@ -101,10 +102,11 @@ function About({ g }: { g: GymPage }) {
   const lang = i.language as Lang;
   const rating = ratingText(g.ratingAvg, g.ratingCount);
   const name = (x: { nameEn: string; nameBn: string }) => (lang === 'bn' ? x.nameBn : x.nameEn);
+  const open = openState(g);
   return (
     <View style={{ gap: 8 }}>
       <View style={styles.row}>
-        <Pill text={g.openNow ? t('gymDir.openNow') : t('gymDir.closedNow')} tone={g.openNow ? 'brand' : 'neutral'} />
+        <Pill text={open.key === 'closedToday' ? t('gymDir.closedToday', { title: open.title }) : t(`gymDir.${open.key}`)} tone={open.key === 'openNow' ? 'brand' : 'neutral'} />
         <Icon name="star" size={16} color={theme.prize} />
         <ThemedText type="small" themeColor="textSecondary">
           {rating ? t('gymDir.rating', { avg: rating, n: count(g.ratingCount, lang) }) : t('gymDir.newGym')}
@@ -399,7 +401,8 @@ function Join({ g }: { g: GymPage }) {
 
 function Hours({ g }: { g: GymPage }) {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n: i } = useTranslation();
+  const lang = i.language as Lang;
   const today = new Date(`${g.today}T00:00:00Z`).getUTCDay();
   return (
     <View style={{ gap: 4 }}>
@@ -425,6 +428,37 @@ function Hours({ g }: { g: GymPage }) {
           </View>
         </View>
       ))}
+      {g.specialDays.length ? (
+        <View style={{ gap: 4, marginTop: 12 }} testID="gym-special-days">
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            {t('gymPage.specialDays')}
+          </ThemedText>
+          {g.specialDays.map((d) => (
+            <View key={d.id} style={[styles.hourRow, { borderBottomColor: theme.line }]}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <ThemedText type="smallBold">{d.title}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {isOneDay(d) ? dateOnly(d.fromOn, lang, { weekday: true }) : `${dateOnly(d.fromOn, lang)} – ${dateOnly(d.toOn, lang)}`}
+                </ThemedText>
+              </View>
+              <View style={{ gap: 2, alignItems: 'flex-end' }}>
+                {d.kind === 'closed' ? (
+                  <ThemedText type="smallBold" style={{ color: theme.danger }}>
+                    {t('gymPage.closed')}
+                  </ThemedText>
+                ) : (
+                  d.windows.map((w) => (
+                    <ThemedText key={w.openTime} type="small">
+                      {w.openTime}–{w.closeTime}
+                      {w.womenOnly ? ` · ${t('gymDir.womenOnly')}` : ''}
+                    </ThemedText>
+                  ))
+                )}
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
