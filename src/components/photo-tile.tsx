@@ -7,22 +7,28 @@ import { ThemedText } from '@/components/themed-text';
 import { Radius } from '@/constants/motion';
 
 /**
- * A black gradient over a photo (30% at the top for the icon badge), weighted to the bottom where the
- * text sits: 85% black there, so white text stays above 4.5:1 on any photo.
+ * A black tint over the whole photo: darker at the top (where the icon badge sits) and darkest at the
+ * bottom (where the text sits), so white text stays above 4.5:1 on any photo, light ones included.
+ *
+ * The gradient lives in its own full-size layer. Sized in percent directly inside a padded tile it stopped
+ * short of the right and bottom edges (a percent size is measured against the tile's content box, which
+ * leaves the padding out): the layer has no padding, so the tint reaches every edge.
  */
 export function PhotoTint({ strength = 1 }: { strength?: number }) {
   const id = `tint-${useId().replace(/[^a-zA-Z0-9-]/g, '')}`;
   return (
-    <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="none" pointerEvents="none">
-      <Defs>
-        <LinearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#000" stopOpacity={0.3 * strength} />
-          <Stop offset="0.45" stopColor="#000" stopOpacity={0.4 * strength} />
-          <Stop offset="1" stopColor="#000" stopOpacity={Math.min(0.9, 0.85 * strength)} />
-        </LinearGradient>
-      </Defs>
-      <Rect x="0" y="0" width="1" height="1" fill={`url(#${id})`} />
-    </Svg>
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Svg width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="none">
+        <Defs>
+          <LinearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor="#000" stopOpacity={Math.min(0.9, 0.5 * strength)} />
+            <Stop offset="0.42" stopColor="#000" stopOpacity={Math.min(0.9, 0.34 * strength)} />
+            <Stop offset="1" stopColor="#000" stopOpacity={Math.min(0.92, 0.88 * strength)} />
+          </LinearGradient>
+        </Defs>
+        <Rect x="0" y="0" width="1" height="1" fill={`url(#${id})`} />
+      </Svg>
+    </View>
   );
 }
 

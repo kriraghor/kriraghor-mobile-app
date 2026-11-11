@@ -6,18 +6,19 @@ import { goToHub } from '@/lib/section-nav';
 /**
  * The hub ↔ section "zoom-through", all on the UI thread (Reanimated timings; JS only hears when an
  * exit has finished, to change the route). Only transform and opacity animate.
- * - Into a section: the hub scales 1 → 1.08 and fades out (220 ms, ease-in), then the section's
- *   first screen enters from 0.92 to 1 while fading in (320 ms, ease-out, no overshoot).
- * - All sections: the section scales 1 → 0.94 and fades (200 ms, ease-in), then the hub enters from
- *   1.06 to 1.
+ * - Into a section: the hub scales 1 → 1.06 and fades out (120 ms, ease-in), then the section's
+ *   first screen enters from 0.95 to 1 while fading in (220 ms, ease-out, no overshoot).
+ * - All sections: the section scales 1 → 0.96 and fades (120 ms, ease-in), then the hub enters from
+ *   1.04 to 1.
+ * - About 340 ms end to end (UI v2: it was 540 ms and felt like waiting).
  * - Reduce motion: plain 180 ms crossfades.
  * The stack itself does not animate these route changes (animation 'none'), so nothing fights it.
  */
 export const ZOOM = {
-  hubOut: { scale: 1.08, duration: 220 },
-  sectionIn: { from: 0.92, duration: 320 },
-  sectionOut: { scale: 0.94, duration: 200 },
-  hubIn: { from: 1.06, duration: 320 },
+  hubOut: { scale: 1.06, duration: 120 },
+  sectionIn: { from: 0.95, duration: 220 },
+  sectionOut: { scale: 0.96, duration: 120 },
+  hubIn: { from: 1.04, duration: 220 },
   fade: 180,
 } as const;
 
