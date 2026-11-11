@@ -278,6 +278,8 @@ export const en = {
     chooseSeason: 'Choose a season',
     title: 'Ranks',
     empty: 'Leaderboards appear after the first finished tournament.',
+    emptyTitle: 'No ranks yet',
+    emptyAction: 'See open tournaments',
     rolling: 'Last 90 days',
     season: 'Season',
     played: '{{count}} tournaments',

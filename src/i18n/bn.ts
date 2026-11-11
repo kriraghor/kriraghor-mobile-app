@@ -276,6 +276,8 @@ export const bn: Messages = {
     chooseSeason: 'সিজন বাছাই করুন',
     title: 'র‍্যাংক',
     empty: 'প্রথম টুর্নামেন্ট শেষ হলে লিডারবোর্ড দেখা যাবে।',
+    emptyTitle: 'এখনো কোনো র‍্যাংক নেই',
+    emptyAction: 'খোলা টুর্নামেন্ট দেখুন',
     rolling: 'গত ৯০ দিন',
     season: 'সিজন',
     played: '{{count}}টি টুর্নামেন্ট',

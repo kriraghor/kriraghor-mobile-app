@@ -123,8 +123,8 @@ function GymCard({ m, dues, pay }: { m: MembershipCard; dues: Due[]; pay: Return
   // One open due pays here; several open the membership, which lists each one with its own Pay.
   const onPay = () => (dues.length === 1 ? void pay.pay(dues[0].dueId, m.memberId) : open());
   return (
-    <Pressable accessibilityRole="button" onPress={open} style={({ pressed }) => [pressed && { opacity: 0.85 }]}>
-      <Card muted={!m.linked}>
+    <Card muted={!m.linked}>
+      <Pressable accessibilityRole="button" onPress={open} style={({ pressed }) => [styles.cardBody, pressed && { opacity: 0.7 }]}>
         <View style={styles.cardTop}>
           <View style={{ flex: 1 }}>
             <ThemedText style={styles.gymName} numberOfLines={2}>
@@ -149,26 +149,26 @@ function GymCard({ m, dues, pay }: { m: MembershipCard; dues: Due[]; pay: Return
             {t('gym.noPackage')}
           </ThemedText>
         )}
-        {state.kind !== 'none' ? (
-          <View style={styles.owe}>
-            <ThemedText type="smallBold" style={{ color: theme.danger, flex: 1 }}>
-              {t('gym.outstanding', { amount: money(m.outstandingPoisha, lang) })}
-            </ThemedText>
-            {state.kind === 'online' ? <Button title={t('gym.pay')} busy={pay.busy !== null && dues.some((d) => d.dueId === pay.busy)} onPress={onPay} /> : null}
-          </View>
-        ) : null}
-        {state.kind === 'counter' && m.linked ? (
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('gym.payCounter')}
+      </Pressable>
+      {state.kind !== 'none' ? (
+        <View style={styles.owe}>
+          <ThemedText type="smallBold" style={{ color: theme.danger, flex: 1 }}>
+            {t('gym.outstanding', { amount: money(m.outstandingPoisha, lang) })}
           </ThemedText>
-        ) : null}
-        {!m.linked ? (
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('gym.pastNote')}
-          </ThemedText>
-        ) : null}
-      </Card>
-    </Pressable>
+          {state.kind === 'online' ? <Button title={t('gym.pay')} busy={pay.busy !== null && dues.some((d) => d.dueId === pay.busy)} onPress={onPay} /> : null}
+        </View>
+      ) : null}
+      {state.kind === 'counter' && m.linked ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {t('gym.payCounter')}
+        </ThemedText>
+      ) : null}
+      {!m.linked ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {t('gym.pastNote')}
+        </ThemedText>
+      ) : null}
+    </Card>
   );
 }
 
@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
   qrButton: { minHeight: 84, flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: Radius.card },
   qrIcon: { width: 52, height: 52, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center' },
   qrTitle: { ...displayFace, fontSize: 22, lineHeight: 28 },
+  cardBody: { gap: 8 },
   cardTop: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
   gymName: { ...displayFace, fontSize: 20, lineHeight: 26 },
   owe: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' },

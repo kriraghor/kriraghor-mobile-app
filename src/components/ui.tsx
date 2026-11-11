@@ -347,24 +347,30 @@ const headingStyles = StyleSheet.create({
 });
 
 /** A screen with nothing to show yet: an icon, a short line and, when it helps, one action. */
-export function EmptyState({ text, action, icon }: { text: string; action?: { title: string; onPress: () => void }; icon?: IconName }) {
+export function EmptyState({ text, title, action, icon }: { text: string; title?: string; action?: { title: string; onPress: () => void }; icon?: IconName }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
   return (
     <View style={[emptyStyles.empty, { backgroundColor: theme.background }]}>
       {icon ? (
-        <View style={[emptyStyles.icon, { backgroundColor: theme.backgroundSelected }]}>
-          <Icon name={icon} size={28} color={theme.textSecondary} />
+        <View style={[emptyStyles.icon, { backgroundColor: theme.accentSoft }]}>
+          <Icon name={icon} size={28} color={theme.accentText} active />
         </View>
       ) : null}
+      {title ? (
+        <Text accessibilityRole="header" style={withTypeface(StyleSheet.flatten([emptyStyles.emptyTitle, { color: theme.text }]), i18n.language)}>
+          {title}
+        </Text>
+      ) : null}
       <Text style={withTypeface(StyleSheet.flatten([emptyStyles.emptyText, { color: theme.textSecondary }]), i18n.language)}>{text}</Text>
-      {action ? <Button title={action.title} onPress={action.onPress} /> : null}
+      {action ? <Button title={action.title} variant="accent" icon="arrow-right" onPress={action.onPress} /> : null}
     </View>
   );
 }
 
 const emptyStyles = StyleSheet.create({
   empty: { flex: 1, padding: 24, gap: 16, justifyContent: 'center' },
-  icon: { width: 56, height: 56, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
+  icon: { width: 64, height: 64, borderRadius: Radius.card, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
+  emptyTitle: { ...displayFace, fontSize: 22, lineHeight: 28, textAlign: 'center' },
   emptyText: { fontSize: 16, lineHeight: 24, fontWeight: '500', textAlign: 'center' },
 });
