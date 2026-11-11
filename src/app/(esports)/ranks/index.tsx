@@ -95,7 +95,7 @@ export default function RanksScreen() {
           ) : null}
         </View>
       }
-      ListEmptyComponent={board.isLoading ? <SkeletonList rows={6} height={56} label={t('common.loading')} /> : <EmptyState icon="ranks" text={t('ranks.empty')} />}
+      ListEmptyComponent={board.isLoading ? <SkeletonList rows={6} height={56} label={t('common.loading')} /> : <EmptyState icon="ranks" title={t('ranks.emptyTitle')} text={t('ranks.empty')} action={{ title: t('ranks.emptyAction'), onPress: () => router.push('/events') }} />}
       renderItem={({ item }) => <Row row={item} mine={item.userId === me.data?.id} lang={lang} />}
     />
   );

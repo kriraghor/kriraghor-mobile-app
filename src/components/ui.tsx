@@ -5,7 +5,7 @@ import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, Vi
 import Animated, { FadeInDown, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { Duration, ENTER_OFFSET, PRESS_SCALE, Radius, Springs } from '@/constants/motion';
 import { staggerDelay } from '@/lib/motion';
-import { withTypeface } from '@/constants/fonts';
+import { displayFace, withTypeface } from '@/constants/fonts';
 import { useTheme } from '@/hooks/use-theme';
 
 type FieldProps = TextInputProps & {
@@ -204,16 +204,25 @@ export function Reveal({ index = 0, children, style }: { index?: number; childre
   );
 }
 
-/** A grey block that gently pulses while a list loads (stops once the content arrives; still with reduce motion). */
+/**
+ * A grey block with a soft light sweeping across it while a list loads (UI v2: it reads as "loading", where
+ * a plain pulse read as "stuck"). It stops once the content arrives; with reduce motion on it stays still.
+ */
 export function Skeleton({ height = 16, width = '100%', radius = Radius.control, style }: { height?: number; width?: number | `${number}%`; radius?: number; style?: StyleProp<ViewStyle> }) {
   const theme = useTheme();
   const reduce = useReducedMotion();
-  const pulse = useSharedValue(1);
+  const sweep = useSharedValue(0);
+  const span = useSharedValue(0);
   useEffect(() => {
-    if (!reduce) pulse.set(withRepeat(withTiming(0.45, { duration: 700 }), -1, true));
-  }, [reduce, pulse]);
-  const animated = useAnimatedStyle(() => ({ opacity: pulse.value }));
-  return <Animated.View accessible={false} style={[{ height, width, borderRadius: radius, backgroundColor: theme.backgroundSelected }, animated, style]} />;
+    if (!reduce) sweep.set(withRepeat(withTiming(1, { duration: 1100 }), -1, false));
+  }, [reduce, sweep]);
+  // The light is 40% of the block wide and travels from just off the left edge to just off the right.
+  const light = useAnimatedStyle(() => ({ transform: [{ translateX: (sweep.value * 1.4 - 0.4) * span.value }] }));
+  return (
+    <View accessible={false} onLayout={(e) => span.set(e.nativeEvent.layout.width)} style={[{ height, width, borderRadius: radius, backgroundColor: theme.backgroundSelected, overflow: 'hidden' }, style]}>
+      {reduce ? null : <Animated.View style={[{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '40%', backgroundColor: theme.backgroundElement, opacity: 0.55 }, light]} />}
+    </View>
+  );
 }
 
 /** A loading list: a few card-shaped skeletons, labelled for screen readers. */
@@ -227,18 +236,50 @@ export function SkeletonList({ rows = 3, height = 120, label }: { rows?: number;
   );
 }
 
-export function Button({ title, onPress, busy, disabled, variant = 'primary' }: { title: string; onPress: () => void; busy?: boolean; disabled?: boolean; variant?: 'primary' | 'outline' }) {
+export type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'outline' | 'quiet' | 'danger';
+
+/** The fill, edge and text colour of each button kind (UI v2). One primary per screen; the rest step back. */
+export function buttonColors(variant: ButtonVariant, theme: ReturnType<typeof useTheme>): { fill: string | undefined; edge: string | undefined; text: string } {
+  switch (variant) {
+    case 'primary':
+      return { fill: theme.brand, edge: undefined, text: theme.onBrand };
+    case 'accent':
+      return { fill: theme.accent, edge: undefined, text: theme.onAccent };
+    case 'secondary':
+      return { fill: theme.backgroundSelected, edge: undefined, text: theme.text };
+    case 'outline':
+      return { fill: undefined, edge: theme.lineStrong, text: theme.text };
+    case 'quiet':
+      return { fill: undefined, edge: undefined, text: theme.brandText };
+    case 'danger':
+      return { fill: theme.dangerSoft, edge: undefined, text: theme.danger };
+  }
+}
+
+/**
+ * The app's button. `primary` is the one main action of a screen (green); `accent` the orange call for
+ * a moment that matters (join, renew); `secondary`, `outline` and `quiet` step back in that order;
+ * `danger` removes or cancels. An optional icon sits before the title.
+ */
+export function Button({ title, onPress, busy, disabled, variant = 'primary', icon }: { title: string; onPress: () => void; busy?: boolean; disabled?: boolean; variant?: ButtonVariant; icon?: IconName }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
-  const primary = variant === 'primary';
+  const tone = buttonColors(variant, theme);
   return (
     <AnimatedPressable
       accessibilityRole="button"
       accessibilityState={{ busy: !!busy, disabled: !!busy || !!disabled }}
       disabled={busy || disabled}
       onPress={onPress}
-      style={[styles.button, primary ? { backgroundColor: theme.brand } : { borderWidth: 2, borderColor: theme.text }, disabled && !busy ? { opacity: 0.5 } : null]}>
-      {busy ? <ActivityIndicator color={primary ? theme.onBrand : theme.text} /> : <Text style={withTypeface(StyleSheet.flatten([styles.buttonText, { color: primary ? theme.onBrand : theme.text }]), i18n.language)}>{title}</Text>}
+      style={[styles.button, tone.fill ? { backgroundColor: tone.fill } : null, tone.edge ? { borderWidth: 1.5, borderColor: tone.edge } : null, disabled && !busy ? { opacity: 0.5 } : null]}>
+      {busy ? (
+        <ActivityIndicator color={tone.text} />
+      ) : (
+        <>
+          {icon ? <Icon name={icon} size={20} color={tone.text} /> : null}
+          <Text style={withTypeface(StyleSheet.flatten([styles.buttonText, { color: tone.text }]), i18n.language)}>{title}</Text>
+        </>
+      )}
     </AnimatedPressable>
   );
 }
@@ -269,30 +310,67 @@ const styles = StyleSheet.create({
   codeHidden: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.02, color: 'transparent', fontSize: 1 },
   link: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: 4 },
   linkText: { fontSize: 15, fontWeight: '700' },
-  button: { minHeight: 48, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
+  button: { minHeight: 52, borderRadius: Radius.control, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
   buttonText: { fontSize: 16, fontWeight: '700' },
   notice: { borderLeftWidth: 4, borderRadius: Radius.control, overflow: 'hidden', paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, lineHeight: 20 },
 });
 
+/**
+ * A section's title (UI v2): the slanted orange mark taken from the logo's K, the title in the heading
+ * face, and an optional link on the right ("See all"). The mark is decoration and hidden from readers.
+ */
+export function SectionHeading({ title, action }: { title: string; action?: { title: string; onPress: () => void } }) {
+  const theme = useTheme();
+  const { i18n } = useTranslation();
+  return (
+    <View style={headingStyles.row}>
+      <View accessible={false} importantForAccessibility="no" style={[headingStyles.mark, { backgroundColor: theme.accent }]} />
+      <Text accessibilityRole="header" style={withTypeface(StyleSheet.flatten([headingStyles.title, { color: theme.text }]), i18n.language)} numberOfLines={2}>
+        {title}
+      </Text>
+      {action ? (
+        <Pressable accessibilityRole="link" onPress={action.onPress} hitSlop={8} style={({ pressed }) => [headingStyles.action, pressed && { opacity: 0.7 }]}>
+          <Text style={withTypeface(StyleSheet.flatten([headingStyles.actionText, { color: theme.brandText }]), i18n.language)}>{action.title}</Text>
+          <Icon name="arrow-right" size={16} color={theme.brandText} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+const headingStyles = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 32 },
+  mark: { width: 7, height: 20, borderRadius: 2, transform: [{ skewX: '-18deg' }] },
+  title: { ...displayFace, flex: 1, fontSize: 22, lineHeight: 28 },
+  action: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 4 },
+  actionText: { fontSize: 14, fontWeight: '700' },
+});
+
 /** A screen with nothing to show yet: an icon, a short line and, when it helps, one action. */
-export function EmptyState({ text, action, icon }: { text: string; action?: { title: string; onPress: () => void }; icon?: IconName }) {
+export function EmptyState({ text, title, action, icon }: { text: string; title?: string; action?: { title: string; onPress: () => void }; icon?: IconName }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
   return (
     <View style={[emptyStyles.empty, { backgroundColor: theme.background }]}>
       {icon ? (
-        <View style={[emptyStyles.icon, { backgroundColor: theme.backgroundSelected }]}>
-          <Icon name={icon} size={28} color={theme.textSecondary} />
+        <View style={[emptyStyles.icon, { backgroundColor: theme.accentSoft }]}>
+          <Icon name={icon} size={28} color={theme.accentText} active />
         </View>
       ) : null}
+      {title ? (
+        <Text accessibilityRole="header" style={withTypeface(StyleSheet.flatten([emptyStyles.emptyTitle, { color: theme.text }]), i18n.language)}>
+          {title}
+        </Text>
+      ) : null}
       <Text style={withTypeface(StyleSheet.flatten([emptyStyles.emptyText, { color: theme.textSecondary }]), i18n.language)}>{text}</Text>
-      {action ? <Button title={action.title} onPress={action.onPress} /> : null}
+      {action ? <Button title={action.title} variant="accent" icon="arrow-right" onPress={action.onPress} /> : null}
     </View>
   );
 }
 
 const emptyStyles = StyleSheet.create({
   empty: { flex: 1, padding: 24, gap: 16, justifyContent: 'center' },
-  icon: { width: 56, height: 56, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
+  icon: { width: 64, height: 64, borderRadius: Radius.card, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
+  emptyTitle: { ...displayFace, fontSize: 22, lineHeight: 28, textAlign: 'center' },
   emptyText: { fontSize: 16, lineHeight: 24, fontWeight: '500', textAlign: 'center' },
 });

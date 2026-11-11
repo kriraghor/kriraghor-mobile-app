@@ -3,12 +3,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { Pill, SectionTitle } from '@/components/esports';
+import { Pill } from '@/components/esports';
 import { Card, ErrorNotice, GymGate, RowLink } from '@/components/gym';
 import { GymDirectory } from '@/components/gym-directory';
 import { TodayCard } from '@/components/gym-today';
 import { ThemedText } from '@/components/themed-text';
-import { Button } from '@/components/ui';
+import { AnimatedPressable, Button, SectionHeading } from '@/components/ui';
+import { displayFace } from '@/constants/fonts';
+import { Radius } from '@/constants/motion';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
@@ -57,12 +59,18 @@ export default function GymHome() {
       <ErrorNotice error={gyms.error} onRetry={() => void gyms.refetch()} />
 
       {canShowQr ? (
-        <Pressable accessibilityRole="button" onPress={() => router.navigate('/gym/checkin')} style={({ pressed }) => [styles.qrButton, { backgroundColor: theme.brand }, pressed && { opacity: 0.85 }]}>
-          <Icon name="checkin" size={24} color={theme.onBrand} />
-          <ThemedText type="smallBold" style={{ color: theme.onBrand, fontSize: 16 }}>
-            {t('gym.checkinQr')}
-          </ThemedText>
-        </Pressable>
+        <AnimatedPressable accessibilityRole="button" onPress={() => router.navigate('/gym/checkin')} style={[styles.qrButton, { backgroundColor: theme.brand }]}>
+          <View style={[styles.qrIcon, { backgroundColor: theme.onBrand }]}>
+            <Icon name="checkin" size={28} color={theme.brand} active />
+          </View>
+          <View style={{ flex: 1 }}>
+            <ThemedText style={[styles.qrTitle, { color: theme.onBrand }]}>{t('gym.checkinQr')}</ThemedText>
+            <ThemedText type="small" style={{ color: theme.onBrand }}>
+              {t('gym.checkinQrHint')}
+            </ThemedText>
+          </View>
+          <Icon name="arrow-right" size={24} color={theme.onBrand} />
+        </AnimatedPressable>
       ) : null}
 
       <RowLink icon="download" label={t('gym.requests')} hint={waiting ? t('gym.waiting', { n: waiting }) : undefined} badge={waiting} onPress={() => router.push('/gym/requests')} />
@@ -87,14 +95,16 @@ export default function GymHome() {
       ))}
       {past.length ? (
         <>
-          <SectionTitle>{t('gym.past')}</SectionTitle>
+          <SectionHeading title={t('gym.past')} />
           {past.map((m) => (
             <GymCard key={m.memberId} m={m} dues={[]} pay={payDue} />
           ))}
         </>
       ) : null}
 
-      <SectionTitle>{t('gym.more')}</SectionTitle>
+      <View style={{ marginTop: 8 }}>
+        <SectionHeading title={t('gym.more')} />
+      </View>
       <RowLink icon="passes" label={t('gymPasses.title')} onPress={() => router.navigate('/gym/passes')} />
       <RowLink icon="hire" label={t('gymSubs.title')} onPress={() => router.push('/gym/subscriptions')} />
       <RowLink icon="calendar-check" label={t('gymVisits.title')} onPress={() => router.push('/gym/visits')} />
@@ -113,8 +123,8 @@ function GymCard({ m, dues, pay }: { m: MembershipCard; dues: Due[]; pay: Return
   // One open due pays here; several open the membership, which lists each one with its own Pay.
   const onPay = () => (dues.length === 1 ? void pay.pay(dues[0].dueId, m.memberId) : open());
   return (
-    <Pressable accessibilityRole="button" onPress={open} style={({ pressed }) => [pressed && { opacity: 0.85 }]}>
-      <Card muted={!m.linked}>
+    <Card muted={!m.linked}>
+      <Pressable accessibilityRole="button" onPress={open} style={({ pressed }) => [styles.cardBody, pressed && { opacity: 0.7 }]}>
         <View style={styles.cardTop}>
           <View style={{ flex: 1 }}>
             <ThemedText style={styles.gymName} numberOfLines={2}>
@@ -139,33 +149,36 @@ function GymCard({ m, dues, pay }: { m: MembershipCard; dues: Due[]; pay: Return
             {t('gym.noPackage')}
           </ThemedText>
         )}
-        {state.kind !== 'none' ? (
-          <View style={styles.owe}>
-            <ThemedText type="smallBold" style={{ color: theme.danger, flex: 1 }}>
-              {t('gym.outstanding', { amount: money(m.outstandingPoisha, lang) })}
-            </ThemedText>
-            {state.kind === 'online' ? <Button title={t('gym.pay')} busy={pay.busy !== null && dues.some((d) => d.dueId === pay.busy)} onPress={onPay} /> : null}
-          </View>
-        ) : null}
-        {state.kind === 'counter' && m.linked ? (
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('gym.payCounter')}
+      </Pressable>
+      {state.kind !== 'none' ? (
+        <View style={styles.owe}>
+          <ThemedText type="smallBold" style={{ color: theme.danger, flex: 1 }}>
+            {t('gym.outstanding', { amount: money(m.outstandingPoisha, lang) })}
           </ThemedText>
-        ) : null}
-        {!m.linked ? (
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('gym.pastNote')}
-          </ThemedText>
-        ) : null}
-      </Card>
-    </Pressable>
+          {state.kind === 'online' ? <Button title={t('gym.pay')} busy={pay.busy !== null && dues.some((d) => d.dueId === pay.busy)} onPress={onPay} /> : null}
+        </View>
+      ) : null}
+      {state.kind === 'counter' && m.linked ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {t('gym.payCounter')}
+        </ThemedText>
+      ) : null}
+      {!m.linked ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {t('gym.pastNote')}
+        </ThemedText>
+      ) : null}
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 32 },
-  qrButton: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 16 },
+  qrButton: { minHeight: 84, flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: Radius.card },
+  qrIcon: { width: 52, height: 52, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center' },
+  qrTitle: { ...displayFace, fontSize: 22, lineHeight: 28 },
+  cardBody: { gap: 8 },
   cardTop: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
-  gymName: { fontSize: 18, lineHeight: 26, fontWeight: '700' },
+  gymName: { ...displayFace, fontSize: 20, lineHeight: 26 },
   owe: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' },
 });

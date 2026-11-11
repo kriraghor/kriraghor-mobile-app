@@ -1,13 +1,23 @@
-import {
-  HindSiliguri_400Regular,
-  HindSiliguri_500Medium,
-  HindSiliguri_600SemiBold,
-  HindSiliguri_700Bold,
-} from '@expo-google-fonts/hind-siliguri';
+// One entry point per weight, never the package index: the index requires every weight the family has,
+// and each one would be bundled (eight Anek Bangla files, 2 MB, for the one in use).
+import { AnekBangla_800ExtraBold } from '@expo-google-fonts/anek-bangla/800ExtraBold';
+import { HindSiliguri_400Regular } from '@expo-google-fonts/hind-siliguri/400Regular';
+import { HindSiliguri_500Medium } from '@expo-google-fonts/hind-siliguri/500Medium';
+import { HindSiliguri_600SemiBold } from '@expo-google-fonts/hind-siliguri/600SemiBold';
+import { HindSiliguri_700Bold } from '@expo-google-fonts/hind-siliguri/700Bold';
 import { StyleSheet, type TextStyle } from 'react-native';
 
-/** Loaded once at launch (root layout). English uses the system font; Bangla uses Hind Siliguri. */
-export const FONT_ASSETS = { HindSiliguri_400Regular, HindSiliguri_500Medium, HindSiliguri_600SemiBold, HindSiliguri_700Bold };
+/**
+ * Loaded once at launch (root layout). Text: English uses the system font, Bangla uses Hind Siliguri.
+ * Headings (UI v2): one weight of Anek Bangla, which draws both Bangla and English, so a heading looks the
+ * same in either language and matches the websites' display font. One file, about 250 KB.
+ */
+export const FONT_ASSETS = { HindSiliguri_400Regular, HindSiliguri_500Medium, HindSiliguri_600SemiBold, HindSiliguri_700Bold, AnekBangla_800ExtraBold };
+
+/** The heading face. A style that names it keeps it in both languages (withTypeface leaves a set family alone). */
+export const DISPLAY_FONT = 'AnekBangla_800ExtraBold';
+/** Spread into a text style to make it a heading: the display face at its own weight. */
+export const displayFace = { fontFamily: DISPLAY_FONT, fontWeight: 'normal' } as const;
 
 const BN_FAMILY: Record<string, string> = {
   '100': 'HindSiliguri_400Regular',

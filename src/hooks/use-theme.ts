@@ -4,11 +4,9 @@
  */
 
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useScheme } from '@/hooks/theme-scope';
 
+/** The colours to draw with here: the enclosing ThemeScope's (the Esports section is dark), else the phone's. */
 export function useTheme() {
-  const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
-
-  return Colors[theme];
+  return Colors[useScheme()];
 }

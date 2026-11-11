@@ -4,19 +4,20 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { AnimatedPressable } from '@/components/ui';
+import { displayFace } from '@/constants/fonts';
 import { Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
 import { named, title, type TournamentCard } from '@/lib/esports';
 import { count, dateTime, money, type Lang } from '@/lib/format';
 
-/** Esports building blocks: square corners (shape lock), green for actions, amber only for prize money. */
+/** Esports building blocks (UI v2): cards 20, controls 12, chips full; green for actions, the logo's orange for prize money and live. */
 
 export function Pill({ text, tone = 'neutral' }: { text: string; tone?: 'neutral' | 'brand' | 'prize' | 'danger' }) {
   const theme = useTheme();
-  const color = tone === 'brand' ? theme.brandText : tone === 'prize' ? theme.text : tone === 'danger' ? theme.danger : theme.textSecondary;
-  const border = tone === 'brand' ? theme.brand : tone === 'prize' ? theme.prize : tone === 'danger' ? theme.danger : theme.line;
+  const color = tone === 'brand' ? theme.brandText : tone === 'prize' ? theme.prizeText : tone === 'danger' ? theme.danger : theme.textSecondary;
+  const fill = tone === 'brand' ? theme.brandSoft : tone === 'prize' ? theme.accentSoft : tone === 'danger' ? theme.dangerSoft : theme.backgroundSelected;
   return (
-    <View style={[styles.pill, { borderColor: border }]}>
+    <View style={[styles.pill, { backgroundColor: fill }]}>
       <ThemedText type="smallBold" style={{ color, fontSize: 12, lineHeight: 18 }}>
         {text}
       </ThemedText>
@@ -106,7 +107,7 @@ export function EventCard({ event }: { event: TournamentCard }) {
           <ThemedText type="small" themeColor="textSecondary">
             {t('events.prizePool')}
           </ThemedText>
-          <ThemedText style={[styles.prize, { color: theme.text }]}>{money(event.prizePool.amount, lang)}</ThemedText>
+          <ThemedText style={[styles.prize, { color: theme.prizeText }]}>{money(event.prizePool.amount, lang)}</ThemedText>
           {event.killReward && event.killReward.amount > 0 ? (
             <ThemedText type="small" themeColor="textSecondary">
               {t('events.perKill', { amount: money(event.killReward.amount, lang) })}
@@ -125,14 +126,12 @@ export function EventCard({ event }: { event: TournamentCard }) {
         {t('events.slots', { taken: count(event.slotsTaken, lang), max: count(event.maxSlots, lang) })}
         {event.waitlist > 0 ? ` · ${t('events.waitlist', { count: event.waitlist })}` : ''}
       </ThemedText>
-      {/* Amber marks prize money only (docs 09): a thin bar on the card's edge, not the whole card. */}
-      <View style={[styles.prizeRule, { backgroundColor: theme.prize }]} />
     </AnimatedPressable>
   );
 }
 
 const styles = StyleSheet.create({
-  pill: { borderWidth: 1.5, borderRadius: Radius.pill, paddingHorizontal: 10, paddingVertical: 2, alignSelf: 'flex-start' },
+  pill: { borderRadius: Radius.pill, paddingHorizontal: 10, paddingVertical: 3, alignSelf: 'flex-start' },
   segments: { gap: 8, paddingHorizontal: 16, paddingVertical: 12 },
   segment: { minHeight: 48, paddingHorizontal: 16, borderWidth: 2, borderRadius: Radius.pill, alignItems: 'center', justifyContent: 'center' },
   section: { textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 8 },
@@ -140,9 +139,8 @@ const styles = StyleSheet.create({
   bar: { height: 6, width: '100%', overflow: 'hidden', borderRadius: 3 },
   card: { borderWidth: 1, borderRadius: Radius.card, padding: 16, gap: 8, overflow: 'hidden' },
   cardTop: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  cardTitle: { fontSize: 18, lineHeight: 26, fontWeight: '700' },
+  cardTitle: { ...displayFace, fontSize: 20, lineHeight: 26 },
   money: { flexDirection: 'row', alignItems: 'flex-end', marginVertical: 4 },
-  prize: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
+  prize: { ...displayFace, fontSize: 26, lineHeight: 32 },
   fee: { fontSize: 16, lineHeight: 24, fontWeight: '700' },
-  prizeRule: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 4 },
 });

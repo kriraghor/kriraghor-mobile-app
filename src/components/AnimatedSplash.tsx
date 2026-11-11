@@ -17,9 +17,17 @@ const PIECES = [
 
 /**
  * The app's loading animation (kriraghor-docs 09 §8): it starts exactly where the native splash
- * ends (the whole logo), the three pieces burst apart and spring back together, keep gently parting and joining while the app loads, then a ring ripples, the wordmark
- * rises and it fades into the app. Under reduced motion it only fades.
+ * ends (the whole logo), the three pieces burst apart and spring back together and keep gently parting
+ * and joining while the app loads. Under reduced motion it only fades.
+ *
+ * It never holds the app back (UI v2, 11 Nov 2026): the moment the app is ready the pieces settle, a ring
+ * ripples and the screen fades, about EXIT_MS in all, whatever the burst was doing. A time limit ends it
+ * even if no animation frame arrives (a hidden browser tab, a stalled device), so it cannot hang.
  */
+export const EXIT_MS = 350;
+/** After "ready", the longest the screen may stay if its animation never reports back. */
+export const EXIT_LIMIT_MS = 900;
+
 export function AnimatedSplash({ ready, onDone }: { ready: boolean; onDone: () => void }) {
   const scheme = useColorScheme();
   const c = palette[scheme === 'dark' ? 'dark' : 'light'];
@@ -60,21 +68,29 @@ export function AnimatedSplash({ ready, onDone }: { ready: boolean; onDone: () =
     return () => loop.stop();
   }, [joined, ready, reduce, spread]);
 
-  // 3. Ready: settle, ripple, wordmark, fade out.
+  // 3. Ready: settle, ripple and fade out at once, without waiting for the burst to finish.
   useEffect(() => {
-    if (!joined || !ready) return;
-    const finish = Animated.sequence([
-      Animated.parallel([
-        Animated.timing(spread, { toValue: 0, duration: 180, useNativeDriver: true }),
-        Animated.timing(ring, { toValue: 1, duration: reduce ? 1 : 700, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-        Animated.timing(word, { toValue: 1, duration: reduce ? 1 : 420, delay: reduce ? 0 : 120, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-      ]),
-      Animated.delay(reduce ? 0 : 260),
-      Animated.timing(fade, { toValue: 0, duration: 280, easing: Easing.in(Easing.quad), useNativeDriver: true }),
+    if (!ready || reduce === null) return;
+    let ended = false;
+    const end = () => {
+      if (ended) return;
+      ended = true;
+      onDone();
+    };
+    const settle = reduce ? 1 : 140;
+    const finish = Animated.parallel([
+      Animated.timing(spread, { toValue: 0, duration: settle, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(ring, { toValue: 1, duration: reduce ? 1 : EXIT_MS, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(word, { toValue: 1, duration: reduce ? 1 : 160, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(fade, { toValue: 0, duration: reduce ? 180 : EXIT_MS - 120, delay: reduce ? 0 : 120, easing: Easing.in(Easing.quad), useNativeDriver: true }),
     ]);
-    finish.start(({ finished }) => finished && onDone());
-    return () => finish.stop();
-  }, [joined, ready, reduce, spread, ring, word, fade, onDone]);
+    finish.start(end);
+    const limit = setTimeout(end, EXIT_LIMIT_MS);
+    return () => {
+      clearTimeout(limit);
+      finish.stop();
+    };
+  }, [ready, reduce, spread, ring, word, fade, onDone]);
 
   return (
     <Animated.View

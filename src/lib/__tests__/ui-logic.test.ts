@@ -1,4 +1,4 @@
-import { dayPart, dhakaHour, firstName, initials, sheetDrag, sheetMounted, sheetPhase, sheetShouldDismiss, tabIndicator, type SheetEvent, type SheetPhase } from '../ui-logic';
+import { dayPart, dhakaHour, firstName, hubLive, initials, sheetDrag, sheetMounted, sheetPhase, sheetShouldDismiss, tabIndicator, type SheetEvent, type SheetPhase } from '../ui-logic';
 
 describe('bottom sheet phases', () => {
   const run = (events: SheetEvent[], from: SheetPhase = 'closed') => events.reduce(sheetPhase, from);
@@ -84,5 +84,22 @@ describe('greeting', () => {
     expect(initials('রাফি আহমেদ')).toBe('রআ');
     expect(initials('')).toBe('');
     expect(initials(undefined)).toBe('');
+  });
+});
+
+describe('hub live chips', () => {
+  it('shows the number of open tournaments, and nothing when none are open or the list is not known yet', () => {
+    expect(hubLive({ openEvents: 3, gymDaysLeft: [] }).esports).toBe(3);
+    expect(hubLive({ openEvents: 0, gymDaysLeft: [] }).esports).toBeNull();
+    expect(hubLive({ openEvents: null, gymDaysLeft: [] }).esports).toBeNull();
+  });
+  it('shows the fewest days left across my gyms, counting the last day as 0', () => {
+    expect(hubLive({ openEvents: null, gymDaysLeft: [12, 4, 30] }).gym).toBe(4);
+    expect(hubLive({ openEvents: null, gymDaysLeft: [0, 9] }).gym).toBe(0);
+  });
+  it('ignores gyms without a package and days that already passed', () => {
+    expect(hubLive({ openEvents: null, gymDaysLeft: [null, -2] }).gym).toBeNull();
+    expect(hubLive({ openEvents: null, gymDaysLeft: [null, 7] }).gym).toBe(7);
+    expect(hubLive({ openEvents: null, gymDaysLeft: [] }).gym).toBeNull();
   });
 });
