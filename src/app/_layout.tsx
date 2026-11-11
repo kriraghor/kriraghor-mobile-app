@@ -84,6 +84,8 @@ function AppStack() {
       <Stack.Screen name="gym/requests" options={{ title: t('gymRequests.title') }} />
       <Stack.Screen name="gym/[memberId]/index" options={{ title: t('gymMember.title') }} />
       <Stack.Screen name="gym/[memberId]/attendance" options={{ title: t('gymAttendance.title') }} />
+      <Stack.Screen name="gym/[memberId]/body" options={{ title: t('gymProgress.title') }} />
+      <Stack.Screen name="gym/renew" options={{ title: t('gymRenew.formTitle') }} />
       <Stack.Screen name="gym/plans/[assignmentId]" options={{ title: t('gymPlan.title') }} />
       <Stack.Screen name="gym/subscriptions" options={{ title: t('gymSubs.title') }} />
       <Stack.Screen name="gym/classes" options={{ title: t('gymClasses.title') }} />
