@@ -10,7 +10,6 @@
 
 ## Run locally
 
-
 ```bash
 npm install
 npx expo start              # press a for Android emulator, or scan with a development build
