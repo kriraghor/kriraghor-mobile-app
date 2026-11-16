@@ -6,7 +6,7 @@ import { Alert, FlatList, RefreshControl, StyleSheet, View } from 'react-native'
 import { Pill } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
 import { SignInPrompt } from '@/components/guest';
-import { Button, EmptyState, Notice, SkeletonList } from '@/components/ui';
+import { Button, EmptyState, Notice, Reveal, SkeletonList } from '@/components/ui';
 import { useNow } from '@/hooks/use-now';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
@@ -18,6 +18,8 @@ import { currentMatch, entryActions, revealAt, title, type EntryAction, type Reg
 import { acceptOffer, checkIn, idempotencyKey, myRegistrations, withdraw } from '@/lib/esports-api';
 import { count, countdown, dateTime, money, type Lang } from '@/lib/format';
 import { keys } from '@/lib/use-realtime';
+import { Radius } from '@/constants/motion';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * My matches (M21 §4.3): every entry with what to do next — pay, take an offered slot, check in,
@@ -44,8 +46,12 @@ export default function MatchesScreen() {
       keyExtractor={(r) => r.id}
       refreshControl={<RefreshControl refreshing={entries.isRefetching} onRefresh={() => void entries.refetch()} tintColor={theme.brand} />}
       ListHeaderComponent={entries.error ? <Notice tone="error" text={errorText(t, entries.error)} /> : null}
-      ListEmptyComponent={<EmptyState icon="matches" text={t('matches.empty')} action={{ title: t('matches.findEvent'), onPress: () => router.navigate('/events') }} />}
-      renderItem={({ item }) => <EntryCard entry={item} />}
+      ListEmptyComponent={<EmptyState icon="matches" title={t('matches.emptyTitle')} text={t('matches.empty')} action={{ title: t('matches.findEvent'), onPress: () => router.navigate('/events') }} />}
+      renderItem={({ item, index }) => (
+        <Reveal index={index}>
+          <EntryCard entry={item} />
+        </Reveal>
+      )}
     />
   );
 }
@@ -150,9 +156,9 @@ function EntryCard({ entry }: { entry: Registration }) {
 
 const styles = StyleSheet.create({
   list: { padding: 16, gap: 12, flexGrow: 1 },
-  card: { borderWidth: 1.5, padding: 16, gap: 8 },
+  card: { borderWidth: 1, padding: 16, gap: 8, borderRadius: Radius.card },
   row: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  title: { fontSize: 18, lineHeight: 26, fontWeight: '700' },
+  title: { ...displayFace, fontSize: 18, lineHeight: 26 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
   primary: { flexGrow: 1, minWidth: 140 },
   secondary: { flexGrow: 1, minWidth: 120 },

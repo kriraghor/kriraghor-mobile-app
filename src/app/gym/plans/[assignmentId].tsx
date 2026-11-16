@@ -8,7 +8,7 @@ import { Pill, SectionTitle, Segments } from '@/components/esports';
 import { Card, ErrorNotice, GymGate, ItemFacts, Safety } from '@/components/gym';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Notice } from '@/components/ui';
-import { withTypeface } from '@/constants/fonts';
+import { displayFace, withTypeface } from '@/constants/fonts';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { canLog, dateOnly, dhakaToday, groupsOn, latestTicks, logDays, progressOn, textOf, tickKey, weekdayOf, type Tick } from '@/lib/gym';
@@ -16,6 +16,7 @@ import { logPlan, myPlan, type MyPlan } from '@/lib/gym-api';
 import { count, type Lang } from '@/lib/format';
 import { useMyPlans } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
+import { Radius } from '@/constants/motion';
 
 type TickInput = { localDate: string; itemRef: string; done: boolean; note: string | null };
 
@@ -283,16 +284,16 @@ function TickRow({ itemRef, content, tick, canTick, busy, onTick }: { itemRef: s
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 22, lineHeight: 30 },
   bar: { height: 8, width: '100%', overflow: 'hidden' },
   item: { gap: 6, borderTopWidth: 1, paddingTop: 10 },
   itemTop: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-  done: { minHeight: 48, minWidth: 96, paddingHorizontal: 10, borderWidth: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
+  done: { minHeight: 48, minWidth: 96, paddingHorizontal: 10, borderWidth: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, borderRadius: Radius.control },
   note: { padding: 10 },
   noteLink: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   noteActions: { flexDirection: 'row', gap: 8 },
-  input: { minHeight: 72, borderWidth: 2, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16, textAlignVertical: 'top' },
+  input: { minHeight: 72, borderWidth: 1.5, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16, textAlignVertical: 'top', borderRadius: Radius.control },
   weekGrid: { flexDirection: 'row', gap: 4 },
-  weekDay: { flex: 1, minHeight: 64, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 2, paddingVertical: 6, gap: 2 },
+  weekDay: { flex: 1, minHeight: 64, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 2, paddingVertical: 6, gap: 2, borderRadius: Radius.control },
   dayHead: { flexDirection: 'row', gap: 8, alignItems: 'center' },
 });

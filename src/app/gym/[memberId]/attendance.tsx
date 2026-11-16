@@ -13,6 +13,7 @@ import { dateOnly, dhakaToday, monthGrid, monthOf, monthTitle, shiftMonth, timeO
 import { myAttendance } from '@/lib/gym-api';
 import { count, type Lang } from '@/lib/format';
 import { keys } from '@/lib/use-realtime';
+import { Radius } from '@/constants/motion';
 
 /**
  * My check-in calendar at one gym (M24 §4.5 gym/[memberId]/attendance), month by month, Saturday
@@ -109,9 +110,9 @@ const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 32 },
   monthBar: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   month: { flex: 1, textAlign: 'center', fontSize: 16 },
-  monthButton: { width: 48, height: 48, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  monthButton: { width: 48, height: 48, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', borderRadius: Radius.control },
   week: { flexDirection: 'row', gap: 4 },
   head: { flex: 1, textAlign: 'center', fontSize: 12 },
-  cell: { flex: 1, aspectRatio: 1, alignItems: 'center', justifyContent: 'center', borderWidth: 0, borderColor: 'transparent' },
+  cell: { flex: 1, aspectRatio: 1, alignItems: 'center', justifyContent: 'center', borderWidth: 0, borderColor: 'transparent', borderRadius: Radius.control, margin: 2 },
   line: { flexDirection: 'row', gap: 10, paddingVertical: 10, borderBottomWidth: 1 },
 });

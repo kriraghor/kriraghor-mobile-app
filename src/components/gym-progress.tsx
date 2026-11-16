@@ -105,7 +105,7 @@ export function RenewCard({ memberId, dues, onPay, payBusy }: { memberId: string
       <ThemedText type="small" themeColor="textSecondary">
         {t('gymRenew.lead')}
       </ThemedText>
-      <Button title={t('gymRenew.open')} onPress={() => router.push({ pathname: '/gym/renew', params: { m: memberId } })} />
+      <Button title={t('gymRenew.open')} variant="accent" icon="arrow-right" onPress={() => router.push({ pathname: '/gym/renew', params: { m: memberId } })} />
     </Card>
   );
 }

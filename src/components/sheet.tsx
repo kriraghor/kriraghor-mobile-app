@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Duration, Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
 import { sheetDrag, sheetMounted, sheetPhase, sheetShouldDismiss, type SheetPhase } from '@/lib/ui-logic';
+import { displayFace } from '@/constants/fonts';
 
 const OPEN_SPRING = { damping: 26, stiffness: 260, mass: 0.9, overshootClamping: true } as const;
 
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
   head: { paddingTop: 8, paddingHorizontal: 16 },
   handle: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3, marginBottom: 8 },
   titleRow: { flexDirection: 'row', alignItems: 'center', minHeight: 48 },
-  title: { flex: 1, fontSize: 20, lineHeight: 28, fontWeight: '800' },
+  title: { ...displayFace, flex: 1, fontSize: 20, lineHeight: 28 },
   close: { minHeight: 48, minWidth: 48, alignItems: 'flex-end', justifyContent: 'center' },
   body: { flexGrow: 0, flexShrink: 1 },
   bodyContent: { paddingHorizontal: 16, paddingBottom: 16, gap: 24 },

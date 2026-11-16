@@ -23,14 +23,14 @@ export function SignInPrompt({ text, icon = 'account', browse }: { text?: string
   return (
     <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 16 + tabInset }]}>
       <Reveal style={[styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.line }]}>
-        <View style={[styles.icon, { backgroundColor: theme.backgroundSelected }]}>
-          <Icon name={icon} size={28} color={theme.brandText} />
+        <View style={[styles.icon, { backgroundColor: theme.accentSoft }]}>
+          <Icon name={icon} size={28} color={theme.accentText} active />
         </View>
-        <ThemedText style={styles.title} accessibilityRole="header">
+        <ThemedText type="heading" accessibilityRole="header">
           {t('guest.title')}
         </ThemedText>
         <ThemedText themeColor="textSecondary">{text ?? t('guest.body')}</ThemedText>
-        <Button title={t('common.signIn')} onPress={() => router.push('/sign-in')} />
+        <Button title={t('common.signIn')} icon="sign-in" onPress={() => router.push('/sign-in')} />
         {browse ? <Button title={browse.title} variant="outline" onPress={browse.onPress} /> : null}
       </Reveal>
     </ScrollView>
@@ -49,6 +49,5 @@ export function SignedInOnly({ children, text, icon, browse }: { children: React
 const styles = StyleSheet.create({
   page: { padding: 16, flexGrow: 1, justifyContent: 'center' },
   card: { borderWidth: 1, borderRadius: Radius.card, padding: 24, gap: 16 },
-  icon: { width: 56, height: 56, borderRadius: Radius.control, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
+  icon: { width: 64, height: 64, borderRadius: Radius.card, alignItems: 'center', justifyContent: 'center' },
 });

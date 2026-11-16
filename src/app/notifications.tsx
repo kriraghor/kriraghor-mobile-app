@@ -2,9 +2,11 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { Icon } from '@/components/icons/Icon';
+import { Radius } from '@/constants/motion';
 import { ThemedText } from '@/components/themed-text';
-import { EmptyState, Notice } from '@/components/ui';
+import { EmptyState, Notice, SkeletonList } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { listNotifications, markAllRead, markRead, type Notice as Item } from '@/lib/esports-api';
@@ -53,12 +55,12 @@ function NotificationsScreen() {
         }}
       />
       {list.isLoading ? (
-        <ActivityIndicator color={theme.brand} style={{ marginTop: 48 }} />
+        <SkeletonList rows={6} height={84} label={t('common.loading')} />
       ) : (
         <FlatList
           data={items}
           keyExtractor={(n) => n.id}
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={styles.list}
           refreshControl={<RefreshControl refreshing={list.isRefetching} onRefresh={() => void list.refetch()} tintColor={theme.brand} />}
           onEndReached={() => list.hasNextPage && void list.fetchNextPage()}
           ListHeaderComponent={list.error ? <Notice tone="error" text={errorText(t, list.error)} /> : null}
@@ -67,11 +69,16 @@ function NotificationsScreen() {
             <Pressable
               accessibilityRole="button"
               onPress={() => open(item)}
-              style={({ pressed }) => [styles.item, { borderBottomColor: theme.line, backgroundColor: item.readAt ? theme.background : theme.backgroundElement }, pressed && { opacity: 0.8 }]}>
-              {!item.readAt ? <View style={[styles.dot, { backgroundColor: theme.brand }]} accessibilityLabel="unread" /> : null}
+              style={({ pressed }) => [styles.item, { borderColor: item.readAt ? 'transparent' : theme.line, backgroundColor: item.readAt ? 'transparent' : theme.backgroundElement }, pressed && { opacity: 0.8 }]}>
+              <View style={[styles.mark, { backgroundColor: item.readAt ? theme.backgroundSelected : theme.accentSoft }]}>
+                <Icon name="bell" size={20} color={item.readAt ? theme.textSecondary : theme.accentText} active={!item.readAt} />
+                {!item.readAt ? <View style={[styles.dot, { backgroundColor: theme.accent, borderColor: theme.backgroundElement }]} accessibilityLabel={t('notifications.unread')} /> : null}
+              </View>
               <View style={{ flex: 1, gap: 2 }}>
                 <ThemedText type="smallBold">{item.title}</ThemedText>
-                <ThemedText type="small">{item.body}</ThemedText>
+                <ThemedText type="small" themeColor={item.readAt ? 'textSecondary' : 'text'}>
+                  {item.body}
+                </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
                   {dateTime(item.createdAt, lang)}
                 </ThemedText>
@@ -85,8 +92,10 @@ function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  item: { flexDirection: 'row', gap: 10, padding: 16, borderBottomWidth: 1 },
-  dot: { width: 8, height: 8, marginTop: 8 },
+  list: { flexGrow: 1, padding: 12, gap: 8 },
+  item: { flexDirection: 'row', gap: 12, padding: 12, borderWidth: 1, borderRadius: Radius.card },
+  mark: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  dot: { position: 'absolute', top: -1, right: -1, width: 12, height: 12, borderRadius: 6, borderWidth: 2 },
   headerButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 },
 });
 

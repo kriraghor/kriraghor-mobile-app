@@ -3,10 +3,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { InfoRow, SectionTitle } from '@/components/esports';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { InfoRow, Pill, SectionTitle } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Notice } from '@/components/ui';
+import { Button, Notice, ScreenLoading } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { api } from '@/lib/api';
 import { ApiError, getEvent, idempotencyKey, myProfiles, mySquads, register } from '@/lib/esports-api';
@@ -15,6 +15,9 @@ import { named, title, type Squad } from '@/lib/esports';
 import { dateTime, money, type Lang } from '@/lib/format';
 import { keys } from '@/lib/use-realtime';
 import { SignedInOnly } from '@/components/guest';
+import { inEsports } from '@/hooks/theme-scope';
+import { Radius } from '@/constants/motion';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * Register for an event (M21-FR-08 to FR-10). Solo: the player's verified game ID. Squad: the
@@ -48,7 +51,7 @@ function RegisterScreen() {
   const [done, setDone] = useState<string | null>(null);
   const key = useRef(idempotencyKey('reg'));
 
-  if (!event.data || profiles.isLoading || (squad && squads.isLoading)) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (!event.data || profiles.isLoading || (squad && squads.isLoading)) return <ScreenLoading />;
   const e = event.data;
   const gameName = named(e.game, lang);
   const profile = profiles.data?.find((p) => p.gameId === e.game.id && p.status !== 'unlinked' && p.status !== 'rejected') ?? null;
@@ -77,9 +80,17 @@ function RegisterScreen() {
 
   const header = (
     <>
-      <ThemedText style={styles.title}>{title(e, lang)}</ThemedText>
-      <InfoRow label={t('register.fee')} value={e.entryFee.amount ? money(e.entryFee.amount, lang) : t('events.free')} strong />
-      <InfoRow label={t('events.starts')} value={dateTime(e.startsAt, lang)} />
+      <View style={[styles.summary, { backgroundColor: theme.backgroundElement, borderColor: theme.line }]}>
+        <View style={styles.pills}>
+          <Pill text={gameName} tone="brand" />
+          <Pill text={e.entryUnit === 'squad' ? t('events.squadOf', { size: e.mode.teamSize }) : t('events.solo')} />
+        </View>
+        <ThemedText style={styles.title} accessibilityRole="header">
+          {title(e, lang)}
+        </ThemedText>
+        <InfoRow label={t('register.fee')} value={e.entryFee.amount ? money(e.entryFee.amount, lang) : t('events.free')} strong />
+        <InfoRow label={t('events.starts')} value={dateTime(e.startsAt, lang)} />
+      </View>
       {error ? <Notice tone="error" text={error} /> : null}
     </>
   );
@@ -109,8 +120,13 @@ function RegisterScreen() {
     return (
       <View style={[styles.page, { flex: 1, backgroundColor: theme.background }]}>
         {header}
-        <ThemedText>{t('register.playingAs', { ign: profile.ign, uid: profile.uidMasked })}</ThemedText>
-        <Button title={t('register.confirm')} busy={busy} onPress={() => void submit({ players: [profile.id] })} />
+        <View style={[styles.playing, { backgroundColor: theme.brandSoft }]}>
+          <Icon name="id-card" size={22} color={theme.brandText} />
+          <ThemedText type="smallBold" style={{ flex: 1 }}>
+            {t('register.playingAs', { ign: profile.ign, uid: profile.uidMasked })}
+          </ThemedText>
+        </View>
+        <Button title={t('register.confirm')} variant="accent" icon="check" busy={busy} onPress={() => void submit({ players: [profile.id] })} />
       </View>
     );
   }
@@ -170,6 +186,8 @@ function RegisterScreen() {
           ) : null}
           <Button
             title={t('register.confirm')}
+            variant="accent"
+            icon="check"
             busy={busy}
             onPress={() => (players.length === teamSize ? void submit({ squadId: chosen.id, players, substitutes: subs }) : setError(t('errors.ESPORTS_SQUAD_SIZE_INVALID')))}
           />
@@ -198,15 +216,21 @@ function Choice({ label, selected, disabled, onPress }: { label: string; selecte
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12 },
-  title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
-  choice: { minHeight: 48, borderWidth: 2, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  title: { ...displayFace, fontSize: 24, lineHeight: 30 },
+  summary: { borderWidth: 1, borderRadius: Radius.card, padding: 16, gap: 6 },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  playing: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: Radius.control, padding: 12 },
+  choice: { minHeight: 48, borderWidth: 1.5, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: Radius.control },
 });
 
 /** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
-export default function RegisterScreenRoute() {
+function RegisterScreenRoute() {
   return (
     <SignedInOnly>
       <RegisterScreen />
     </SignedInOnly>
   );
 }
+
+// Dark like the Esports section it belongs to (UI v2).
+export default inEsports(RegisterScreenRoute);

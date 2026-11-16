@@ -14,6 +14,7 @@ import { bookableDays, clockTime, dateOnly, dhakaMinuteNow, dhakaToday, visitTim
 import { bookVisit, gymPage, visitSlots } from '@/lib/gym-api';
 import { useGate } from '@/lib/use-gate';
 import { keys } from '@/lib/use-realtime';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * Book a free visit (M24-FR-110, FR-111; mirrors gym.kriraghor.com /gyms/[slug]/visit): pick an open
@@ -139,7 +140,7 @@ export default function GymVisitBookScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 22, lineHeight: 30 },
   chips: { gap: 8, paddingRight: 16 },
   chip: { minHeight: 48, paddingHorizontal: 16, paddingVertical: 6, borderRadius: Radius.control, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   times: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

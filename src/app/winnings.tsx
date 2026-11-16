@@ -3,10 +3,10 @@ import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { InfoRow, Pill, SectionTitle } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Notice } from '@/components/ui';
+import { Button, CountUp, Notice, ScreenLoading } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { config } from '@/lib/config';
 import { errorText } from '@/lib/errors';
@@ -15,6 +15,10 @@ import { ApiError, gate, idempotencyKey, myWithdrawals, payoutAccounts, winnings
 import { count, dateTime, money, type Lang } from '@/lib/format';
 import { OPEN_WITHDRAWALS, withdrawState } from '@/lib/player';
 import { SignedInOnly } from '@/components/guest';
+import { inEsports } from '@/hooks/theme-scope';
+import { Radius } from '@/constants/motion';
+import { displayFace } from '@/constants/fonts';
+import { RowLink } from '@/components/gym';
 
 /**
  * Winnings (M21-FR-24, FR-25): prizes credited to the player's balance, and withdrawing them to the
@@ -40,7 +44,7 @@ function WinningsScreen() {
     for (const k of ['winnings', 'withdrawable', 'withdrawals', 'payout-accounts', 'gate']) void qc.invalidateQueries({ queryKey: [k] });
   };
 
-  if (won.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (won.isLoading) return <ScreenLoading />;
   const w = won.data;
   const active = accounts.data?.find((a) => a.status === 'active');
   const state = withdrawState({
@@ -75,11 +79,11 @@ function WinningsScreen() {
       refreshControl={<RefreshControl refreshing={won.isRefetching} onRefresh={refreshAll} tintColor={theme.brand} />}>
       {won.error ? <Notice tone="error" text={errorText(t, won.error)} /> : null}
       {w ? (
-        <View style={[styles.balance, { borderColor: theme.prize, backgroundColor: theme.backgroundElement }]}>
-          <ThemedText type="small" themeColor="textSecondary">
+        <View style={[styles.balance, { borderColor: theme.prize, backgroundColor: theme.accentSoft }]}>
+          <ThemedText type="eyebrow" themeColor="prizeText">
             {t('winnings.available')}
           </ThemedText>
-          <ThemedText style={styles.amount}>{money(w.available.amount, lang)}</ThemedText>
+          <CountUp value={w.available.amount} format={(n) => money(n, lang)} style={[styles.amount, { color: theme.prizeText }]} />
           <InfoRow label={t('winnings.totalWon')} value={money(w.totalWon.amount, lang)} />
           <ThemedText type="small" themeColor="textSecondary">
             {t('winnings.minimum', { amount: money(w.minimum.amount, lang) })} · {t('winnings.dailyLeft', { amount: money(w.dailyLimitLeft.amount, lang) })}
@@ -88,7 +92,7 @@ function WinningsScreen() {
       ) : null}
 
       {note ? <Notice tone={note.tone} text={note.text} /> : null}
-      {state.kind === 'ready' ? <Button title={t('winnings.withdraw', { amount: money(state.amount, lang) })} busy={busy} onPress={() => void withdraw()} /> : null}
+      {state.kind === 'ready' ? <Button title={t('winnings.withdraw', { amount: money(state.amount, lang) })} variant="accent" icon="wallet" busy={busy} onPress={() => void withdraw()} /> : null}
       {state.kind === 'kyc' ? (
         <>
           <Notice text={state.pending ? t('winnings.kycPending') : t('winnings.kycNeeded')} />
@@ -100,7 +104,7 @@ function WinningsScreen() {
       {state.kind === 'below_minimum' && (w?.available.amount ?? 0) > 0 ? <Notice text={t('winnings.belowMinimum', { amount: money(state.minimum, lang) })} /> : null}
       {state.kind === 'daily_limit' ? <Notice text={t('winnings.dailyLimit')} /> : null}
       {state.kind === 'open' ? <Notice text={t('winnings.open')} /> : null}
-      <Button title={t('winnings.payoutAccount')} variant="outline" onPress={() => router.push('/payout-account')} />
+      <RowLink icon="bank" label={t('winnings.payoutAccount')} hint={active?.masked ?? undefined} onPress={() => router.push('/payout-account')} />
 
       {history.data?.length ? (
         <>
@@ -148,16 +152,19 @@ function WinningsScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12 },
-  balance: { borderWidth: 2, padding: 16, gap: 4 },
-  amount: { fontSize: 32, lineHeight: 40, fontWeight: '800' },
+  balance: { borderWidth: 1.5, padding: 16, gap: 4, borderRadius: Radius.card },
+  amount: { ...displayFace, fontSize: 40, lineHeight: 48 },
   item: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1 },
 });
 
 /** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
-export default function WinningsScreenRoute() {
+function WinningsScreenRoute() {
   return (
     <SignedInOnly>
       <WinningsScreen />
     </SignedInOnly>
   );
 }
+
+// Dark like the Esports section it belongs to (UI v2).
+export default inEsports(WinningsScreenRoute);

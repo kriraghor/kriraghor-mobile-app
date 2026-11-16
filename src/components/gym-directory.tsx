@@ -15,6 +15,7 @@ import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { activeFilterCount, GYM_SORTS, gymListParams, NO_FILTERS, openState, PRICE_CAPS, ratingText, searchAreas, type DirectoryFilters } from '@/lib/gym-directory';
 import { listAreas, listGyms, type GymCard } from '@/lib/gym-api';
 import { count, money, type Lang } from '@/lib/format';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * The public gym directory (M20 §4, gym.kriraghor.com /gyms): anyone can browse, no account needed.
@@ -284,13 +285,13 @@ const styles = StyleSheet.create({
   applied1: { minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, borderRadius: Radius.pill, borderWidth: 1 },
   search: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, borderRadius: Radius.control, borderWidth: 1 },
   searchInput: { flex: 1, minHeight: 46, fontSize: 16 },
-  title: { fontSize: 28, lineHeight: 36, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 28, lineHeight: 36 },
   card: { borderWidth: 1, borderRadius: Radius.card, overflow: 'hidden' },
   cover: { width: '100%', aspectRatio: 16 / 9 },
   noCover: { alignItems: 'center', justifyContent: 'center' },
   body: { padding: 16, gap: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  name: { fontSize: 20, lineHeight: 28, fontWeight: '800' },
+  name: { ...displayFace, fontSize: 20, lineHeight: 28 },
   prices: { flexDirection: 'row', gap: 16, marginTop: 8 },
-  price: { fontSize: 18, lineHeight: 26, fontWeight: '800' },
+  price: { ...displayFace, fontSize: 18, lineHeight: 26 },
 });

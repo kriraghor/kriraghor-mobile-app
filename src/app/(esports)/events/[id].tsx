@@ -1,11 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { InfoRow, Pill, SectionTitle, SlotsBar } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Notice } from '@/components/ui';
+import { Button, CountUp, Notice, ScreenLoading, Stat } from '@/components/ui';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
@@ -15,6 +15,8 @@ import { getEvent, myRegistrations } from '@/lib/esports-api';
 import { count, dateTime, money, type Lang } from '@/lib/format';
 import { useGate } from '@/lib/use-gate';
 import { keys, useRoomEvents } from '@/lib/use-realtime';
+import { Radius } from '@/constants/motion';
+import { displayFace } from '@/constants/fonts';
 
 /** An event (M21 §4.1): prizes, schedule, points, rules, live slots, and the one action for this player. */
 export default function EventScreen() {
@@ -35,7 +37,7 @@ export default function EventScreen() {
     void qc.invalidateQueries({ queryKey: keys.event(id) });
   });
 
-  if (event.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (event.isLoading) return <ScreenLoading />;
   if (!event.data) {
     return (
       <View style={[styles.page, { flex: 1, backgroundColor: theme.background }]}>
@@ -65,11 +67,11 @@ export default function EventScreen() {
         </ThemedText>
         {e.status === 'cancelled' ? <Notice tone="error" text={t('event.cancelled')} /> : null}
 
-        <View style={[styles.prizeBox, { borderColor: theme.prize, backgroundColor: theme.backgroundElement }]}>
-          <ThemedText type="small" themeColor="textSecondary">
+        <View style={[styles.prizeBox, { borderColor: theme.prize, backgroundColor: theme.accentSoft }]}>
+          <ThemedText type="eyebrow" themeColor="prizeText">
             {t('events.prizePool')}
           </ThemedText>
-          <ThemedText style={styles.prizeAmount}>{money(e.prizePool.amount, lang)}</ThemedText>
+          <CountUp value={e.prizePool.amount} format={(n) => money(n, lang)} style={[styles.prizeAmount, { color: theme.prizeText }]} />
           <InfoRow label={t('events.entry')} value={free ? t('events.free') : money(e.entryFee.amount, lang)} strong />
           {e.killReward && e.killReward.amount > 0 ? <InfoRow label={t('event.killReward')} value={t('events.perKill', { amount: money(e.killReward.amount, lang) })} /> : null}
         </View>
@@ -86,8 +88,14 @@ export default function EventScreen() {
         {e.prizes.length ? (
           <>
             <SectionTitle>{t('event.prizes')}</SectionTitle>
-            {e.prizes.map((p) => (
-              <InfoRow key={p.place} label={t('event.place', { place: count(p.place, lang) })} value={money(p.amount.amount, lang)} strong={p.place === 1} />
+            {/* The first three places side by side (the podium); any further places as rows under them. */}
+            <View style={styles.podium}>
+              {e.prizes.slice(0, 3).map((p) => (
+                <Stat compact key={p.place} label={t('event.place', { place: count(p.place, lang) })} value={money(p.amount.amount, lang)} tone={p.place === 1 ? 'prize' : 'text'} />
+              ))}
+            </View>
+            {e.prizes.slice(3).map((p) => (
+              <InfoRow key={p.place} label={t('event.place', { place: count(p.place, lang) })} value={money(p.amount.amount, lang)} />
             ))}
           </>
         ) : null}
@@ -112,6 +120,8 @@ export default function EventScreen() {
       <View style={[styles.bottom, { paddingBottom: tabInset ? 12 : 12 + insets.bottom, bottom: tabInset, backgroundColor: theme.backgroundElement, borderTopColor: theme.line }]}>
         {cta.kind === 'register' || cta.kind === 'waitlist' ? (
           <Button
+            variant="accent"
+            icon="events"
             title={cta.kind === 'waitlist' ? t('event.joinWaitlist') : free ? t('event.registerFree') : t('event.register', { fee: money(e.entryFee.amount, lang) })}
             // Guests browse freely; Register asks for a sign-in, then carries on to the entry form (M21).
             onPress={() => gate('register_event', () => router.push({ pathname: '/register/[id]', params: { id: e.id } }))}
@@ -143,8 +153,9 @@ function pointsList(points: number[], lang: Lang) {
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 10 },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  title: { fontSize: 24, lineHeight: 32, fontWeight: '800' },
-  prizeBox: { borderWidth: 2, padding: 16, gap: 2, marginVertical: 6 },
-  prizeAmount: { fontSize: 30, lineHeight: 38, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 24, lineHeight: 32 },
+  prizeBox: { borderWidth: 1.5, padding: 16, gap: 2, marginVertical: 6, borderRadius: Radius.card },
+  podium: { flexDirection: 'row', gap: 8 },
+  prizeAmount: { ...displayFace, fontSize: 36, lineHeight: 44 },
   bottom: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: 12, gap: 8, borderTopWidth: 1 },
 });

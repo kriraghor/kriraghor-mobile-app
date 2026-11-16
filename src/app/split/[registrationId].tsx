@@ -2,9 +2,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Notice } from '@/components/ui';
+import { Button, Notice, ScreenLoading } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { title } from '@/lib/esports';
@@ -14,6 +14,9 @@ import { canSplit, checkSplit, equalSplit, splitPlayers, type SplitRow } from '@
 import { useMe } from '@/lib/use-me';
 import { keys } from '@/lib/use-realtime';
 import { SignedInOnly } from '@/components/guest';
+import { inEsports } from '@/hooks/theme-scope';
+import { Radius } from '@/constants/motion';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * The squad's prize split (M21 §6.5): whole percents per player adding up to 100, set by whoever
@@ -34,7 +37,7 @@ function SplitScreen() {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<{ tone: 'info' | 'error'; text: string } | null>(null);
 
-  if (entries.isLoading || me.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (entries.isLoading || me.isLoading) return <ScreenLoading />;
   if (!entry) return <Notice tone="error" text={t('common.somethingWrong')} />;
 
   const ids = players.map((p) => p.userId);
@@ -103,16 +106,19 @@ function SplitScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 10 },
-  title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1.5, paddingHorizontal: 12, minHeight: 56 },
-  input: { width: 64, minHeight: 44, borderWidth: 2, textAlign: 'right', paddingHorizontal: 8, fontSize: 16 },
+  title: { ...displayFace, fontSize: 22, lineHeight: 30 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1.5, paddingHorizontal: 12, minHeight: 56, borderRadius: Radius.control },
+  input: { width: 64, minHeight: 44, borderWidth: 1.5, textAlign: 'right', paddingHorizontal: 8, fontSize: 16, borderRadius: Radius.control },
 });
 
 /** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
-export default function SplitScreenRoute() {
+function SplitScreenRoute() {
   return (
     <SignedInOnly>
       <SplitScreen />
     </SignedInOnly>
   );
 }
+
+// Dark like the Esports section it belongs to (UI v2).
+export default inEsports(SplitScreenRoute);

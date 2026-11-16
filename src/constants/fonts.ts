@@ -16,6 +16,8 @@ export const FONT_ASSETS = { HindSiliguri_400Regular, HindSiliguri_500Medium, Hi
 
 /** The heading face. A style that names it keeps it in both languages (withTypeface leaves a set family alone). */
 export const DISPLAY_FONT = 'AnekBangla_800ExtraBold';
+/** The title in every screen's header bar. */
+export const HEADER_TITLE = { fontFamily: DISPLAY_FONT, fontWeight: 'normal', fontSize: 20 } as const;
 /** Spread into a text style to make it a heading: the display face at its own weight. */
 export const displayFace = { fontFamily: DISPLAY_FONT, fontWeight: 'normal' } as const;
 

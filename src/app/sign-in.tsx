@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +7,7 @@ import { BackLink, CodeStep, Footer, SignupForm, StepTitle, type About } from '@
 import { ThemedText } from '@/components/themed-text';
 import { Button, CodeInput, Field, Notice, PasswordField, TextLink } from '@/components/ui';
 import { useNow } from '@/hooks/use-now';
+import { useScheme } from '@/hooks/theme-scope';
 import { useTheme } from '@/hooks/use-theme';
 import { currentLanguage } from '@/i18n';
 import { api, problemMessage } from '@/lib/api';
@@ -26,6 +28,8 @@ import {
   type ProblemLike,
   type Verified,
 } from '@/lib/auth-flow';
+
+const LOGO = { light: require('../../assets/brand/logo-mark.png'), dark: require('../../assets/brand/logo-mark-dark.png') };
 
 type Purpose = 'login' | 'signup';
 type Step =
@@ -48,6 +52,7 @@ type Tokens = { accessToken: string; refreshToken?: string };
  */
 export default function SignIn() {
   const theme = useTheme();
+  const scheme = useScheme();
   const { t } = useTranslation();
   const { signedIn } = useAuth();
   const [step, setStep] = useState<Step>({ kind: 'password' });
@@ -184,7 +189,12 @@ export default function SignIn() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: theme.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-        {step.kind === 'password' ? <StepTitle title={t('signIn.title')} sub={t('signIn.sub')} /> : null}
+        {step.kind === 'password' ? (
+          <>
+            <Image source={scheme === 'dark' ? LOGO.dark : LOGO.light} style={styles.logo} contentFit="contain" accessible={false} />
+            <StepTitle title={t('signIn.title')} sub={t('signIn.sub')} />
+          </>
+        ) : null}
         {step.kind === 'target' ? (
           <>
             <BackLink onPress={toPassword} />
@@ -413,5 +423,6 @@ function ResendRow({ sentAt, seconds, busy, onResend }: { sentAt: number; second
 
 const styles = StyleSheet.create({
   page: { padding: 20, paddingTop: 28, gap: 16, paddingBottom: 40 },
+  logo: { width: 48, height: 48 },
   resend: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
 });

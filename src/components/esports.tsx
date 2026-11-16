@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
-import { AnimatedPressable } from '@/components/ui';
+import { AnimatedPressable, SectionHeading } from '@/components/ui';
 import { displayFace } from '@/constants/fonts';
 import { Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
@@ -29,7 +29,7 @@ export function Pill({ text, tone = 'neutral' }: { text: string; tone?: 'neutral
 export function Segments<K extends string>({ items, value, onChange }: { items: { key: K; label: string }[]; value: K; onChange: (k: K) => void }) {
   const theme = useTheme();
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segments} accessibilityRole="tablist">
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.segmentsRow} contentContainerStyle={styles.segments} accessibilityRole="tablist">
       {items.map((it) => {
         const selected = it.key === value;
         return (
@@ -38,7 +38,8 @@ export function Segments<K extends string>({ items, value, onChange }: { items: 
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             onPress={() => onChange(it.key)}
-            style={[styles.segment, { borderColor: selected ? theme.brand : theme.line, backgroundColor: selected ? theme.brand : theme.backgroundElement }]}>
+            style={[styles.segment, { borderColor: selected ? theme.brand : theme.line, backgroundColor: selected ? theme.brand : theme.backgroundElement }]}
+            hitSlop={2}>
             <ThemedText type="smallBold" style={{ color: selected ? theme.onBrand : theme.text }}>
               {it.label}
             </ThemedText>
@@ -49,11 +50,12 @@ export function Segments<K extends string>({ items, value, onChange }: { items: 
   );
 }
 
+/** A section's title inside a page: the small heading with the slanted mark (UI v2). */
 export function SectionTitle({ children }: { children: ReactNode }) {
+  const parts = Array.isArray(children) ? children : [children];
+  const text = parts.every((c) => typeof c === 'string' || typeof c === 'number') ? parts.join('') : null;
   return (
-    <ThemedText type="smallBold" themeColor="textSecondary" style={styles.section}>
-      {children}
-    </ThemedText>
+    <View style={styles.section}>{text !== null ? <SectionHeading small title={text} /> : <ThemedText type="heading">{children}</ThemedText>}</View>
   );
 }
 
@@ -132,9 +134,10 @@ export function EventCard({ event }: { event: TournamentCard }) {
 
 const styles = StyleSheet.create({
   pill: { borderRadius: Radius.pill, paddingHorizontal: 10, paddingVertical: 3, alignSelf: 'flex-start' },
-  segments: { gap: 8, paddingHorizontal: 16, paddingVertical: 12 },
-  segment: { minHeight: 48, paddingHorizontal: 16, borderWidth: 2, borderRadius: Radius.pill, alignItems: 'center', justifyContent: 'center' },
-  section: { textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 8 },
+  segmentsRow: { flexGrow: 0, flexShrink: 0 },
+  segments: { gap: 8, paddingHorizontal: 16, paddingVertical: 8, alignItems: 'center' },
+  segment: { minHeight: 44, paddingHorizontal: 16, borderWidth: 1, borderRadius: Radius.pill, alignItems: 'center', justifyContent: 'center' },
+  section: { marginTop: 8 },
   infoRow: { flexDirection: 'row', gap: 12, paddingVertical: 6 },
   bar: { height: 6, width: '100%', overflow: 'hidden', borderRadius: 3 },
   card: { borderWidth: 1, borderRadius: Radius.card, padding: 16, gap: 8, overflow: 'hidden' },

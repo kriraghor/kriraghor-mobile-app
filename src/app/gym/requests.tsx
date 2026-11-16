@@ -7,7 +7,7 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Pill, SectionTitle } from '@/components/esports';
 import { Card, ErrorNotice, GymGate } from '@/components/gym';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Notice } from '@/components/ui';
+import { Button, IntroCard, Notice } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { dateOnly, requestState, splitRequests } from '@/lib/gym';
@@ -15,6 +15,7 @@ import { acceptRequest, cancelRequest, declineRequest, myRequests, type GymReque
 import type { Lang } from '@/lib/format';
 import { usePendingRequests } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
+import { displayFace } from '@/constants/fonts';
 
 const SHARES = ['name', 'phone', 'photo', 'checkins', 'payments'] as const;
 
@@ -55,12 +56,9 @@ export default function GymRequests() {
         </View>
       ) : null}
       {empty && !pending.error ? (
-        <Card>
-          <ThemedText type="smallBold">{t('gymRequests.none')}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('gymRequests.noneBody')}
-          </ThemedText>
-        </Card>
+        <IntroCard icon="download" title={t('gymRequests.none')} text={t('gymRequests.noneBody')}>
+          <Button title={t('gym.findGym')} variant="secondary" icon="search" onPress={() => router.push('/gyms')} />
+        </IntroCard>
       ) : null}
       {invites.map((r) => (
         <RequestCard key={r.id} r={r} onDone={setDone} />
@@ -177,7 +175,7 @@ function RequestCard({ r, onDone }: { r: GymRequest; onDone: (d: { text: string;
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 32 },
   top: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
-  gym: { fontSize: 18, lineHeight: 26, fontWeight: '700' },
+  gym: { ...displayFace, fontSize: 18, lineHeight: 26 },
   shares: { padding: 12, gap: 6 },
   share: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   note: { padding: 10 },

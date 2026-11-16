@@ -9,6 +9,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { dateOnly, groupsOn, latestTicks, progressOn, textOf, todayFirst } from '@/lib/gym';
 import type { PlanItem } from '@/lib/gym-api';
 import { count, type Lang } from '@/lib/format';
+import { Radius } from '@/constants/motion';
 
 /** Today's plan in the Gym section: the card on My gyms and the Today tab, and the list of all my plans. */
 
@@ -89,5 +90,5 @@ export function PlanList({ items }: { items: PlanItem[] }) {
 
 const styles = StyleSheet.create({
   todayRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, borderTopWidth: 1, paddingTop: 8 },
-  planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, borderWidth: 1.5, padding: 12 },
+  planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, borderWidth: 1.5, padding: 12, borderRadius: Radius.control },
 });

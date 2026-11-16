@@ -24,6 +24,7 @@ import { count, money, type Lang } from '@/lib/format';
 import { useGate } from '@/lib/use-gate';
 import { useMyGyms, usePendingRequests } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * A gym's page (M20 §4, gym.kriraghor.com /gyms/[slug]), open to guests: photos, open now, rating,
@@ -468,13 +469,13 @@ const styles = StyleSheet.create({
   section: { paddingHorizontal: 16, paddingTop: 16 },
   noPhoto: { width: '100%', aspectRatio: 16 / 9 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  title: { fontSize: 28, lineHeight: 36, fontWeight: '800' },
-  h2: { fontSize: 20, lineHeight: 28, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 28, lineHeight: 36 },
+  h2: { ...displayFace, fontSize: 20, lineHeight: 28 },
   link: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   tag: { borderWidth: 1, borderRadius: Radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
   option: { minHeight: 56, borderWidth: 1.5, borderRadius: Radius.control, paddingHorizontal: 14, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 12 },
   chip: { minHeight: 48, paddingHorizontal: 16, borderRadius: Radius.pill, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  price: { fontSize: 18, lineHeight: 26, fontWeight: '800' },
+  price: { ...displayFace, fontSize: 18, lineHeight: 26 },
   total: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', borderTopWidth: 1, paddingTop: 12 },
   payBar: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
   hourRow: { flexDirection: 'row', gap: 12, paddingVertical: 10, borderBottomWidth: 1 },

@@ -27,6 +27,8 @@ export const Duration = {
   zoom: 350,
   /** A plain crossfade when reduce motion is on. */
   fade: 200,
+  /** A prize, a balance or points counting up to its value. */
+  count: 600,
 } as const;
 
 /** Each list item or tile starts this much after the one before, up to STAGGER_MAX items. */
