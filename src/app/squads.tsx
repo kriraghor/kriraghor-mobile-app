@@ -2,10 +2,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Pill, SectionTitle, Segments } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Field, Notice } from '@/components/ui';
+import { Button, Field, Notice, ScreenLoading } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { named, type Squad } from '@/lib/esports';
@@ -14,6 +14,9 @@ import { count, type Lang } from '@/lib/format';
 import { useMe } from '@/lib/use-me';
 import { keys } from '@/lib/use-realtime';
 import { SignedInOnly } from '@/components/guest';
+import { inEsports } from '@/hooks/theme-scope';
+import { Radius } from '@/constants/motion';
+import { displayFace } from '@/constants/fonts';
 
 type SquadItem = Squad & { inviteCode: string | null; maxMembers: number; myMemberId: string };
 
@@ -47,7 +50,7 @@ function SquadsScreen() {
     }
   }
 
-  if (squads.isLoading || games.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (squads.isLoading || games.isLoading) return <ScreenLoading />;
   const all = squads.data ?? [];
   const invites = all.filter((s) => s.myStatus === 'invited');
   const mine = all.filter((s) => s.myStatus === 'active');
@@ -214,19 +217,22 @@ function JoinForm({ busy, onJoin }: { busy: boolean; onJoin: (code: string) => v
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12 },
-  card: { borderWidth: 1.5, padding: 14, gap: 8 },
+  card: { borderWidth: 1, padding: 14, gap: 8, borderRadius: Radius.card },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  name: { flex: 1, fontSize: 18, lineHeight: 26, fontWeight: '700' },
+  name: { ...displayFace, flex: 1, fontSize: 18, lineHeight: 26 },
   member: { flexDirection: 'row', alignItems: 'center', gap: 8, borderTopWidth: 1, paddingTop: 8 },
   memberActions: { gap: 6, minWidth: 120 },
   buttons: { flexDirection: 'row', gap: 8 },
 });
 
 /** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
-export default function SquadsScreenRoute() {
+function SquadsScreenRoute() {
   return (
     <SignedInOnly>
       <SquadsScreen />
     </SignedInOnly>
   );
 }
+
+// Dark like the Esports section it belongs to (UI v2).
+export default inEsports(SquadsScreenRoute);

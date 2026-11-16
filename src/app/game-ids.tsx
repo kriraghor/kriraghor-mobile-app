@@ -3,10 +3,10 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Pill, SectionTitle, Segments } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Field, Notice } from '@/components/ui';
+import { Button, Field, Notice, ScreenLoading } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
 import { named, type Game } from '@/lib/esports';
@@ -14,6 +14,8 @@ import { addProfile, listGames, myProfiles, uploadImage } from '@/lib/esports-ap
 import { pickImage } from '@/lib/pick-image';
 import { keys } from '@/lib/use-realtime';
 import { SignedInOnly } from '@/components/guest';
+import { inEsports } from '@/hooks/theme-scope';
+import { Radius } from '@/constants/motion';
 
 /**
  * Game IDs (M21-FR-02 to FR-04): one per game, with a screenshot of the in-game profile; staff
@@ -36,7 +38,7 @@ function GameIdsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
 
-  if (games.isLoading || profiles.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (games.isLoading || profiles.isLoading) return <ScreenLoading />;
   const list = (profiles.data ?? []).filter((p) => p.status !== 'unlinked');
   const taken = new Set(list.filter((p) => p.status !== 'rejected').map((p) => p.gameId));
   const open = (games.data ?? []).filter((g) => !taken.has(g.id));
@@ -135,16 +137,19 @@ function GameIdsScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12 },
-  card: { borderWidth: 1.5, padding: 14, gap: 6 },
+  card: { borderWidth: 1, padding: 14, gap: 6, borderRadius: Radius.card },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   preview: { width: '100%', height: 220 },
 });
 
 /** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
-export default function GameIdsScreenRoute() {
+function GameIdsScreenRoute() {
   return (
     <SignedInOnly>
       <GameIdsScreen />
     </SignedInOnly>
   );
 }
+
+// Dark like the Esports section it belongs to (UI v2).
+export default inEsports(GameIdsScreenRoute);

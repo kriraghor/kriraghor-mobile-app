@@ -21,6 +21,8 @@ import { checkinToken, entranceCheckin, type CheckinToken, type EntranceCheckin 
 import { count, type Lang } from '@/lib/format';
 import { useMyGyms } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
+import { Radius } from '@/constants/motion';
+import { displayFace } from '@/constants/fonts';
 
 type Mode = 'qr' | 'scan';
 const NATIVE = Platform.OS !== 'web';
@@ -308,9 +310,9 @@ function ScanError({ error, message }: { error: unknown; message?: string }) {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 40 },
-  qrBox: { backgroundColor: '#FFFFFF', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 16, gap: 10 },
-  qrGym: { color: '#111210', fontSize: 18, lineHeight: 26, fontWeight: '800', textAlign: 'center' },
+  qrBox: { backgroundColor: '#FFFFFF', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 16, gap: 10, borderRadius: Radius.card },
+  qrGym: { ...displayFace, color: '#111210', fontSize: 18, lineHeight: 26, textAlign: 'center' },
   qrCode: { color: '#111210', fontSize: 16, lineHeight: 22, fontWeight: '700', letterSpacing: 1 },
   qrHint: { color: '#3A403C', fontSize: 13, lineHeight: 18 },
-  camera: { width: '100%', aspectRatio: 1, borderWidth: 3, overflow: 'hidden', backgroundColor: '#000000' },
+  camera: { width: '100%', aspectRatio: 1, borderWidth: 3, overflow: 'hidden', backgroundColor: '#000000', borderRadius: Radius.card },
 });

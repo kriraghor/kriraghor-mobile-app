@@ -14,7 +14,7 @@ import { CODE_LENGTH, maskTarget, NAME_MAX, normalizeUsername, passwordProblem, 
 export function StepTitle({ title, sub }: { title: string; sub?: string }) {
   return (
     <View style={styles.titleBox}>
-      <ThemedText style={styles.title} accessibilityRole="header">
+      <ThemedText type="display" style={styles.title} accessibilityRole="header">
         {title}
       </ThemedText>
       {sub ? <ThemedText themeColor="textSecondary">{sub}</ThemedText> : null}
@@ -187,7 +187,7 @@ export function SignupForm({ initialName, needsUsername, busy, onSubmit }: { ini
 
 const styles = StyleSheet.create({
   titleBox: { gap: 6 },
-  title: { fontSize: 28, lineHeight: 36, fontWeight: '800' },
+  title: { fontSize: 28, lineHeight: 34 },
   back: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingRight: 8 },
   footer: { borderTopWidth: 1, paddingTop: 16, gap: 0, alignItems: 'center' },
   sentTo: { gap: 0 },

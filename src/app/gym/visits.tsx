@@ -7,13 +7,14 @@ import QRCode from 'react-native-qrcode-svg';
 import { Pill, SectionTitle } from '@/components/esports';
 import { Card, confirmAction, ErrorNotice, GymGate } from '@/components/gym';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Notice } from '@/components/ui';
+import { Button, IntroCard, Notice } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import type { Lang } from '@/lib/format';
 import { clockTime, codeGroups, dateOnly, splitVisits } from '@/lib/gym';
 import { cancelVisit, myVisits, type MyVisit } from '@/lib/gym-api';
 import { keys } from '@/lib/use-realtime';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * My visits (M24-FR-112, mirrors gym.kriraghor.com /me/visits): a booked free visit with its QR and
@@ -60,13 +61,9 @@ export default function GymVisitsScreen() {
       {note ? <Notice text={note} /> : null}
       <ErrorNotice error={error ?? visits.error} onRetry={visits.error ? () => void visits.refetch() : undefined} />
       {!coming.length && !past.length && !visits.error ? (
-        <Card>
-          <ThemedText type="smallBold">{t('gymVisits.none')}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('gymVisits.noneBody')}
-          </ThemedText>
-          <Button title={t('gym.findGym')} onPress={() => router.push('/gyms')} />
-        </Card>
+        <IntroCard icon="calendar-check" title={t('gymVisits.none')} text={t('gymVisits.noneBody')}>
+          <Button title={t('gym.findGym')} variant="accent" icon="search" onPress={() => router.push('/gyms')} />
+        </IntroCard>
       ) : null}
       {coming.map((v) => (
         <Booked key={v.id} v={v} busy={busy === v.id} onCancel={() => cancel(v)} />
@@ -147,7 +144,7 @@ function Past({ v }: { v: MyVisit }) {
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 40 },
   head: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
-  gym: { fontSize: 18, lineHeight: 26, fontWeight: '700' },
+  gym: { ...displayFace, fontSize: 18, lineHeight: 26 },
   qrBox: { backgroundColor: '#FFFFFF', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, gap: 10 },
   code: { color: '#111210', fontSize: 24, lineHeight: 32, fontWeight: '800', letterSpacing: 3 },
 });

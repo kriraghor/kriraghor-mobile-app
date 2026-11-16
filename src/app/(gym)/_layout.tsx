@@ -7,7 +7,7 @@ import { useReducedMotion } from 'react-native-reanimated';
 import { SectionsButton } from '@/components/sections';
 import { GlassTabBar } from '@/components/tab-bar';
 import { SectionScene } from '@/components/transition';
-import { withTypeface } from '@/constants/fonts';
+import { HEADER_TITLE } from '@/constants/fonts';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { unreadCount } from '@/lib/esports-api';
@@ -31,7 +31,7 @@ const TABS: { name: string; label: Label; icon: IconName }[] = [
  */
 export default function GymLayout() {
   const theme = useTheme();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const reduce = useReducedMotion();
   const { status } = useAuth();
   const unread = useQuery({ queryKey: keys.unread, queryFn: unreadCount, enabled: status === 'signed_in' });
@@ -45,7 +45,7 @@ export default function GymLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.text,
-        headerTitleStyle: withTypeface({ fontSize: 18, fontWeight: '700' }, i18n.language),
+        headerTitleStyle: HEADER_TITLE,
         headerShadowVisible: false,
         headerRight: () => <SectionsButton />,
         // A short crossfade between tabs (none with reduce motion).

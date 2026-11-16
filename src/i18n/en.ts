@@ -126,6 +126,7 @@ export const en = {
     title: 'My matches',
     signedOut: 'Sign in to see your matches, check in and get the room ID.',
     empty: 'No entries yet. Pick a tournament to play.',
+    emptyTitle: 'No matches yet',
     findEvent: 'Find a tournament',
     slot: 'Slot {{slot}}',
     match: 'Match {{seq}} · {{at}}',
@@ -200,6 +201,7 @@ export const en = {
   },
   notifications: {
     title: 'Notifications',
+    unread: 'Not read yet',
     empty: 'No notifications yet.',
     markAll: 'Mark all read',
   },
@@ -362,6 +364,8 @@ export const en = {
   },
   payout: {
     title: 'Payout account',
+    introTitle: 'Where your prizes go',
+    introBody: 'Add one bKash or Nagad account in your own name. Our finance team checks it once, before your first withdrawal.',
     active: 'Withdrawals go to {{account}}.',
     pending: '{{account}} is being checked by our finance team.',
     rejected: '{{account}} was not approved: {{note}}',
@@ -956,6 +960,11 @@ export const en = {
     later: 'Later',
     restart: 'Restart now',
   },
+  notFound: {
+    header: 'Not found',
+    title: 'This page is not here',
+    body: 'The link may be old, or the page has moved. Everything in the app starts from All sections.',
+  },
   account: {
     title: 'Account',
     signedOut: 'You are not signed in.',
@@ -963,6 +972,7 @@ export const en = {
     phone: 'Phone',
     email: 'Email',
     roles: 'Roles',
+    more: 'More',
     language: 'Language',
     notifications: 'Notifications',
     notificationsHelp: 'Room IDs, check-in and results reach this phone once notifications are on.',

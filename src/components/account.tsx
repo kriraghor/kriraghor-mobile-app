@@ -1,13 +1,16 @@
-import { Icon, type IconName } from '@/components/icons/Icon';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { CountBadge } from '@/components/gym';
+import { Pill } from '@/components/esports';
+import { Card, RowLink } from '@/components/gym';
 import { useLeaveToHub } from '@/components/transition';
 import { ThemedText } from '@/components/themed-text';
-import { Button, EmptyState, Notice } from '@/components/ui';
+import { Avatar, Button, EmptyState, Notice, Reveal, SectionHeading, Skeleton } from '@/components/ui';
+import { displayFace } from '@/constants/fonts';
+import { Radius } from '@/constants/motion';
+import { initials } from '@/lib/ui-logic';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useTheme } from '@/hooks/use-theme';
 import { LANGUAGES, setLanguage, type Language } from '@/i18n';
@@ -24,6 +27,9 @@ const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', bn: 'বাং
 /**
  * The signed-in account (GET /me), the language and notifications. The Account tab of both sections
  * (Esports and Gym) renders this one screen; inside Gym the Gym row is left out (it is the section).
+ *
+ * UI v2: who I am on a card (initials, name, phone, email), then my things in two groups, the language,
+ * notifications, and Sign out last and quiet, so it is never pressed by mistake.
  */
 export function AccountScreen({ section }: { section: Section }) {
   const theme = useTheme();
@@ -50,7 +56,7 @@ export function AccountScreen({ section }: { section: Section }) {
       <View style={{ flex: 1, backgroundColor: theme.background }}>
         <LanguagePicker padded />
         <View style={styles.pad}>
-          <NavRow icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
+          <RowLink icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
         </View>
         <EmptyState icon="account" text={t('account.signedOut')} action={{ title: t('common.signIn'), onPress: () => router.push('/sign-in') }} />
       </View>
@@ -63,37 +69,63 @@ export function AccountScreen({ section }: { section: Section }) {
     <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={[styles.page, { paddingBottom: 24 + tabInset }]} refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void me.refetch()} tintColor={theme.brand} />}>
       {me.error ? <Notice tone="error" text={problemMessage(me.error, t('common.somethingWrong'))} /> : null}
       {me.data ? (
-        <>
-          <ThemedText style={styles.title}>{me.data.displayName}</ThemedText>
-          <ThemedText themeColor="textSecondary">{t('account.sameSession')}</ThemedText>
-          <View style={[styles.card, { borderTopColor: theme.text }]}>
+        <Reveal>
+          <Card>
+            <View style={styles.who}>
+              <Avatar letters={initials(me.data.displayName)} size={60} />
+              <View style={{ flex: 1 }}>
+                <ThemedText style={styles.name} numberOfLines={2} accessibilityRole="header">
+                  {me.data.displayName}
+                </ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {me.data.phone ?? me.data.email ?? ''}
+                </ThemedText>
+              </View>
+            </View>
+            <View style={[styles.rule, { backgroundColor: theme.line }]} />
             <Row label={t('account.phone')} value={me.data.phone ?? '–'} />
             <Row label={t('account.email')} value={me.data.email ?? '–'} />
-            <Row label={t('account.roles')} value={me.data.roles.map((r) => `${r.role} (${r.status})`).join(', ')} />
-          </View>
-        </>
+            {me.data.roles.length ? (
+              <View style={styles.roles} accessibilityLabel={t('account.roles')}>
+                {me.data.roles.map((r) => (
+                  <Pill key={r.role} text={roleName(r.role)} tone={r.status === 'active' ? 'brand' : 'neutral'} />
+                ))}
+              </View>
+            ) : null}
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('account.sameSession')}
+            </ThemedText>
+          </Card>
+        </Reveal>
       ) : (
-        <ThemedText themeColor="textSecondary">{t('common.loading')}</ThemedText>
+        <Skeleton height={176} radius={Radius.card} />
       )}
 
-      <NavRow icon="bell" label={t('notifications.title')} onPress={() => router.push('/notifications')} />
-      <NavRow icon="id-card" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
-      <NavRow icon="people" label={t('squads.title')} onPress={() => router.push('/squads')} />
-      <NavRow icon="wallet" label={t('winnings.title')} onPress={() => router.push('/winnings')} />
-      {section === 'esports' ? <NavRow icon="gym" label={t('gym.title')} badge={waiting} onPress={() => router.push('/gym')} /> : null}
-      <NavRow icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
+      <View style={styles.group}>
+        <SectionHeading small title={t('hub.tiles.esports.title')} />
+        <RowLink icon="id-card" label={t('gameIds.title')} onPress={() => router.push('/game-ids')} />
+        <RowLink icon="people" label={t('squads.title')} onPress={() => router.push('/squads')} />
+        <RowLink icon="wallet" label={t('winnings.title')} onPress={() => router.push('/winnings')} />
+      </View>
+
+      <View style={styles.group}>
+        <SectionHeading small title={t('account.more')} />
+        <RowLink icon="bell" label={t('notifications.title')} onPress={() => router.push('/notifications')} />
+        {section === 'esports' ? <RowLink icon="gym" label={t('gym.title')} badge={waiting} onPress={() => router.push('/gym')} /> : null}
+        <RowLink icon="sections" label={t('hub.allSections')} onPress={() => void toHub()} />
+      </View>
 
       <LanguagePicker />
 
-      <View style={styles.card}>
+      <Card>
         <ThemedText type="smallBold">{t('account.notifications')}</ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
           {pushText}
         </ThemedText>
-        {push?.status !== 'granted' ? <Button title={t('account.enableNotifications')} variant="outline" onPress={() => void enablePush().then(setPush)} /> : null}
-      </View>
+        {push?.status !== 'granted' ? <Button title={t('account.enableNotifications')} variant="secondary" icon="bell" onPress={() => void enablePush().then(setPush)} /> : null}
+      </Card>
 
-      <Button title={t('common.signOut')} onPress={() => void signOut().then(toHub)} />
+      <Button title={t('common.signOut')} variant="outline" onPress={() => void signOut().then(toHub)} />
     </ScrollView>
   );
 }
@@ -103,7 +135,7 @@ function LanguagePicker({ padded }: { padded?: boolean }) {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
   return (
-    <View style={[styles.card, padded && styles.pad]}>
+    <View style={[styles.language, padded && styles.pad]}>
       <ThemedText type="smallBold">{t('account.language')}</ThemedText>
       <View style={styles.segment} accessibilityRole="radiogroup">
         {LANGUAGES.map((lng) => {
@@ -114,8 +146,8 @@ function LanguagePicker({ padded }: { padded?: boolean }) {
               accessibilityRole="radio"
               accessibilityState={{ selected }}
               onPress={() => void setLanguage(lng)}
-              style={[styles.option, { borderColor: selected ? theme.brand : theme.line, backgroundColor: selected ? theme.backgroundSelected : theme.backgroundElement }]}>
-              <ThemedText type="smallBold" style={{ color: selected ? theme.brandText : theme.text }}>
+              style={[styles.option, { borderColor: selected ? theme.brand : theme.line, backgroundColor: selected ? theme.brand : theme.backgroundElement }]}>
+              <ThemedText type="smallBold" style={{ color: selected ? theme.onBrand : theme.text }}>
                 {LANGUAGE_NAMES[lng]}
               </ThemedText>
             </Pressable>
@@ -126,20 +158,11 @@ function LanguagePicker({ padded }: { padded?: boolean }) {
   );
 }
 
-/** A row that opens another screen (48px target, icon and label). */
-function NavRow({ icon, label, onPress, badge = 0 }: { icon: IconName; label: string; onPress: () => void; badge?: number }) {
-  const theme = useTheme();
-  return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.nav, { borderColor: theme.line, backgroundColor: theme.backgroundElement }, pressed && { opacity: 0.85 }]}>
-      <Icon name={icon} size={22} color={theme.text} />
-      <ThemedText type="smallBold" style={{ flex: 1 }}>
-        {label}
-      </ThemedText>
-      <CountBadge n={badge} />
-      <Icon name="chevron-right" size={22} color={theme.textSecondary} />
-    </Pressable>
-  );
-}
+/** "gym_owner" → "Gym owner": a role's key in words, until the roles have names of their own in both languages. */
+const roleName = (role: string) => {
+  const words = role.replace(/[_-]+/g, ' ').trim();
+  return words ? words[0].toUpperCase() + words.slice(1) : role;
+};
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -155,14 +178,17 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  page: { padding: 20, gap: 20 },
-  pad: { paddingHorizontal: 20, paddingTop: 20 },
-  title: { fontSize: 28, lineHeight: 36, fontWeight: '800' },
-  card: { gap: 8, borderTopWidth: 2, borderTopColor: 'transparent', paddingTop: 12 },
+  page: { padding: 16, gap: 20 },
+  pad: { paddingHorizontal: 16, paddingTop: 16 },
+  who: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  name: { ...displayFace, fontSize: 24, lineHeight: 30 },
+  rule: { height: 1, marginVertical: 4 },
+  roles: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  group: { gap: 10 },
+  language: { gap: 8 },
   segment: { flexDirection: 'row', gap: 8 },
-  option: { flex: 1, minHeight: 48, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  option: { flex: 1, minHeight: 48, borderWidth: 1, borderRadius: Radius.pill, alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', gap: 12 },
-  nav: { minHeight: 52, borderWidth: 1.5, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
   rowLabel: { width: 72 },
   rowValue: { flex: 1 },
 });

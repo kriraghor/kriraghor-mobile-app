@@ -1,11 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Icon } from '@/components/icons/Icon';
 import { SectionTitle } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Field, Notice } from '@/components/ui';
+import { Button, Field, IntroCard, Notice, ScreenLoading } from '@/components/ui';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
@@ -13,6 +13,8 @@ import { addPayoutAccount, payoutAccounts, sendPayoutCode } from '@/lib/esports-
 import { dateTime, type Lang } from '@/lib/format';
 import { normaliseWallet } from '@/lib/player';
 import { SignedInOnly } from '@/components/guest';
+import { inEsports } from '@/hooks/theme-scope';
+import { Radius } from '@/constants/motion';
 
 /**
  * The payout account (M07): one bKash or Nagad wallet in the player's own name. A code to the
@@ -36,7 +38,7 @@ function PayoutAccountScreen() {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<{ tone: 'info' | 'error'; text: string } | null>(null);
 
-  if (accounts.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (accounts.isLoading) return <ScreenLoading />;
   const list = accounts.data ?? [];
   const active = list.find((a) => a.status === 'active');
   const latest = list.find((a) => a.status === 'pending_verification' || a.status === 'rejected');
@@ -83,8 +85,12 @@ function PayoutAccountScreen() {
       {latest?.status === 'rejected' ? <Notice tone="error" text={t('payout.rejected', { account: latest.masked, note: latest.reviewNote ?? '' })} /> : null}
       {note ? <Notice tone={note.tone} text={note.text} /> : null}
 
-      {!open ? (
-        <Button title={active || latest ? t('payout.replace') : t('payout.add')} variant={active ? 'outline' : 'primary'} onPress={() => setOpen(true)} />
+      {!open && !active && !latest ? (
+        <IntroCard icon="bank" title={t('payout.introTitle')} text={t('payout.introBody')}>
+          <Button title={t('payout.add')} variant="accent" icon="plus" onPress={() => setOpen(true)} />
+        </IntroCard>
+      ) : !open ? (
+        <Button title={t('payout.replace')} variant={active ? 'outline' : 'primary'} onPress={() => setOpen(true)} />
       ) : (
         <View style={{ gap: 10 }}>
           <SectionTitle>{t('payout.add')}</SectionTitle>
@@ -96,8 +102,8 @@ function PayoutAccountScreen() {
                 accessibilityState={{ selected: type === k, disabled: codeSent }}
                 disabled={codeSent}
                 onPress={() => setType(k)}
-                style={[styles.type, { borderColor: type === k ? theme.brand : theme.line, backgroundColor: type === k ? theme.backgroundSelected : theme.backgroundElement }]}>
-                <ThemedText type="smallBold" style={{ color: type === k ? theme.brandText : theme.text }}>
+                style={[styles.type, { borderColor: type === k ? theme.brand : theme.line, backgroundColor: type === k ? theme.brand : theme.backgroundElement }]}>
+                <ThemedText type="smallBold" style={{ color: type === k ? theme.onBrand : theme.text }}>
                   {t(`pay.${k}`)}
                 </ThemedText>
               </Pressable>
@@ -128,15 +134,18 @@ function PayoutAccountScreen() {
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12 },
   types: { flexDirection: 'row', gap: 8 },
-  type: { flex: 1, minHeight: 48, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  type: { flex: 1, minHeight: 48, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', borderRadius: Radius.control },
   declare: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 },
 });
 
 /** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
-export default function PayoutAccountScreenRoute() {
+function PayoutAccountScreenRoute() {
   return (
     <SignedInOnly>
       <PayoutAccountScreen />
     </SignedInOnly>
   );
 }
+
+// Dark like the Esports section it belongs to (UI v2).
+export default inEsports(PayoutAccountScreenRoute);

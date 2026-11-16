@@ -2,10 +2,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SectionTitle } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Field, Notice } from '@/components/ui';
+import { Button, Field, Notice, ScreenLoading } from '@/components/ui';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { errorText } from '@/lib/errors';
@@ -14,6 +14,8 @@ import { count, dateTime, type Lang } from '@/lib/format';
 import { pickImage } from '@/lib/pick-image';
 import { keys, useRoomEvents } from '@/lib/use-realtime';
 import { SignedInOnly } from '@/components/guest';
+import { inEsports } from '@/hooks/theme-scope';
+import { Radius } from '@/constants/motion';
 
 /**
  * A match's result (M21-FR-18 to FR-22): placement, kills and points per entry, with the player's
@@ -36,7 +38,7 @@ function ResultScreen() {
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<string | null>(null);
 
-  if (match.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (match.isLoading) return <ScreenLoading />;
   const m = match.data;
   if (!m) return <Notice tone="error" text={errorText(t, match.error)} />;
 
@@ -138,16 +140,19 @@ function Cell({ children, w, flex, bold, right }: { children: React.ReactNode; w
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12 },
-  table: { borderWidth: 1.5 },
+  table: { borderWidth: 1, borderRadius: Radius.card, overflow: 'hidden' },
   tr: { flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: 'transparent' },
   head: { borderTopWidth: 0 },
 });
 
 /** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
-export default function ResultScreenRoute() {
+function ResultScreenRoute() {
   return (
     <SignedInOnly>
       <ResultScreen />
     </SignedInOnly>
   );
 }
+
+// Dark like the Esports section it belongs to (UI v2).
+export default inEsports(ResultScreenRoute);

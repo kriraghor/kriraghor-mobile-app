@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { InfoRow, SectionTitle } from '@/components/esports';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Notice } from '@/components/ui';
+import { Button, Notice, ScreenLoading } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { ApiError, getPayment, idempotencyKey, startAttempt, verifyPayment } from '@/lib/esports-api';
 import { payDoneRoute, payKind } from '@/lib/gym';
@@ -16,6 +16,8 @@ import { payInApp, type PayMethod, type PayOutcome } from '@/lib/payment-flow';
 import { keys } from '@/lib/use-realtime';
 import { SignedInOnly } from '@/components/guest';
 import { useToast } from '@/components/toast';
+import { Radius } from '@/constants/motion';
+import { displayFace } from '@/constants/fonts';
 
 const METHODS: PayMethod[] = ['bkash', 'nagad', 'card'];
 
@@ -65,7 +67,7 @@ function PayScreen() {
     }
   }
 
-  if (payment.isLoading) return <ActivityIndicator color={theme.brand} style={{ flex: 1, backgroundColor: theme.background }} />;
+  if (payment.isLoading) return <ScreenLoading />;
   const p = payment.data;
   const settled = phase === 'paid' || phase === 'expired' || phase === 'cancelled';
   const kind = payKind(p?.purpose);
@@ -128,9 +130,9 @@ function PayScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12 },
-  title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 22, lineHeight: 30 },
   methods: { flexDirection: 'row', gap: 8 },
-  method: { flex: 1, minHeight: 52, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  method: { flex: 1, minHeight: 52, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', borderRadius: Radius.control },
   waiting: { flexDirection: 'row', gap: 12, alignItems: 'center', paddingVertical: 12 },
 });
 

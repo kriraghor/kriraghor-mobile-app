@@ -1,5 +1,5 @@
 import { clearPending, deferUntilSignedIn, NEEDS_ACCOUNT, needsSignIn, pendingAction, takePending, type Action } from '../guest';
-import { staggerDelay } from '../motion';
+import { countStep, staggerDelay } from '../motion';
 
 describe('guest browsing: which actions need an account', () => {
   const open: Action[] = ['browse_events', 'browse_ranks', 'browse_gyms', 'open_website'];
@@ -58,5 +58,29 @@ describe('entrances', () => {
     expect(staggerDelay(50)).toBe(320);
     expect(staggerDelay(-2)).toBe(0);
     expect(staggerDelay(2.7, 30, 4)).toBe(60);
+  });
+});
+
+describe('a number counting up to its value', () => {
+  it('starts at the old value and ends exactly on the new one', () => {
+    expect(countStep(0, 350000, 0)).toBe(0);
+    expect(countStep(0, 350000, 1)).toBe(350000);
+    expect(countStep(120, 130, 1)).toBe(130);
+  });
+  it('moves fast at first and slows into the value, in whole numbers, never past it', () => {
+    const half = countStep(0, 1000, 0.5);
+    expect(half).toBe(875);
+    expect(Number.isInteger(countStep(0, 999, 0.33))).toBe(true);
+    for (let p = 0; p <= 1; p += 0.05) expect(countStep(0, 7, p)).toBeLessThanOrEqual(7);
+  });
+  it('counts down the same way when the value falls', () => {
+    expect(countStep(1000, 0, 0.5)).toBe(125);
+    for (let p = 0; p <= 1; p += 0.05) expect(countStep(50, 20, p)).toBeGreaterThanOrEqual(20);
+    expect(countStep(50, 20, 1)).toBe(20);
+  });
+  it('treats progress outside 0 to 1 as its nearest end, and no change as no change', () => {
+    expect(countStep(10, 90, -1)).toBe(10);
+    expect(countStep(10, 90, 2)).toBe(90);
+    expect(countStep(40, 40, 0.5)).toBe(40);
   });
 });

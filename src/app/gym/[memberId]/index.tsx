@@ -16,6 +16,7 @@ import { myDues, myMembership, saveHealthNote, unlink, type MemberDue, type Memb
 import { count, money, type Lang } from '@/lib/format';
 import { useMyGyms, usePayDue } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * One of my gym memberships (M24 §4.5 gym/[memberId], mirrors /me/memberships/[memberId]): package
@@ -297,7 +298,7 @@ function HealthNote({ memberId, text, at }: { memberId: string; text: string | n
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 40 },
   head: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
-  title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 22, lineHeight: 30 },
   links: { gap: 8 },
   line: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 1 },
 });

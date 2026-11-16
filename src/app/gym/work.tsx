@@ -15,6 +15,8 @@ import { clockTime, entranceTokenFrom, hoursMinutes, monthTitle, timeOnly } from
 import { myClock, myPayslips, staffClock, type StaffClocked } from '@/lib/gym-api';
 import { useClockWorkplaces } from '@/lib/use-gym';
 import { keys } from '@/lib/use-realtime';
+import { Radius } from '@/constants/motion';
+import { displayFace } from '@/constants/fonts';
 
 const NATIVE = Platform.OS !== 'web';
 /** The same code seen again within this time is the same scan (the camera reports a QR many times a second). */
@@ -200,7 +202,7 @@ function ClockScan({ clockedIn, onClocked }: { clockedIn: boolean; onClocked: ()
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 22, lineHeight: 30, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 22, lineHeight: 30 },
   head: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
-  camera: { width: '100%', aspectRatio: 1, borderWidth: 3, overflow: 'hidden', backgroundColor: '#000000' },
+  camera: { width: '100%', aspectRatio: 1, borderWidth: 3, overflow: 'hidden', backgroundColor: '#000000', borderRadius: Radius.card },
 });

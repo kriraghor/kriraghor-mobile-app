@@ -17,6 +17,7 @@ import { leaderboard, listGames } from '@/lib/esports-api';
 import { count, type Lang } from '@/lib/format';
 import { points, seasonLabel, type LeaderRow } from '@/lib/player';
 import { useMe } from '@/lib/use-me';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * Leaderboards (M21-FR-27): per game, the last 90 days (rolling, at least N events) or a season
@@ -110,8 +111,10 @@ function Row({ row, mine, lang }: { row: LeaderRow; mine: boolean; lang: Lang })
       accessibilityRole="button"
       onPress={() => router.push({ pathname: '/ranks/[handle]', params: { handle: row.username ?? row.userId } })}
       style={({ pressed }) => [styles.row, { borderBottomColor: theme.line, backgroundColor: mine ? theme.backgroundSelected : theme.background }, pressed && { opacity: 0.8 }]}>
-      <View style={[styles.rank, { borderColor: top ? theme.prize : theme.line }]}>
-        <ThemedText type="smallBold">{count(row.rank, lang)}</ThemedText>
+      <View style={[styles.rank, { borderColor: top ? theme.accent : theme.line, backgroundColor: row.rank === 1 ? theme.accent : top ? theme.accentSoft : 'transparent' }]}>
+        <ThemedText type="smallBold" style={{ color: row.rank === 1 ? theme.onAccent : top ? theme.accentText : theme.text }}>
+          {count(row.rank, lang)}
+        </ThemedText>
       </View>
       <View style={{ flex: 1 }}>
         <ThemedText type="smallBold" numberOfLines={1}>
@@ -123,9 +126,12 @@ function Row({ row, mine, lang }: { row: LeaderRow; mine: boolean; lang: Lang })
           {t('ranks.played', { count: row.tournaments })}
         </ThemedText>
       </View>
-      <ThemedText type="smallBold">
-        {points(row.points)} {t('ranks.points')}
-      </ThemedText>
+      <View style={{ alignItems: 'flex-end' }}>
+        <ThemedText style={styles.points}>{points(row.points)}</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {t('ranks.points')}
+        </ThemedText>
+      </View>
     </Pressable>
   );
 }
@@ -134,6 +140,7 @@ const styles = StyleSheet.create({
   pad: { paddingHorizontal: 16, paddingBottom: 8 },
   picker: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, borderRadius: Radius.control, borderWidth: 1 },
   rule: { paddingHorizontal: 16, paddingBottom: 8 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, minHeight: 56 },
-  rank: { width: 36, height: 36, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, minHeight: 64 },
+  points: { ...displayFace, fontSize: 18, lineHeight: 22 },
+  rank: { width: 36, height: 36, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', borderRadius: 18 },
 });

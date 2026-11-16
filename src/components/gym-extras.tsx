@@ -13,6 +13,7 @@ import { count, type Lang } from '@/lib/format';
 import { byDay, dateOnly, timeOnly } from '@/lib/gym';
 import { gymTimetable, myPoints, saveHealth, visitSlots, type BloodGroup, type Health } from '@/lib/gym-api';
 import { keys } from '@/lib/use-realtime';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * The newer parts of the gym screens (M27 rounds 1 and 2, M24 §17): my points and the gym's rewards,
@@ -177,7 +178,7 @@ export function VisitCta({ slug }: { slug: string }) {
 }
 
 const styles = StyleSheet.create({
-  bmi: { fontSize: 20, lineHeight: 28, fontWeight: '800' },
+  bmi: { ...displayFace, fontSize: 20, lineHeight: 28 },
   two: { flexDirection: 'row', gap: 12 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { minWidth: 56, minHeight: 44, paddingHorizontal: 12, borderRadius: Radius.control, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },

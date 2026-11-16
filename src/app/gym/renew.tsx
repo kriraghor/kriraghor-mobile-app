@@ -16,6 +16,7 @@ import { dateOnly } from '@/lib/gym';
 import { myRenewal, renewMine, type RenewPay } from '@/lib/gym-api';
 import { firstChoice, firstPay, renewState } from '@/lib/gym-progress';
 import { keys } from '@/lib/use-realtime';
+import { displayFace } from '@/constants/fonts';
 
 /**
  * Renew my membership (M24 §19, FR-122 to FR-124; mirrors the renew form on gym.kriraghor.com): pick a
@@ -141,6 +142,7 @@ export default function GymRenewScreen() {
       {error ? <ErrorNotice error={error} /> : null}
       {!chosen ? <Notice text={t('gymRenew.nothing')} /> : null}
       <Button
+        variant="accent"
         title={chosen && pay === 'online' ? t('gymRenew.sendOnline', { amount: money(chosen.pricePoisha, lang) }) : t('gymRenew.sendCounter')}
         busy={busy}
         disabled={!chosen}
@@ -152,7 +154,7 @@ export default function GymRenewScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 22, lineHeight: 28, fontWeight: '800' },
+  title: { ...displayFace, fontSize: 22, lineHeight: 28 },
   row: { flexDirection: 'row', alignItems: 'baseline', gap: 12 },
   box: { borderWidth: 1.5, borderRadius: Radius.control, padding: 12, gap: 2, minHeight: 56 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

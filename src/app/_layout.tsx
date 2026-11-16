@@ -8,7 +8,8 @@ import { useColorScheme } from 'react-native';
 import { AnimatedSplash } from '@/components/AnimatedSplash';
 import { ToastProvider } from '@/components/toast';
 import { useTheme } from '@/hooks/use-theme';
-import { FONT_ASSETS, withTypeface } from '@/constants/fonts';
+import { FONT_ASSETS, HEADER_TITLE } from '@/constants/fonts';
+import { Colors } from '@/constants/theme';
 // Importing the i18n module also initialises it (English or Bangla from the phone).
 import { restoreLanguage } from '@/i18n';
 import { useAutoUpdates } from '@/lib/app-updates';
@@ -46,8 +47,10 @@ function Navigator({ ready }: { ready: boolean }) {
 }
 
 function AppStack() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
+  // Esports is dark on any phone setting (UI v2); its screens outside the tabs carry a dark header too.
+  const esports = { headerStyle: { backgroundColor: Colors.dark.background }, headerTintColor: Colors.dark.text, contentStyle: { backgroundColor: Colors.dark.background } };
   // A launch that opened another screen (a link or a notification) never jumps to the remembered section.
   const pathname = usePathname();
   // The hub and the sections animate themselves (components/transition.tsx), so the stack does not.
@@ -58,8 +61,8 @@ function AppStack() {
   return (
     <Stack
       screenOptions={{
-        // One header everywhere: an 18 pt bold title on the screen's own background, no hairline, a back arrow without text.
-        headerTitleStyle: withTypeface({ fontSize: 18, fontWeight: '700' }, i18n.language),
+        // One header everywhere: the title in the heading face on the screen's own background, no hairline, a back arrow without text.
+        headerTitleStyle: HEADER_TITLE,
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.text,
         headerShadowVisible: false,
@@ -70,16 +73,16 @@ function AppStack() {
       <Stack.Screen name="(esports)" options={{ headerShown: false, title: t('hub.tiles.esports.title'), animation: scene }} />
       <Stack.Screen name="(gym)" options={{ headerShown: false, title: t('hub.tiles.gym.title'), animation: scene }} />
       <Stack.Screen name="sign-in" options={{ title: t('common.signIn'), presentation: 'modal' }} />
-      <Stack.Screen name="register/[id]" options={{ title: t('register.title') }} />
+      <Stack.Screen name="register/[id]" options={{ title: t('register.title'), ...esports }} />
       <Stack.Screen name="pay/[paymentId]" options={{ title: t('pay.title'), gestureEnabled: false }} />
-      <Stack.Screen name="room/[matchId]" options={{ title: t('room.title') }} />
-      <Stack.Screen name="result/[matchId]" options={{ title: t('result.title') }} />
-      <Stack.Screen name="game-ids" options={{ title: t('gameIds.title') }} />
+      <Stack.Screen name="room/[matchId]" options={{ title: t('room.title'), ...esports }} />
+      <Stack.Screen name="result/[matchId]" options={{ title: t('result.title'), ...esports }} />
+      <Stack.Screen name="game-ids" options={{ title: t('gameIds.title'), ...esports }} />
       <Stack.Screen name="notifications" options={{ title: t('notifications.title') }} />
-      <Stack.Screen name="squads" options={{ title: t('squads.title') }} />
-      <Stack.Screen name="split/[registrationId]" options={{ title: t('split.title') }} />
-      <Stack.Screen name="winnings" options={{ title: t('winnings.title') }} />
-      <Stack.Screen name="payout-account" options={{ title: t('payout.title') }} />
+      <Stack.Screen name="squads" options={{ title: t('squads.title'), ...esports }} />
+      <Stack.Screen name="split/[registrationId]" options={{ title: t('split.title'), ...esports }} />
+      <Stack.Screen name="winnings" options={{ title: t('winnings.title'), ...esports }} />
+      <Stack.Screen name="payout-account" options={{ title: t('payout.title'), ...esports }} />
       {/* Gym detail screens (M24 §4.5, members only), pushed over the Gym tabs. */}
       <Stack.Screen name="gym/requests" options={{ title: t('gymRequests.title') }} />
       <Stack.Screen name="gym/[memberId]/index" options={{ title: t('gymMember.title') }} />

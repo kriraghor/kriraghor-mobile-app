@@ -15,6 +15,8 @@ import { dateTime, type Lang } from '@/lib/format';
 import { acceptCredentials, credentialsFor, onCredentialsChange } from '@/lib/room-credentials';
 import { keys } from '@/lib/use-realtime';
 import { SignedInOnly } from '@/components/guest';
+import { inEsports } from '@/hooks/theme-scope';
+import { Radius } from '@/constants/motion';
 
 // Phones block screenshots of this screen; browsers (the web preview) cannot, so it is a no-op there.
 const useNoScreenshots = Platform.OS === 'web' ? () => undefined : usePreventScreenCapture;
@@ -120,16 +122,19 @@ function Secret({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   page: { padding: 16, gap: 12 },
-  secret: { borderWidth: 2, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  secret: { borderWidth: 1.5, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: Radius.card },
   value: { fontSize: 28, lineHeight: 36, fontWeight: '800', fontFamily: 'monospace', letterSpacing: 1 },
-  copy: { minHeight: 48, minWidth: 72, borderWidth: 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
+  copy: { minHeight: 48, minWidth: 72, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, borderRadius: Radius.control },
 });
 
 /** The person's own page: a guest sees a friendly Sign in (the modal closes back here), never an error. */
-export default function RoomScreenRoute() {
+function RoomScreenRoute() {
   return (
     <SignedInOnly>
       <RoomScreen />
     </SignedInOnly>
   );
 }
+
+// Dark like the Esports section it belongs to (UI v2).
+export default inEsports(RoomScreenRoute);
