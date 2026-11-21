@@ -8,7 +8,7 @@ import { Linking, Pressable, RefreshControl, ScrollView, StyleSheet, useWindowDi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Pill, SectionTitle } from '@/components/esports';
 import { Card, ErrorNotice } from '@/components/gym';
-import { Timetable, VisitCta } from '@/components/gym-extras';
+import { Timetable, VisitCta, WhatsAppButton } from '@/components/gym-extras';
 import { ThemedText } from '@/components/themed-text';
 import { useToast } from '@/components/toast';
 import { Button, EmptyState, Field, Notice, Reveal, SkeletonList } from '@/components/ui';
@@ -23,13 +23,15 @@ import { addDays, dateOnly } from '@/lib/gym';
 import { count, money, type Lang } from '@/lib/format';
 import { useGate } from '@/lib/use-gate';
 import { useMyGyms, usePendingRequests } from '@/lib/use-gym';
+import { gymMessage, packageMessage } from '@/lib/whatsapp';
 import { keys } from '@/lib/use-realtime';
 import { displayFace } from '@/constants/fonts';
 
 /**
  * A gym's page (M20 §4, gym.kriraghor.com /gyms/[slug]), open to guests: photos, open now, rating,
  * address and map, facilities, the week's hours (Saturday first, women-only windows), the holidays and
- * special hours coming up (M20-FR-19), the passes.
+ * special hours coming up (M20-FR-19), the passes. With the gym's WhatsApp number (M24-FR-158): a chat
+ * button under the name, and "Ask on WhatsApp" on each package and class, with the message written.
  * Buy a pass and Join this gym ask for a sign-in only when tapped and carry on afterwards; both need
  * a verified phone (PHONE_REQUIRED shows the verify path), never NID.
  */
@@ -71,7 +73,7 @@ function GymBody({ g, refreshing, onRefresh }: { g: GymPage; refreshing: boolean
         <Reveal index={3} style={styles.section}>
           <Join g={g} />
           <VisitCta slug={g.slug} />
-          <Timetable slug={g.slug} />
+          <Timetable slug={g.slug} gymName={g.name} whatsapp={g.whatsapp} />
         </Reveal>
         <Reveal index={4} style={styles.section}>
           <Hours g={g} />
@@ -120,6 +122,7 @@ function About({ g }: { g: GymPage }) {
         {g.addressLine}
         {g.area ? `, ${name(g.area)}` : ''}
       </ThemedText>
+      <WhatsAppButton testID="gym-whatsapp" number={g.whatsapp} text={gymMessage(g.name, lang)} label={t('gymWhatsapp.chat')} hint={t('gymWhatsapp.chatHint', { gym: g.name })} />
       {g.lat !== null && g.lng !== null ? (
         <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${g.lat},${g.lng}`)} style={styles.link}>
           <Icon name="pin" size={18} color={theme.brandText} />
@@ -235,21 +238,27 @@ function BuyPass({ g, p }: { g: GymPage; p: Purchase }) {
       <View style={{ gap: 8 }} accessibilityRole="radiogroup" accessibilityLabel={t('gymPage.pickPackage')}>
         {g.packages.map((p) => {
           const on = p.id === pkg.id;
+          const title = p.title || t(`gymPage.kind.${p.kind}`);
           return (
-            <Pressable
-              key={p.id}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: on }}
-              onPress={() => choose(() => setPackageId(p.id))}
-              style={[styles.option, { borderColor: on ? theme.brand : theme.line, backgroundColor: on ? theme.backgroundSelected : theme.backgroundElement }]}>
-              <View style={{ flex: 1 }}>
-                <ThemedText type="smallBold">{t(`gymPage.kind.${p.kind}`)}</ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {t('gymPage.forDays', { n: count(p.days, lang) })}
-                </ThemedText>
-              </View>
-              <ThemedText style={styles.price}>{money(p.price, lang)}</ThemedText>
-            </Pressable>
+            <View key={p.id} style={[styles.optionRow, { borderColor: on ? theme.brand : theme.line, backgroundColor: on ? theme.backgroundSelected : theme.backgroundElement }]}>
+              <Pressable accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => choose(() => setPackageId(p.id))} style={styles.option}>
+                <View style={{ flex: 1 }}>
+                  <ThemedText type="smallBold">{t(`gymPage.kind.${p.kind}`)}</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {t('gymPage.forDays', { n: count(p.days, lang) })}
+                  </ThemedText>
+                </View>
+                <ThemedText style={styles.price}>{money(p.price, lang)}</ThemedText>
+              </Pressable>
+              <WhatsAppButton
+                compact
+                testID="package-whatsapp"
+                number={g.whatsapp}
+                text={packageMessage({ gym: g.name, title, price: p.price, days: p.days }, lang)}
+                label={t('gymWhatsapp.askPackage', { gym: g.name, title })}
+                hint={t('gymWhatsapp.chatHint', { gym: g.name })}
+              />
+            </View>
           );
         })}
       </View>
@@ -473,7 +482,8 @@ const styles = StyleSheet.create({
   h2: { ...displayFace, fontSize: 20, lineHeight: 28 },
   link: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   tag: { borderWidth: 1, borderRadius: Radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
-  option: { minHeight: 56, borderWidth: 1.5, borderRadius: Radius.control, paddingHorizontal: 14, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  optionRow: { borderWidth: 1.5, borderRadius: Radius.control, flexDirection: 'row', alignItems: 'center', gap: 4, paddingRight: 8 },
+  option: { flex: 1, minHeight: 56, paddingLeft: 14, paddingRight: 6, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 12 },
   chip: { minHeight: 48, paddingHorizontal: 16, borderRadius: Radius.pill, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   price: { ...displayFace, fontSize: 18, lineHeight: 26 },
   total: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', borderTopWidth: 1, paddingTop: 12 },

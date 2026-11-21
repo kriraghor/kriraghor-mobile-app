@@ -290,12 +290,13 @@ export function buttonColors(variant: ButtonVariant, theme: ReturnType<typeof us
  * a moment that matters (join, renew); `secondary`, `outline` and `quiet` step back in that order;
  * `danger` removes or cancels. An optional icon sits before the title.
  */
-export function Button({ title, onPress, busy, disabled, variant = 'primary', icon }: { title: string; onPress: () => void; busy?: boolean; disabled?: boolean; variant?: ButtonVariant; icon?: IconName }) {
+export function Button({ title, onPress, busy, disabled, variant = 'primary', icon, testID }: { title: string; onPress: () => void; busy?: boolean; disabled?: boolean; variant?: ButtonVariant; icon?: IconName; testID?: string }) {
   const theme = useTheme();
   const { i18n } = useTranslation();
   const tone = buttonColors(variant, theme);
   return (
     <AnimatedPressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityState={{ busy: !!busy, disabled: !!busy || !!disabled }}
       disabled={busy || disabled}
