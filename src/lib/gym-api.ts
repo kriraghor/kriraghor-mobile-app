@@ -77,7 +77,8 @@ export const mySubscriptions = () => call<S['TrainerSubscriptionList']>('GET', '
 // ---------------------------------------------------------------- the public gym directory (M20 §4, M24 §4.1): no sign-in needed
 export type GymList = S['GymList'];
 export type GymCard = S['GymCard'];
-export type GymPage = S['GymPage'];
+/** `whatsapp` (M24-FR-158): the gym's chat number in E.164, or null; optional until the API types are synced. */
+export type GymPage = S['GymPage'] & { whatsapp?: string | null };
 export type GymPackage = GymPage['packages'][number];
 export type Area = { id: string; nameEn: string; nameBn: string };
 
@@ -158,3 +159,27 @@ export const cancelRenewal = (memberId: string) => call<MyRenewal>('POST', `/me/
 export const myBody = (memberId: string) => call<BodyProgress>('GET', `/me/gym-memberships/${enc(memberId)}/body`);
 export const addBody = (memberId: string, body: Record<string, number | string>, key: string) => call<BodyProgress>('POST', `/me/gym-memberships/${enc(memberId)}/body`, { body, key });
 export const voidBody = (memberId: string, entryId: string) => call<BodyProgress>('POST', `/me/gym-memberships/${enc(memberId)}/body/${enc(entryId)}/void`);
+
+// ---------------------------------------------------------------- WhatsApp from my gym (M24-FR-159): step 1, the member side
+// Sending from the gym through the WhatsApp API is a later step and switched off; this is my number and what I agree to.
+export type MyGymWhatsapp = {
+  /** Receipts and reminders (WhatsApp utility messages). */
+  service: boolean;
+  /** News and offers (WhatsApp marketing messages). */
+  news: boolean;
+  source: 'member' | 'desk' | 'stop_reply' | null;
+  at: string | null;
+  numberLast4: string | null;
+  consentVersion: number | null;
+  currentVersion: number;
+  /** My own WhatsApp number (E.164), or null to use my phone in the gym's record. */
+  number: string | null;
+  /** My phone in the gym's record (E.164), the default number. */
+  phone: string | null;
+  gymName: string;
+};
+
+export const myGymWhatsapp = (memberId: string) => call<MyGymWhatsapp>('GET', `/me/gym-whatsapp/${enc(memberId)}`);
+/** 422 VALIDATION_FAILED (errors[0].field 'number') for a bad number, 423 GYM_SUSPENDED, 404 when not my membership. */
+export const saveGymWhatsapp = (memberId: string, body: { number: string | null; service: boolean; news: boolean }) =>
+  call<MyGymWhatsapp>('PUT', `/me/gym-whatsapp/${enc(memberId)}`, { body });

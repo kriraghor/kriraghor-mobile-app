@@ -74,6 +74,8 @@ const MAP = {
   lightning: ['Lightning', true],
   users3: ['UsersThree', false],
   sparkle: ['Sparkle', false],
+  // Gym chat buttons (WhatsApp step 1, 21 Nov 2026).
+  whatsapp: ['WhatsappLogo', false],
 };
 
 /** Every path of one weight of an icon, joined into one drawing. */
