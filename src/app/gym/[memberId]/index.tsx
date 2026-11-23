@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { InfoRow, Pill, SectionTitle } from '@/components/esports';
 import { Card, confirmAction, ErrorNotice, GymGate, openWeb, RowLink } from '@/components/gym';
-import { BodyCard, PointsCard, WhatsAppCard } from '@/components/gym-extras';
+import { BodyCard, PointsCard, TrainerCard, WhatsAppCard } from '@/components/gym-extras';
 import { ProgressCard, RenewCard } from '@/components/gym-progress';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Field, Notice } from '@/components/ui';
@@ -24,7 +24,7 @@ import { displayFace } from '@/constants/fonts';
  * receipts (a receipt opens its gym.kriraghor.com/r/[token] page); the check-in calendar; my plans; my
  * health note (shown to the gym's plan writers); my points and my body (M27-FR-61, FR-30); my classes;
  * Renew (M24 §19) and my body progress (M24 §20); my WhatsApp number and consents (M24-FR-159);
- * Unlink with a confirm. Unlinked or left: read-only.
+ * my trainer with a photo (23 Nov 2026); Unlink with a confirm. Unlinked or left: read-only.
  */
 export default function GymMembershipScreen() {
   const { memberId } = useLocalSearchParams<{ memberId: string }>();
@@ -104,6 +104,7 @@ export default function GymMembershipScreen() {
         </View>
       ) : null}
 
+      {!readOnly && d.trainer ? <TrainerCard trainer={d.trainer} /> : null}
       {!readOnly ? <RenewCard memberId={memberId} dues={openDues} onPay={(dueId) => void payDue.pay(dueId, memberId)} payBusy={payDue.busy} /> : null}
       {!readOnly ? <ProgressCard memberId={memberId} /> : null}
       {!readOnly ? <PointsCard memberId={memberId} /> : null}
