@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,13 +8,14 @@ import { InfoRow, SectionTitle } from '@/components/esports';
 import { Icon } from '@/components/icons/Icon';
 import { Card, ErrorNotice } from '@/components/gym';
 import { ThemedText } from '@/components/themed-text';
-import { Button, Field, Notice } from '@/components/ui';
+import { Avatar, Button, Field, Notice } from '@/components/ui';
 import { Radius } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
 import { ApiError } from '@/lib/esports-api';
 import { count, type Lang } from '@/lib/format';
 import { byDay, dateOnly, timeOnly } from '@/lib/gym';
-import { gymTimetable, myGymWhatsapp, myPoints, saveGymWhatsapp, saveHealth, visitSlots, type BloodGroup, type Health, type MyGymWhatsapp } from '@/lib/gym-api';
+import { gymTimetable, myGymWhatsapp, myPoints, saveGymWhatsapp, saveHealth, visitSlots, type BloodGroup, type Health, type MembershipTrainer, type MyGymWhatsapp } from '@/lib/gym-api';
+import { initials } from '@/lib/ui-logic';
 import { keys } from '@/lib/use-realtime';
 import { classMessage, localMobile, needsReconsent, numberToSave, waUrl } from '@/lib/whatsapp';
 import { displayFace } from '@/constants/fonts';
@@ -55,7 +57,36 @@ export function PointsCard({ memberId }: { memberId: string }) {
   );
 }
 
-const BLOOD: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+/** "Your trainer" (23 Nov 2026): the gym staff trainer assigned to me, with a photo or, without one, the initials. */
+export function TrainerCard({ trainer }: { trainer: MembershipTrainer }) {
+  const { t } = useTranslation();
+  return (
+    <Card>
+      <ThemedText type="smallBold">{t('gymMember.trainerTitle')}</ThemedText>
+      <View style={styles.trainerRow} testID="gym-member-trainer">
+        {trainer.avatarUrl ? (
+          <Image
+            source={{ uri: trainer.avatarUrl }}
+            style={styles.trainerPhoto}
+            contentFit="cover"
+            transition={200}
+            accessibilityLabel={t('gymMember.trainerPhoto', { name: trainer.displayName })}
+          />
+        ) : (
+          <Avatar letters={initials(trainer.displayName)} size={48} />
+        )}
+        <View style={{ flex: 1, gap: 2 }}>
+          <ThemedText type="smallBold">{trainer.displayName}</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {t('gymMember.trainerHint')}
+          </ThemedText>
+        </View>
+      </View>
+    </Card>
+  );
+}
+
+const BLOOD: BloodGroup[] =['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const numberOrNull = (s: string) => (s.trim() === '' ? null : Number(s.replace(',', '.')));
 
 /**
@@ -364,6 +395,8 @@ const styles = StyleSheet.create({
   waCompact: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderRadius: Radius.pill },
   classRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44 },
   waHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  trainerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  trainerPhoto: { width: 48, height: 48, borderRadius: 24 },
   switchRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 },
   bmi: { ...displayFace, fontSize: 20, lineHeight: 28 },
   two: { flexDirection: 'row', gap: 12 },

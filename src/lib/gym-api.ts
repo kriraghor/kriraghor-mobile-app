@@ -12,7 +12,10 @@ type S = components['schemas'];
 
 export type MyMemberships = S['MyGymMemberships'];
 export type MembershipCard = MyMemberships['items'][number];
-export type MyMembership = S['MyGymMembership'];
+/** The gym staff trainer assigned to me at this gym (23 Nov 2026); no photo gives null. */
+export type MembershipTrainer = { displayName: string; avatarUrl: string | null };
+/** `trainer`: my assigned trainer, or null; optional so older backends (and unsynced API types) still work. */
+export type MyMembership = S['MyGymMembership'] & { trainer?: MembershipTrainer | null };
 export type Membership = NonNullable<MyMembership['memberships'][number]>;
 export type MemberDue = NonNullable<MyMembership['dues'][number]>;
 export type FeePayment = NonNullable<MemberDue['payments']>[number];
