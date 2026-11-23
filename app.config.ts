@@ -30,7 +30,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: `com.kriraghor.app${suffix}`,
     adaptiveIcon: {
-      backgroundColor: '#F3F5F3',
+      // The logo's own black (23 Nov 2026 artwork), behind the mark in the safe circle.
+      backgroundColor: '#000000',
       foregroundImage: './assets/images/android-icon-foreground.png',
       backgroundImage: './assets/images/android-icon-background.png',
       monochromeImage: './assets/images/android-icon-monochrome.png',

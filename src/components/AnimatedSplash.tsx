@@ -8,9 +8,10 @@ import { withTypeface } from '@/constants/fonts';
 /** The same size as the native splash image (app.config.ts imageWidth), so the hand-over is seamless. */
 export const SPLASH_MARK = 96;
 
-// The logo's pieces. The bottle and the lower arm are black on light and white on dark.
+// The logo's pieces (the "K" of 23 Nov 2026): the stem, the orange strokes and the lower arm. The stem and
+// the lower arm are black on light and white on dark.
 const PIECES = [
-  { key: 'bottle', source: { light: require('../../assets/brand/logo-bottle.png'), dark: require('../../assets/brand/logo-bottle-dark.png') }, out: { x: -0.08, y: -0.34, r: -8 } },
+  { key: 'stem', source: { light: require('../../assets/brand/logo-stem.png'), dark: require('../../assets/brand/logo-stem-dark.png') }, out: { x: -0.08, y: -0.34, r: -8 } },
   { key: 'upper', source: { light: require('../../assets/brand/logo-upper.png'), dark: require('../../assets/brand/logo-upper.png') }, out: { x: 0.34, y: -0.3, r: -18 } },
   { key: 'lower', source: { light: require('../../assets/brand/logo-lower.png'), dark: require('../../assets/brand/logo-lower-dark.png') }, out: { x: 0.34, y: 0.3, r: 18 } },
 ] as const;
